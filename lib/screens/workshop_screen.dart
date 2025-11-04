@@ -24,15 +24,40 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
     _loadVehicles();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh data setiap kali screen ini muncul kembali
+    print('Workshop: didChangeDependencies called');
+    _loadVehicles();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<void> _loadVehicles() async {
     try {
+      print('Workshop: Loading vehicles...');
       final vehicles = await _databaseHelper.getVehicles();
+      print('Workshop: Found ${vehicles.length} vehicles');
+
+      // Debug: print all vehicles
+      for (var i = 0; i < vehicles.length; i++) {
+        print(
+          'Vehicle $i: ${vehicles[i].customerName} - ${vehicles[i].licensePlate} - Status: ${vehicles[i].status} - Created: ${vehicles[i].createdAt}',
+        );
+      }
+
       setState(() {
         _vehicles = vehicles;
         _filterVehicles();
         _isLoading = false;
       });
+      print('Workshop: Filtered vehicles: ${_filteredVehicles.length}');
     } catch (e) {
+      print('Workshop: Error loading vehicles: $e');
       setState(() {
         _isLoading = false;
       });
@@ -402,10 +427,12 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
   }
 
   void _showAddVehicleDialog() {
+    print('Workshop: Opening AddVehicleScreen...');
     Navigator.push(
       context,
       CupertinoPageRoute(builder: (context) => const AddVehicleScreen()),
     ).then((_) {
+      print('Workshop: Returned from AddVehicleScreen, refreshing...');
       // Refresh kendaraan setelah kembali dari AddVehicleScreen
       _loadVehicles();
     });

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/transaction.dart';
 import '../models/cart_item.dart';
+import 'dashboard_screen.dart';
 
 class ReceiptScreen extends StatefulWidget {
   final Transaction transaction;
@@ -377,7 +378,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ),
           const SizedBox(width: 12),
@@ -395,8 +396,8 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                 ),
               ),
               onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
+                // Kembali ke screen sebelumnya dengan aman dan kirim sinyal selesai
+                Navigator.of(context).pop('completed');
               },
             ),
           ),

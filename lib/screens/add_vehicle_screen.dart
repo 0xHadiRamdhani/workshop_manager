@@ -458,20 +458,39 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
       });
 
       try {
+        // Validasi dan konversi estimasi biaya
+        final estimatedCostText = _estimatedCostController.text.trim();
+        double? estimatedCost;
+
+        if (estimatedCostText.isNotEmpty) {
+          estimatedCost = double.tryParse(estimatedCostText);
+          if (estimatedCost == null) {
+            throw FormatException(
+              'Estimasi biaya harus berupa angka yang valid',
+            );
+          }
+        }
+
         final vehicle = Vehicle(
           id: 'V${DateTime.now().millisecondsSinceEpoch}',
-          customerName: _customerNameController.text,
-          vehicleType: _vehicleTypeController.text,
-          licensePlate: _licensePlateController.text,
-          phoneNumber: _phoneNumberController.text,
-          problemDescription: _problemDescriptionController.text,
+          customerName: _customerNameController.text.trim(),
+          vehicleType: _vehicleTypeController.text.trim(),
+          licensePlate: _licensePlateController.text.trim(),
+          phoneNumber: _phoneNumberController.text.trim(),
+          problemDescription: _problemDescriptionController.text.trim(),
           status: VehicleStatus.waiting,
           createdAt: DateTime.now(),
           estimatedCompletion: _estimatedCompletion,
-          estimatedCost: double.parse(_estimatedCostController.text),
+          estimatedCost: estimatedCost,
         );
 
+        print('AddVehicle: Saving vehicle...');
+        print('AddVehicle: Customer: ${vehicle.customerName}');
+        print('AddVehicle: License: ${vehicle.licensePlate}');
+        print('AddVehicle: Created: ${vehicle.createdAt}');
+
         await _databaseHelper.insertVehicle(vehicle);
+        print('AddVehicle: Vehicle saved successfully!');
 
         Navigator.pop(context);
 
@@ -484,7 +503,10 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
               CupertinoDialogAction(
                 isDefaultAction: true,
                 child: const Text('OK'),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.pop(context); // Tutup dialog sukses
+                  Navigator.pop(context); // Kembali ke WorkshopScreen
+                },
               ),
             ],
           ),

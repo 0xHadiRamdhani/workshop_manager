@@ -8,6 +8,17 @@ import '../database/database_helper.dart';
 import 'cash_input_screen.dart';
 import 'receipt_screen.dart';
 import 'add_product_screen.dart';
+import 'transaction_history_screen.dart';
+
+// Enum untuk state navigasi yang lebih jelas
+enum NavigationState {
+  idle,
+  navigatingToAddProduct,
+  navigatingToTransactionHistory,
+  navigatingToCashInput,
+  navigatingToReceipt,
+  processingPayment,
+}
 
 class CashierScreen extends StatefulWidget {
   const CashierScreen({super.key});
@@ -24,6 +35,7 @@ class _CashierScreenState extends State<CashierScreen> {
   PaymentMethod _selectedPaymentMethod = PaymentMethod.cash;
   final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
   bool _isLoading = true;
+  NavigationState _navigationState = NavigationState.idle;
 
   @override
   void initState() {
@@ -70,20 +82,17 @@ class _CashierScreenState extends State<CashierScreen> {
           children: [
             CupertinoButton(
               padding: EdgeInsets.zero,
-              child: const Icon(
-                CupertinoIcons.cart,
-                color: CupertinoColors.systemBlue,
-              ),
-              onPressed: _showCartDialog,
+              child: Icon(CupertinoIcons.add, color: _getAddProductIconColor()),
+              onPressed: _getAddProductOnPressed(),
             ),
             const SizedBox(width: 8),
             CupertinoButton(
               padding: EdgeInsets.zero,
-              child: const Icon(
-                CupertinoIcons.add,
-                color: CupertinoColors.systemBlue,
+              child: Icon(
+                CupertinoIcons.clock,
+                color: _getTransactionHistoryIconColor(),
               ),
-              onPressed: _showAddProductDialog,
+              onPressed: _getTransactionHistoryOnPressed(),
             ),
           ],
         ),
@@ -558,6 +567,31 @@ class _CashierScreenState extends State<CashierScreen> {
     }
   }
 
+  // Helper methods untuk state navigasi
+  Color _getAddProductIconColor() {
+    return _navigationState == NavigationState.navigatingToAddProduct
+        ? CupertinoColors.systemGrey
+        : CupertinoColors.systemBlue;
+  }
+
+  VoidCallback? _getAddProductOnPressed() {
+    return _navigationState == NavigationState.navigatingToAddProduct
+        ? null
+        : _showAddProductDialog;
+  }
+
+  Color _getTransactionHistoryIconColor() {
+    return _navigationState == NavigationState.navigatingToTransactionHistory
+        ? CupertinoColors.systemGrey
+        : CupertinoColors.systemBlue;
+  }
+
+  VoidCallback? _getTransactionHistoryOnPressed() {
+    return _navigationState == NavigationState.navigatingToTransactionHistory
+        ? null
+        : _showTransactionHistory;
+  }
+
   void _addToCart(Product product) {
     if (product.stock <= 0) {
       showCupertinoDialog(
@@ -958,12 +992,34 @@ class _CashierScreenState extends State<CashierScreen> {
   }
 
   void _showAddProductDialog() {
+    setState(() {
+      _navigationState = NavigationState.navigatingToAddProduct;
+    });
+
     Navigator.push(
       context,
       CupertinoPageRoute(builder: (context) => const AddProductScreen()),
     ).then((_) {
+      setState(() {
+        _navigationState = NavigationState.idle;
+      });
       // Refresh produk setelah kembali dari AddProductScreen
       _loadProducts();
+    });
+  }
+
+  void _showTransactionHistory() {
+    setState(() {
+      _navigationState = NavigationState.navigatingToTransactionHistory;
+    });
+
+    Navigator.push(
+      context,
+      CupertinoPageRoute(builder: (context) => TransactionHistoryScreen()),
+    ).then((_) {
+      setState(() {
+        _navigationState = NavigationState.idle;
+      });
     });
   }
 
@@ -1015,6 +1071,10 @@ class _CashierScreenState extends State<CashierScreen> {
   }
 
   void _showCashInputScreen(double totalPrice) {
+    setState(() {
+      _navigationState = NavigationState.navigatingToCashInput;
+    });
+
     Navigator.push(
       context,
       CupertinoPageRoute(
@@ -1025,6 +1085,10 @@ class _CashierScreenState extends State<CashierScreen> {
         ),
       ),
     ).then((result) {
+      setState(() {
+        _navigationState = NavigationState.idle;
+      });
+
       if (result != null && result is Map<String, dynamic>) {
         final cashAmount = result['cashAmount'] as double;
         final change = result['change'] as double;
@@ -1034,6 +1098,10 @@ class _CashierScreenState extends State<CashierScreen> {
   }
 
   Future<void> _completePayment({double? cashAmount, double? change}) async {
+    setState(() {
+      _navigationState = NavigationState.processingPayment;
+    });
+
     final totalPrice = _cartItems.fold(
       0.0,
       (sum, item) => sum + item.totalPrice,
@@ -1081,7 +1149,11 @@ class _CashierScreenState extends State<CashierScreen> {
     // Simpan transaksi ke database
     await _databaseHelper.insertTransaction(transaction);
 
-    // Tampilkan receipt screen
+    setState(() {
+      _navigationState = NavigationState.navigatingToReceipt;
+    });
+
+    // Tampilkan receipt screen dan kembali ke cashier setelah selesai
     Navigator.push(
       context,
       CupertinoPageRoute(
@@ -1091,6 +1163,14 @@ class _CashierScreenState extends State<CashierScreen> {
           change: change,
         ),
       ),
-    );
+    ).then((result) {
+      setState(() {
+        _navigationState = NavigationState.idle;
+      });
+      // Jika user menekan selesai, kembali ke dashboard
+      if (result == 'completed') {
+        Navigator.of(context).pop();
+      }
+    });
   }
 }

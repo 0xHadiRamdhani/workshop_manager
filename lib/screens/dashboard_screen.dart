@@ -23,17 +23,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh data setiap kali screen ini muncul kembali
+    print('Dashboard: didChangeDependencies called');
+    _loadData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  // Method untuk refresh data yang bisa dipanggil dari luar
+  Future<void> refreshData() async {
+    await _loadData();
+  }
+
   Future<void> _loadData() async {
     try {
+      print('Dashboard: Loading data...');
       final vehicles = await _databaseHelper.getVehicles();
       final transactions = await _databaseHelper.getTransactions();
 
+      print('Dashboard: Found ${vehicles.length} vehicles');
+      print('Dashboard: Found ${transactions.length} transactions');
+
+      // Debug: print vehicle details
+      for (var i = 0; i < vehicles.length; i++) {
+        print(
+          'Vehicle $i: ${vehicles[i].customerName} - ${vehicles[i].licensePlate} - Created: ${vehicles[i].createdAt}',
+        );
+      }
+
+      // Urutkan kendaraan berdasarkan tanggal terbaru
+      final sortedVehicles = vehicles.toList();
+      sortedVehicles.sort((a, b) {
+        final comparison = b.createdAt.compareTo(a.createdAt);
+        print(
+          'Sorting: ${a.customerName} (${a.createdAt}) vs ${b.customerName} (${b.createdAt}) = $comparison',
+        );
+        return comparison;
+      });
+
+      // Urutkan transaksi berdasarkan tanggal terbaru
+      final sortedTransactions = transactions.toList();
+      sortedTransactions.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
       setState(() {
-        _vehicles = vehicles;
-        _transactions = transactions;
+        _vehicles = sortedVehicles;
+        _transactions = sortedTransactions;
         _isLoading = false;
       });
+
+      print(
+        'Dashboard: Data loaded and sorted. Showing ${_vehicles.length} vehicles',
+      );
     } catch (e) {
+      print('Dashboard: Error loading data: $e');
       setState(() {
         _isLoading = false;
       });

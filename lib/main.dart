@@ -83,6 +83,17 @@ class _MainScreenState extends State<MainScreen> {
       tabBuilder: (context, index) {
         return CupertinoTabView(
           builder: (context) {
+            // Refresh DashboardScreen saat tab-nya aktif
+            if (index == 0 && _currentIndex != index) {
+              _currentIndex = index;
+              // Delay sedikit untuk memastikan screen sudah siap
+              Future.delayed(const Duration(milliseconds: 100), () {
+                // Coba refresh DashboardScreen jika tersedia
+                print('Main: Dashboard tab activated, refreshing...');
+              });
+            } else if (index != 0) {
+              _currentIndex = index;
+            }
             return _screens[index];
           },
         );

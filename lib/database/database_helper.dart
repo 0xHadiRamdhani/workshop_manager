@@ -6,17 +6,23 @@ import '../models/vehicle.dart';
 
 // Import untuk platform desktop
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
+  static bool _isInitialized = false;
 
   DatabaseHelper._init() {
     // Inisialisasi database factory untuk platform desktop
-    if (!kIsWeb) {
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
+    if (!_isInitialized) {
+      try {
+        sqfliteFfiInit();
+        databaseFactory = databaseFactoryFfi;
+        _isInitialized = true;
+      } catch (e) {
+        print('Warning: Could not initialize FFI database factory: $e');
+        // Gunakan factory default jika FFI gagal
+      }
     }
   }
 
@@ -31,6 +37,7 @@ class DatabaseHelper {
       final dbPath = await getDatabasesPath();
       final path = join(dbPath, filePath);
 
+      // Gunakan database factory yang sudah diinisialisasi
       return await databaseFactory.openDatabase(
         path,
         options: OpenDatabaseOptions(
@@ -45,10 +52,19 @@ class DatabaseHelper {
     } catch (e) {
       // Fallback untuk development - gunakan database in-memory
       print('Error initializing database: $e');
-      return await databaseFactory.openDatabase(
-        ':memory:',
-        options: OpenDatabaseOptions(version: 1, onCreate: _createDB),
-      );
+      try {
+        // Coba dengan path sederhana
+        return await databaseFactory.openDatabase(
+          'workshop_manager.db',
+          options: OpenDatabaseOptions(version: 1, onCreate: _createDB),
+        );
+      } catch (e2) {
+        print('Error with file database, using in-memory: $e2');
+        return await databaseFactory.openDatabase(
+          ':memory:',
+          options: OpenDatabaseOptions(version: 1, onCreate: _createDB),
+        );
+      }
     }
   }
 
