@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '17'
@@ -36,50 +36,19 @@ jobs:
     - name: Build APK
       run: flutter build apk --release
     
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
       with:
         name: android-apk
         path: build/app/outputs/flutter-apk/app-release.apk
-    
-    - name: Create Release
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ github.run_number }}
-        release_name: Release v${{ github.run_number }}
-        body: |
-          Automated release from GitHub Actions
-          
-          ## Changes
-          - Build APK for Android
-          - Build IPA for iOS
-          
-          ## Download
-          - APK: Available in artifacts
-          - IPA: Available in artifacts
-        draft: false
-        prerelease: false
-    
-    - name: Upload APK to Release
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: build/app/outputs/flutter-apk/app-release.apk
-        asset_name: workshop-manager-android.apk
-        asset_content_type: application/vnd.android.package-archive
+        retention-days: 30
 
   build-ios:
     name: Build iOS IPA
     runs-on: macos-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
@@ -105,29 +74,19 @@ jobs:
         cd ..
         zip -r app.ipa Payload
     
-    - name: Upload IPA
-      uses: actions/upload-artifact@v3
+    - name: Upload IPA Artifact
+      uses: actions/upload-artifact@v4
       with:
         name: ios-ipa
         path: build/ios/iphoneos/app.ipa
-    
-    - name: Upload IPA to Release
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.build-android.outputs.upload_url }}
-        asset_path: build/ios/iphoneos/app.ipa
-        asset_name: workshop-manager-ios.ipa
-        asset_content_type: application/octet-stream
+        retention-days: 30
 
   build-web:
     name: Build Web
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
@@ -141,16 +100,88 @@ jobs:
     - name: Build Web
       run: flutter build web --release
     
-    - name: Upload Web Build
-      uses: actions/upload-artifact@v3
+    - name: Upload Web Build Artifact
+      uses: actions/upload-artifact@v4
       with:
         name: web-build
         path: build/web
+        retention-days: 30
     
     - name: Deploy to GitHub Pages
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: build/web
         force_orphan: true
+
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-android, build-ios, build-web]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download APK Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: android-apk
+        path: ./artifacts
+    
+    - name: Download IPA Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ios-ipa
+        path: ./artifacts
+    
+    - name: Download Web Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: web-build
+        path: ./artifacts
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ github.run_number }}
+        name: Release v${{ github.run_number }}
+        body: |
+          🎉 **Workshop Manager v${{ github.run_number }}**
+          
+          ## 📱 Aplikasi Manajemen Workshop dengan Sistem Pembayaran Lengkap
+          
+          ### ✨ Fitur Utama
+          - 🏪 **Manajemen Workshop**: Pendaftaran kendaraan, status servis, estimasi biaya
+          - 💰 **Sistem Pembayaran**: Tunai, QRIS, Transfer Bank
+          - 🛒 **Manajemen Kasir**: Keranjang belanja, katalog produk, update stok
+          - 📊 **Dashboard**: Statistik harian, grafik penjualan
+          - 📱 **UI Modern**: Desain Cupertino dengan dark theme
+          
+          ### 🔧 Teknologi
+          - Flutter 3.24.0
+          - SQLite Database
+          - GitHub Actions CI/CD
+          
+          ### 📥 Download
+          - **Android APK**: `workshop-manager-android.apk`
+          - **iOS IPA**: `workshop-manager-ios.ipa`
+          - **Web**: Tersedia di GitHub Pages
+          
+          ### 🚀 Cara Install
+          1. **Android**: Download APK dan install (enable "Install from unknown sources")
+          2. **iOS**: Download IPA dan install via Xcode atau TestFlight
+          3. **Web**: Akses langsung dari GitHub Pages
+          
+          ### 📖 Dokumentasi
+          Lihat [README.md](README.md) untuk informasi lengkap tentang fitur dan instalasi.
+          
+          ---
+          🔄 **Build Otomatis** via GitHub Actions
+        files: |
+          artifacts/app-release.apk
+          artifacts/app.ipa
+        draft: false
+        prerelease: false
+        generate_release_notes: true
