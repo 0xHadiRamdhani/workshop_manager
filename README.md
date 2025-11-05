@@ -1,242 +1,170 @@
-# Workshop Manager & Kasir
+# Workshop Manager
 
-Aplikasi manajemen workshop dan kasir untuk bengkel dengan desain bergaya iOS minimalis dan bercahaya. Dikembangkan menggunakan Flutter untuk platform iOS, Android, dan Desktop.
-
-## 📸 Screenshot
-
-<table>
-  <tr>
-    <td align="center">
-      <img src="screenshots/dashboard.png" width="200" alt="Dashboard"/>
-      <br><b>Dashboard</b>
-      <br>Statistik harian & data real-time
-    </td>
-    <td align="center">
-      <img src="screenshots/workshop.png" width="200" alt="Workshop"/>
-      <br><b>Manajemen Workshop</b>
-      <br>Daftar kendaraan dengan status
-    </td>
-    <td align="center">
-      <img src="screenshots/cashier.png" width="200" alt="Cashier"/>
-      <br><b>Kasir & Transaksi</b>
-      <br>Sistem kasir dengan status pembayaran
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="screenshots/input_cash.png" width="200" alt="Input Cash"/>
-      <br><b>Input Pembayaran</b>
-      <br>Form tunai dengan perhitungan otomatis
-    </td>
-    <td align="center">
-      <img src="screenshots/payment_qris.png" width="200" alt="QRIS"/>
-      <br><b>Pembayaran QRIS</b>
-      <br>Halaman QRIS dengan kode QR
-    </td>
-    <td align="center">
-      <img src="screenshots/cart.png" width="200" alt="Cart"/>
-      <br><b>Keranjang Belanja</b>
-      <br>Produk & layanan yang dipilih
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="screenshots/add_product.png" width="200" alt="Add Product"/>
-      <br><b>Tambah Produk</b>
-      <br>Form tambah produk baru
-    </td>
-    <td align="center">
-      <img src="screenshots/history.png" width="200" alt="History"/>
-      <br><b>Riwayat Transaksi</b>
-      <br>Daftar lengkap dengan detail
-    </td>
-    <td align="center">
-      <img src="screenshots/about_app.png" width="200" alt="About"/>
-      <br><b>About App</b>
-      <br>Info aplikasi & credits
-    </td>
-  </tr>
-</table>
+Aplikasi manajemen workshop yang komprehensif untuk mengelola servis kendaraan, pembayaran, dan inventori produk.
 
 ## Fitur Utama
 
-### 🏠 Dashboard
-- **Data Real-time**: Menampilkan data langsung dari database
-- **Kendaraan Aktif**: Jumlah kendaraan yang belum diserahkan
-- **Pendapatan Harian**: Total pendapatan hari ini dari transaksi yang sudah dibayar
-- **Transaksi Harian**: Jumlah transaksi yang dibuat hari ini
-- **Selesai Hari Ini**: Jumlah kendaraan yang selesai hari ini
-- **Tombol Refresh**: Update data terbaru dengan sekali klik
-- **Tentang Aplikasi**: Informasi lengkap tentang aplikasi dan pembuat
+### 🏪 Manajemen Workshop
+- **Pendaftaran Kendaraan**: Tambahkan kendaraan baru dengan detail pelanggan
+- **Status Servis**: Pantau status servis (Menunggu, Proses, Selesai, Diserahkan)
+- **Estimasi Biaya**: Hitung estimasi biaya servis
+- **Pembayaran Workshop**: Proses pembayaran saat kendaraan selesai diservis
 
-### 🔧 Workshop Management
-- Daftar kendaraan dengan filter berdasarkan status (Menunggu, Proses, Selesai)
-- Detail kendaraan lengkap (pelanggan, kendaraan, keluhan, estimasi)
-- Update status kendaraan secara real-time
-- Tambah kendaraan baru
-- Status kendaraan: Menunggu, Dalam Proses, Selesai, Diserahkan
+### 💰 Sistem Pembayaran
+- **Multi Metode Pembayaran**: Tunai, QRIS, Transfer Bank
+- **Input Uang Cash**: Interface khusus untuk pembayaran tunai dengan perhitungan otomatis
+- **QRIS Payment**: Pembayaran digital melalui QRIS
+- **Bank Transfer**: Informasi rekening untuk transfer bank
+- **Struk Digital**: Bukti pembayaran digital yang dapat dibagikan
 
-### 💰 Kasir & Transaksi
-- Ringkasan transaksi harian dengan total pendapatan
-- Daftar transaksi dengan status pembayaran
-- Proses pembayaran untuk transaksi pending
-- Pilih kendaraan untuk membuat transaksi baru
-- Metode pembayaran: Tunai, Transfer Bank, Kartu, QRIS
-- Status transaksi: Pending, Lunas, Dibatalkan
+### 🛒 Manajemen Kasir
+- **Keranjang Belanja**: Tambahkan produk ke keranjang
+- **Katalog Produk**: Lihat dan cari produk berdasarkan kategori
+- **Update Stok**: Otomatis update stok setelah transaksi
+- **Riwayat Transaksi**: Lihat semua transaksi yang pernah dilakukan
 
-### 📱 Fitur Aplikasi
-- **Cross-platform**: iOS, Android, dan Desktop (Windows, macOS, Linux)
-- **Database Lokal**: SQLite untuk menyimpan data secara lokal
-- **Desain iOS Style**: Menggunakan Cupertino Design
-- **Tombol Refresh**: Update data terbaru di dashboard
-- **About App**: Informasi lengkap tentang aplikasi
-- **Dark/Light Mode**: Tema gelap dan terang
-- **Responsive Design**: Tampilan yang adaptif
+### 📊 Dashboard
+- **Ringkasan Harian**: Statistik transaksi harian
+- **Grafik Penjualan**: Visualisasi data penjualan
+- **Status Workshop**: Ringkasan status kendaraan di workshop
 
-### 🌓 Dark Mode & Light Mode
-- Toggle tema gelap dan terang di setiap halaman
-- Desain yang konsisten di kedua tema
-- Warna yang disesuaikan untuk kenyamanan mata
-
-## Teknologi
-
-- **Framework**: Flutter 3.x
-- **Bahasa**: Dart
-- **UI Style**: iOS Cupertino Design
-- **State Management**: Stateful Widget
-- **Database**: SQLite dengan sqflite
-- **Platform**: iOS, Android, Windows, macOS, Linux
-- **Dependencies**:
-  - sqflite (database)
-  - path_provider (path management)
-  - sqflite_common_ffi (desktop support)
+### 📱 Teknologi
+- **Flutter**: Framework cross-platform
+- **SQLite**: Database lokal untuk penyimpanan data
+- **Cupertino Design**: UI/UX yang konsisten dengan iOS
+- **Dark Theme**: Tampilan modern dengan tema gelap
 
 ## Instalasi
 
 ### Prasyarat
-- Flutter SDK 3.x atau lebih baru
-- Dart SDK
-- Xcode (untuk iOS)
-- Android Studio (untuk Android)
+- Flutter 3.24.0 atau lebih baru
+- Dart 3.0 atau lebih baru
+- Android Studio / Xcode
+- Git
 
 ### Langkah Instalasi
-1. Clone repository ini
-2. Install dependencies:
-   ```bash
-   flutter pub get
-   ```
-3. Jalankan aplikasi:
-   ```bash
-   flutter run
-   ```
-4. Untuk build platform tertentu:
-   ```bash
-   flutter build ios        # iOS
-   flutter build apk        # Android APK
-   flutter build windows    # Windows
-   flutter build macos      # macOS
-   flutter build linux      # Linux
-   ```
+
+1. **Clone Repository**
+```bash
+git clone https://github.com/username/workshop-manager.git
+cd workshop-manager
+```
+
+2. **Install Dependencies**
+```bash
+flutter pub get
+```
+
+3. **Jalankan Aplikasi**
+```bash
+# Untuk Android
+flutter run -d android
+
+# Untuk iOS
+flutter run -d ios
+
+# Untuk Web
+flutter run -d chrome
+```
+
+## Build dan Release
+
+### Build APK (Android)
+```bash
+flutter build apk --release
+```
+
+### Build IPA (iOS)
+```bash
+flutter build ios --release --no-codesign
+```
+
+### Build Web
+```bash
+flutter build web --release
+```
+
+### GitHub Actions
+Proyek ini menggunakan GitHub Actions untuk otomatisasi build dan release. Workflow akan:
+- Build APK untuk Android
+- Build IPA untuk iOS  
+- Build versi web
+- Otomatis membuat release dengan asset yang dapat diunduh
 
 ## Struktur Proyek
 
 ```
 lib/
-├── main.dart                    # Entry point aplikasi
-├── models/
-│   ├── vehicle.dart            # Model data kendaraan
-│   ├── transaction.dart        # Model data transaksi
-│   ├── product.dart            # Model data produk
-│   └── cart_item.dart          # Model item keranjang
-├── screens/
-│   ├── dashboard_screen.dart   # Halaman dashboard dengan statistik
-│   ├── about_screen.dart       # Halaman informasi aplikasi
-│   ├── workshop_screen.dart    # Halaman manajemen workshop
-│   ├── cashier_screen.dart     # Halaman kasir
-│   ├── add_vehicle_screen.dart # Form tambah kendaraan
-│   ├── add_product_screen.dart # Form tambah produk
-│   ├── transaction_history_screen.dart # Riwayat transaksi
-│   ├── cash_input_screen.dart  # Input pembayaran tunai
+├── main.dart                 # Entry point aplikasi
+├── models/                   # Model data
+│   ├── vehicle.dart         # Model kendaraan
+│   ├── product.dart         # Model produk
+│   ├── transaction.dart     # Model transaksi
+│   └── cart_item.dart       # Model item keranjang
+├── screens/                  # Screen/UI
+│   ├── dashboard_screen.dart # Dashboard utama
+│   ├── workshop_screen.dart  # Manajemen workshop
+│   ├── cashier_screen.dart   # Kasir dan transaksi
+│   ├── cash_input_screen.dart # Input pembayaran tunai
 │   ├── qris_payment_screen.dart # Pembayaran QRIS
-│   └── receipt_screen.dart     # Struk pembayaran
-├── database/
-│   └── database_helper.dart    # Helper database SQLite
-└── widgets/                    # Widget reusable (jika ada)
+│   ├── receipt_screen.dart   # Struk pembayaran
+│   └── ...
+├── database/                 # Database helper
+│   └── database_helper.dart  # SQLite operations
+└── ...
 ```
 
-## Fitur Dark Mode
+## Fitur Pembayaran Workshop
 
-Aplikasi mendukung dark mode yang dapat diaktifkan melalui tombol di pojok kanan atas setiap halaman. Tema akan berlaku untuk seluruh aplikasi dan disesuaikan dengan warna yang nyaman untuk mata.
+### Flow Pembayaran
+1. **Status Completed**: Ketika kendaraan statusnya "Selesai", tombol berubah menjadi "Serahkan Motor"
+2. **Dialog Pembayaran**: Muncul dialog pilihan metode pembayaran
+3. **Pilih Metode**: Pilih antara Tunai, QRIS, atau Transfer Bank
+4. **Proses Bayar**: 
+   - **Tunai**: Masukkan jumlah uang, otomatis hitung kembalian
+   - **QRIS**: Scan kode QR untuk pembayaran digital
+   - **Transfer**: Tampilkan informasi rekening bank
+5. **Selesai**: Update status kendaraan menjadi "Diserahkan" dan buat transaksi
 
-## Desain
-
-Aplikasi ini dirancang dengan gaya iOS minimalis yang bercahaya, menggunakan:
-- Warna-warna cerah dan kontras yang baik
-- Shadow dan efek visual yang halus
-- Typography yang clean dan modern
-- Spacing yang konsisten
-- Animasi smooth untuk transisi
-
-## Database & Data
-
-Aplikasi menggunakan SQLite untuk menyimpan data secara lokal dengan struktur:
-- **Tabel Products**: Data produk dan layanan
-- **Tabel Vehicles**: Data kendaraan dan pelanggan
-- **Tabel Transactions**: Data transaksi dan pembayaran
-
-### Fitur Database:
-- Data diambil langsung dari database (real-time)
-- Tidak menggunakan data dummy
-- Update otomatis saat tombol refresh ditekan
-- Support multi-platform (mobile & desktop)
-
-## Update Terbaru
-
-### ✨ Fitur Baru
-- **Dashboard Real-time**: Data diambil langsung dari database
-- **About App Screen**: Informasi lengkap tentang aplikasi
-- **Tombol Refresh**: Update data terbaru dengan sekali klik
-- **Kendaraan Aktif**: Hanya menghitung kendaraan yang belum diserahkan
-- **Statistik Harian**: Pendapatan, transaksi, dan kendaraan selesai hari ini
-
-### 🔧 Perbaikan
-- Filter kendaraan aktif yang lebih akurat
-- Tampilan informasi aplikasi yang lengkap
-- Performa dashboard yang lebih baik
+### Status Pembayaran
+- **Sudah Dibayar**: Hijau dengan icon checkmark
+- **Belum Dibayar**: Merah dengan icon peringatan
+- Tampilkan di detail kendaraan dan card utama
 
 ## Kontribusi
 
-Silakan berkontribusi untuk mengembangkan aplikasi ini lebih lanjut. Fork repository ini dan buat pull request dengan fitur atau perbaikan yang Anda inginkan.
-
-## Credits
-
-**Dibuat oleh**: SMK Bani Ma'sum
-**Programmer**: Hadi Ramdhani
-**UI/UX Designer**: Hadi Ramdhani
-**Tahun**: 2025
+1. Fork repository ini
+2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buat Pull Request
 
 ## Lisensi
 
-```
-MIT License
+Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) untuk detail.
 
-Copyright (c) 2025 SMK Bani Ma'sum
+## Kontak
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+- Email: your.email@example.com
+- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
+- GitHub: [Your GitHub](https://github.com/yourusername)
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+## Changelog
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+### v1.0.0
+- ✨ Sistem pembayaran workshop lengkap
+- 🏪 Manajemen kendaraan dan status servis
+- 💰 Multi metode pembayaran (Tunai, QRIS, Transfer)
+- 📱 UI/UX modern dengan Cupertino design
+- 📊 Dashboard dengan statistik
+- 🔄 GitHub Actions untuk build otomatis
+
+### v0.9.0
+- 🏪 Manajemen workshop dasar
+- 🛒 Sistem kasir untuk produk
+- 📊 Dashboard awal
+- 💾 Database SQLite lokal
+
+---
+
+**⭐ Jika proyek ini bermanfaat, jangan lupa untuk memberikan bintang!**
