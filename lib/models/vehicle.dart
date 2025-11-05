@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'transaction.dart';
 
 enum VehicleStatus { waiting, inProgress, completed, delivered }
 
@@ -13,6 +14,9 @@ class Vehicle {
   final DateTime createdAt;
   final DateTime? estimatedCompletion;
   final double? estimatedCost;
+  final PaymentMethod? paymentMethod;
+  final double? actualCost;
+  final bool isPaid;
 
   Vehicle({
     required this.id,
@@ -25,6 +29,9 @@ class Vehicle {
     required this.createdAt,
     this.estimatedCompletion,
     this.estimatedCost,
+    this.paymentMethod,
+    this.actualCost,
+    this.isPaid = false,
   });
 
   Vehicle copyWith({
@@ -38,6 +45,9 @@ class Vehicle {
     DateTime? createdAt,
     DateTime? estimatedCompletion,
     double? estimatedCost,
+    PaymentMethod? paymentMethod,
+    double? actualCost,
+    bool? isPaid,
   }) {
     return Vehicle(
       id: id ?? this.id,
@@ -50,6 +60,9 @@ class Vehicle {
       createdAt: createdAt ?? this.createdAt,
       estimatedCompletion: estimatedCompletion ?? this.estimatedCompletion,
       estimatedCost: estimatedCost ?? this.estimatedCost,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      actualCost: actualCost ?? this.actualCost,
+      isPaid: isPaid ?? this.isPaid,
     );
   }
 

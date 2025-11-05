@@ -400,7 +400,11 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
             ),
           ),
           const SizedBox(width: 12),
@@ -419,10 +423,9 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
               ),
               onPressed: () {
                 // Kembali ke screen sebelumnya dengan aman
-                Navigator.pushReplacement(
-                  context,
-                  CupertinoPageRoute(builder: (context) => CashierScreen()),
-                );
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop('completed');
+                }
               },
             ),
           ),
@@ -478,7 +481,11 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
           CupertinoDialogAction(
             isDestructiveAction: true,
             child: const Text('Tutup'),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            },
           ),
         ],
       ),

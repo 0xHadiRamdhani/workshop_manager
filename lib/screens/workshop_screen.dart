@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../models/vehicle.dart';
+import '../models/transaction.dart';
 import '../database/database_helper.dart';
 import 'add_vehicle_screen.dart';
+import 'cash_input_screen.dart';
+import 'qris_payment_screen.dart';
+import 'receipt_screen.dart';
 
 class WorkshopScreen extends StatefulWidget {
   const WorkshopScreen({super.key});
@@ -159,7 +163,7 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
                 VehicleStatus.waiting: Text(
                   'Menunggu',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: _selectedFilter == VehicleStatus.waiting
                         ? CupertinoColors.white
                         : CupertinoColors.systemGrey,
@@ -168,7 +172,7 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
                 VehicleStatus.inProgress: Text(
                   'Proses',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: _selectedFilter == VehicleStatus.inProgress
                         ? CupertinoColors.white
                         : CupertinoColors.systemGrey,
@@ -177,8 +181,17 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
                 VehicleStatus.completed: Text(
                   'Selesai',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: _selectedFilter == VehicleStatus.completed
+                        ? CupertinoColors.white
+                        : CupertinoColors.systemGrey,
+                  ),
+                ),
+                VehicleStatus.delivered: Text(
+                  'Diserahkan',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: _selectedFilter == VehicleStatus.delivered
                         ? CupertinoColors.white
                         : CupertinoColors.systemGrey,
                   ),
@@ -370,6 +383,49 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
               ],
             ],
           ),
+          if (vehicle.isPaid || vehicle.status == VehicleStatus.delivered) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: vehicle.isPaid
+                    ? CupertinoColors.systemGreen.withOpacity(0.2)
+                    : CupertinoColors.systemRed.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: vehicle.isPaid
+                      ? CupertinoColors.systemGreen.withOpacity(0.3)
+                      : CupertinoColors.systemRed.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    vehicle.isPaid
+                        ? CupertinoIcons.checkmark_circle_fill
+                        : CupertinoIcons.exclamationmark_triangle_fill,
+                    color: vehicle.isPaid
+                        ? CupertinoColors.systemGreen
+                        : CupertinoColors.systemRed,
+                    size: 12,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    vehicle.isPaid ? 'Sudah Dibayar' : 'Belum Dibayar',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: vehicle.isPaid
+                          ? CupertinoColors.systemGreen
+                          : CupertinoColors.systemRed,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           Row(
             children: [
@@ -393,11 +449,15 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
               Expanded(
                 child: CupertinoButton(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  color: CupertinoColors.systemBlue,
+                  color: vehicle.status == VehicleStatus.completed
+                      ? CupertinoColors.systemGreen
+                      : CupertinoColors.systemBlue,
                   borderRadius: BorderRadius.circular(8),
-                  child: const Text(
-                    'Update Status',
-                    style: TextStyle(
+                  child: Text(
+                    vehicle.status == VehicleStatus.completed
+                        ? 'Serahkan Motor'
+                        : 'Update Status',
+                    style: const TextStyle(
                       fontSize: 14,
                       color: CupertinoColors.white,
                       fontWeight: FontWeight.w500,
@@ -428,14 +488,17 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
 
   void _showAddVehicleDialog() {
     print('Workshop: Opening AddVehicleScreen...');
-    Navigator.push(
-      context,
-      CupertinoPageRoute(builder: (context) => const AddVehicleScreen()),
-    ).then((_) {
-      print('Workshop: Returned from AddVehicleScreen, refreshing...');
-      // Refresh kendaraan setelah kembali dari AddVehicleScreen
-      _loadVehicles();
-    });
+    Navigator.of(context)
+        .push(
+          CupertinoPageRoute(builder: (context) => const AddVehicleScreen()),
+        )
+        .then((_) {
+          print('Workshop: Returned from AddVehicleScreen, refreshing...');
+          // Refresh kendaraan setelah kembali dari AddVehicleScreen
+          if (mounted) {
+            _loadVehicles();
+          }
+        });
   }
 
   void _showVehicleDetail(Vehicle vehicle) {
@@ -469,7 +532,7 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
                     CupertinoIcons.xmark,
                     color: CupertinoColors.white,
                   ),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
@@ -484,6 +547,29 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
               'Estimasi Biaya',
               'Rp ${vehicle.estimatedCost?.toStringAsFixed(0) ?? '0'}',
             ),
+            if (vehicle.actualCost != null)
+              _buildDetailItem(
+                'Biaya Aktual',
+                'Rp ${vehicle.actualCost?.toStringAsFixed(0) ?? '0'}',
+                color: CupertinoColors.systemGreen,
+              ),
+            if (vehicle.paymentMethod != null)
+              _buildDetailItem(
+                'Metode Pembayaran',
+                _getPaymentMethodText(vehicle.paymentMethod!),
+              ),
+            if (vehicle.isPaid)
+              _buildDetailItem(
+                'Status Pembayaran',
+                'Sudah Dibayar',
+                color: CupertinoColors.systemGreen,
+              )
+            else if (vehicle.status == VehicleStatus.delivered)
+              _buildDetailItem(
+                'Status Pembayaran',
+                'Belum Dibayar',
+                color: CupertinoColors.systemRed,
+              ),
             if (vehicle.estimatedCompletion != null)
               _buildDetailItem(
                 'Estimasi Selesai',
@@ -495,7 +581,7 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
     );
   }
 
-  Widget _buildDetailItem(String label, String value) {
+  Widget _buildDetailItem(String label, String value, {Color? color}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -510,9 +596,9 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
           ),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              color: CupertinoColors.white,
+              color: color ?? CupertinoColors.white,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -521,24 +607,339 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
     );
   }
 
+  String _getPaymentMethodText(PaymentMethod method) {
+    switch (method) {
+      case PaymentMethod.cash:
+        return 'Tunai';
+      case PaymentMethod.transfer:
+        return 'Transfer Bank';
+      case PaymentMethod.card:
+        return 'Kartu Debit/Kredit';
+      case PaymentMethod.qris:
+        return 'QRIS';
+    }
+  }
+
   void _showStatusUpdateDialog(Vehicle vehicle) {
+    // Jika status akan diubah ke delivered, tampilkan dialog pembayaran
+    if (vehicle.status == VehicleStatus.completed) {
+      _showPaymentDialog(vehicle);
+    } else {
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('Update Status'),
+          content: Text('Ubah status kendaraan ${vehicle.licensePlate}?'),
+          actions: [
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              child: const Text('Batal'),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: const Text('Update'),
+              onPressed: () async {
+                Navigator.pop(context);
+                await _updateVehicleStatus(vehicle);
+              },
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _showPaymentDialog(Vehicle vehicle) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => Container(
+        height: 400,
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: CupertinoColors.darkBackgroundGray,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Pembayaran Servis',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: CupertinoColors.white,
+                    ),
+                  ),
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  child: const Icon(
+                    CupertinoIcons.xmark,
+                    color: CupertinoColors.white,
+                  ),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: CupertinoColors.darkBackgroundGray,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: CupertinoColors.white.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pelanggan: ${vehicle.customerName}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: CupertinoColors.white,
+                    ),
+                  ),
+                  Text(
+                    'Kendaraan: ${vehicle.vehicleType} • ${vehicle.licensePlate}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: CupertinoColors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Biaya Servis: Rp ${vehicle.estimatedCost?.toStringAsFixed(0) ?? '0'}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: CupertinoColors.systemGreen,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Pilih Metode Pembayaran:',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: CupertinoColors.white,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildPaymentOption('Tunai', PaymentMethod.cash, vehicle),
+            const SizedBox(height: 8),
+            _buildPaymentOption('QRIS', PaymentMethod.qris, vehicle),
+            const SizedBox(height: 8),
+            _buildPaymentOption(
+              'Transfer Bank',
+              PaymentMethod.transfer,
+              vehicle,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentOption(
+    String title,
+    PaymentMethod method,
+    Vehicle vehicle,
+  ) {
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      color: CupertinoColors.systemBlue.withOpacity(0.2),
+      borderRadius: BorderRadius.circular(8),
+      child: Row(
+        children: [
+          Icon(
+            _getPaymentIcon(method),
+            color: CupertinoColors.systemBlue,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                color: CupertinoColors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const Icon(
+            CupertinoIcons.chevron_right,
+            color: CupertinoColors.systemGrey,
+            size: 16,
+          ),
+        ],
+      ),
+      onPressed: () => _processPayment(vehicle, method),
+    );
+  }
+
+  IconData _getPaymentIcon(PaymentMethod method) {
+    switch (method) {
+      case PaymentMethod.cash:
+        return CupertinoIcons.money_dollar;
+      case PaymentMethod.qris:
+        return CupertinoIcons.qrcode;
+      case PaymentMethod.transfer:
+        return CupertinoIcons.building_2_fill;
+      default:
+        return CupertinoIcons.money_dollar;
+    }
+  }
+
+  void _processPayment(Vehicle vehicle, PaymentMethod method) {
+    // Tutup dialog pembayaran dengan aman
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+
+    if (method == PaymentMethod.cash) {
+      _showCashInputScreen(vehicle);
+    } else if (method == PaymentMethod.qris) {
+      _showQRISPaymentScreen(vehicle);
+    } else {
+      // Transfer bank
+      _processBankTransfer(vehicle);
+    }
+  }
+
+  void _showCashInputScreen(Vehicle vehicle) {
+    Navigator.of(context)
+        .push(
+          CupertinoPageRoute(
+            builder: (context) => CashInputScreen(
+              totalAmount: vehicle.estimatedCost ?? 0,
+              cartItems: [], // Kosongkan untuk workshop
+              paymentMethod: PaymentMethod.cash,
+            ),
+          ),
+        )
+        .then((result) {
+          if (result != null && result is Map<String, dynamic>) {
+            final cashAmount = result['cashAmount'] as double;
+            final change = result['change'] as double;
+            _completePayment(
+              vehicle,
+              PaymentMethod.cash,
+              cashAmount: cashAmount,
+              change: change,
+            );
+          }
+        });
+  }
+
+  void _showQRISPaymentScreen(Vehicle vehicle) {
+    Navigator.of(context)
+        .push(
+          CupertinoPageRoute(
+            builder: (context) => QRISPaymentScreen(
+              totalAmount: vehicle.estimatedCost ?? 0,
+              cartItems: [], // Kosongkan untuk workshop
+            ),
+          ),
+        )
+        .then((result) {
+          if (result != null && result == true) {
+            _completePayment(vehicle, PaymentMethod.qris);
+          }
+        });
+  }
+
+  void _processBankTransfer(Vehicle vehicle) {
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Update Status'),
-        content: Text('Ubah status kendaraan ${vehicle.licensePlate}?'),
+        title: const Text('Transfer Bank'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Silakan transfer ke rekening berikut:'),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: CupertinoColors.darkBackgroundGray,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: CupertinoColors.systemGrey4,
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Bank: BCA',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: CupertinoColors.white,
+                    ),
+                  ),
+                  const Text(
+                    'No. Rekening: 1234567890',
+                    style: TextStyle(color: CupertinoColors.white),
+                  ),
+                  const Text(
+                    'Atas Nama: Workshop Manager',
+                    style: TextStyle(color: CupertinoColors.white),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Jumlah: Rp ${vehicle.estimatedCost?.toStringAsFixed(0) ?? '0'}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: CupertinoColors.systemGreen,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Setelah transfer, klik "Sudah Transfer" untuk melanjutkan.',
+              style: TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
+            ),
+          ],
+        ),
         actions: [
           CupertinoDialogAction(
             isDestructiveAction: true,
             child: const Text('Batal'),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            },
           ),
           CupertinoDialogAction(
             isDefaultAction: true,
-            child: const Text('Update'),
-            onPressed: () async {
+            child: const Text('Sudah Transfer'),
+            onPressed: () {
               Navigator.pop(context);
-              await _updateVehicleStatus(vehicle);
+              _completePayment(vehicle, PaymentMethod.transfer);
             },
           ),
         ],
@@ -546,7 +947,99 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
     );
   }
 
+  Future<void> _completePayment(
+    Vehicle vehicle,
+    PaymentMethod method, {
+    double? cashAmount,
+    double? change,
+  }) async {
+    // Update status kendaraan menjadi delivered
+    final updatedVehicle = vehicle.copyWith(
+      status: VehicleStatus.delivered,
+      paymentMethod: method,
+      actualCost: vehicle.estimatedCost,
+      isPaid: true,
+    );
+
+    try {
+      await _databaseHelper.updateVehicle(updatedVehicle);
+
+      // Buat transaksi untuk pembayaran workshop
+      final transaction = Transaction(
+        id: 'W${DateTime.now().millisecondsSinceEpoch}',
+        vehicleId: vehicle.id,
+        customerName: vehicle.customerName,
+        services: [
+          ServiceItem(
+            name: 'Servis ${vehicle.vehicleType} - ${vehicle.licensePlate}',
+            price: vehicle.estimatedCost ?? 0,
+            quantity: 1,
+          ),
+        ],
+        totalAmount: vehicle.estimatedCost ?? 0,
+        paymentMethod: method,
+        status: TransactionStatus.paid,
+        createdAt: DateTime.now(),
+        paidAt: DateTime.now(),
+        cashAmount: cashAmount,
+        changeAmount: change,
+      );
+
+      await _databaseHelper.insertTransaction(transaction);
+
+      if (!mounted) return;
+      _loadVehicles(); // Refresh data
+
+      // Navigasi langsung ke receipt screen dengan aman
+      if (!mounted) return;
+
+      // Navigasi ke receipt screen
+      Navigator.of(context)
+          .push(
+            CupertinoPageRoute(
+              builder: (context) => ReceiptScreen(
+                transaction: transaction,
+                cashAmount: method == PaymentMethod.cash ? cashAmount : null,
+                change: method == PaymentMethod.cash ? change : null,
+              ),
+            ),
+          )
+          .then((result) {
+            // Refresh data setelah kembali dari receipt
+            if (mounted) {
+              _loadVehicles();
+            }
+          });
+    } catch (e) {
+      if (!mounted) return;
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('Error'),
+          content: Text('Gagal memproses pembayaran: $e'),
+          actions: [
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: const Text('OK'),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
   Future<void> _updateVehicleStatus(Vehicle vehicle) async {
+    // Jika status completed dan belum dibayar, tampilkan dialog pembayaran
+    if (vehicle.status == VehicleStatus.completed && !vehicle.isPaid) {
+      _showPaymentDialog(vehicle);
+      return;
+    }
+
     // Tentukan status berikutnya berdasarkan status saat ini
     VehicleStatus newStatus;
     switch (vehicle.status) {

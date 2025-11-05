@@ -37,7 +37,9 @@ class DatabaseHelper {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('workshop_manager.db');
+    _database = await _initDB(
+      'workshop_manager_v2.db',
+    ); // Ganti nama database untuk force migrasi
     print('Database initialized successfully');
     return _database!;
   }
@@ -61,8 +63,9 @@ class DatabaseHelper {
       return await factory.openDatabase(
         path,
         options: OpenDatabaseOptions(
-          version: 1,
+          version: 2, // Naikkan versi database
           onCreate: _createDB,
+          onUpgrade: _onUpgrade, // Tambahkan handler untuk upgrade
           onConfigure: (db) async {
             // Enable foreign keys
             await db.execute('PRAGMA foreign_keys = ON');
@@ -75,7 +78,7 @@ class DatabaseHelper {
       print('Error initializing database: $e');
       // Fallback sederhana: gunakan current directory
       try {
-        final fallbackPath = './workshop_manager.db';
+        final fallbackPath = './workshop_manager_v2.db';
         print('Trying fallback path: $fallbackPath');
 
         // Gunakan database factory yang sesuai dengan platform
@@ -87,8 +90,9 @@ class DatabaseHelper {
         return await factory.openDatabase(
           fallbackPath,
           options: OpenDatabaseOptions(
-            version: 1,
+            version: 2,
             onCreate: _createDB,
+            onUpgrade: _onUpgrade,
             onConfigure: (db) async {
               await db.execute('PRAGMA foreign_keys = ON');
             },
@@ -108,8 +112,9 @@ class DatabaseHelper {
         return await factory.openDatabase(
           ':memory:',
           options: OpenDatabaseOptions(
-            version: 1,
+            version: 2,
             onCreate: _createDB,
+            onUpgrade: _onUpgrade,
             onConfigure: (db) async {
               await db.execute('PRAGMA foreign_keys = ON');
             },
@@ -145,7 +150,10 @@ class DatabaseHelper {
         status TEXT NOT NULL,
         created_at INTEGER NOT NULL,
         estimated_completion INTEGER,
-        estimated_cost REAL
+        estimated_cost REAL,
+        payment_method TEXT,
+        actual_cost REAL,
+        is_paid INTEGER DEFAULT 0
       )
     ''');
 
@@ -168,6 +176,37 @@ class DatabaseHelper {
 
     // Insert default products
     await _insertDefaultProducts(db);
+  }
+
+  // Tambahkan method untuk migrasi database
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    print('Upgrading database from version $oldVersion to $newVersion');
+
+    if (oldVersion < 2) {
+      // Tambahkan kolom-kolom baru untuk pembayaran
+      try {
+        await db.execute('ALTER TABLE vehicles ADD COLUMN payment_method TEXT');
+        print('Added payment_method column to vehicles table');
+      } catch (e) {
+        print('Column payment_method might already exist: $e');
+      }
+
+      try {
+        await db.execute('ALTER TABLE vehicles ADD COLUMN actual_cost REAL');
+        print('Added actual_cost column to vehicles table');
+      } catch (e) {
+        print('Column actual_cost might already exist: $e');
+      }
+
+      try {
+        await db.execute(
+          'ALTER TABLE vehicles ADD COLUMN is_paid INTEGER DEFAULT 0',
+        );
+        print('Added is_paid column to vehicles table');
+      } catch (e) {
+        print('Column is_paid might already exist: $e');
+      }
+    }
   }
 
   Future<void> _insertDefaultProducts(Database db) async {
@@ -453,6 +492,9 @@ class DatabaseHelper {
       'estimated_completion':
           vehicle.estimatedCompletion?.millisecondsSinceEpoch,
       'estimated_cost': vehicle.estimatedCost,
+      'payment_method': vehicle.paymentMethod?.toString(),
+      'actual_cost': vehicle.actualCost,
+      'is_paid': vehicle.isPaid ? 1 : 0,
     };
   }
 
@@ -470,6 +512,11 @@ class DatabaseHelper {
           ? DateTime.fromMillisecondsSinceEpoch(map['estimated_completion'])
           : null,
       estimatedCost: map['estimated_cost'],
+      paymentMethod: map['payment_method'] != null
+          ? _parsePaymentMethod(map['payment_method'])
+          : null,
+      actualCost: map['actual_cost'],
+      isPaid: map['is_paid'] == 1,
     );
   }
 
@@ -604,7 +651,7 @@ class DatabaseHelper {
       } catch (e) {
         appDir = Directory.current;
       }
-      return join(appDir.path, 'workshop_manager.db');
+      return join(appDir.path, 'workshop_manager_v2.db');
     } catch (e) {
       print('Error getting database path: $e');
       return null;

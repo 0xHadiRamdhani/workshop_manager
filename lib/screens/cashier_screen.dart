@@ -73,7 +73,11 @@ class _CashierScreenState extends State<CashierScreen> {
               CupertinoDialogAction(
                 isDefaultAction: true,
                 child: const Text('OK'),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  }
+                },
               ),
             ],
           ),
@@ -204,10 +208,7 @@ class _CashierScreenState extends State<CashierScreen> {
   }
 
   Widget _buildCartSummary() {
-    final totalItems = _cartItems.fold(
-      0,
-      (sum, item) => sum + item.quantity as int,
-    );
+    final totalItems = _cartItems.fold(0, (sum, item) => sum + item.quantity);
     final totalPrice = _cartItems.fold(
       0.0,
       (sum, item) => sum + item.totalPrice,
@@ -405,10 +406,7 @@ class _CashierScreenState extends State<CashierScreen> {
       0.0,
       (sum, item) => sum + item.totalPrice,
     );
-    final totalItems = _cartItems.fold(
-      0,
-      (sum, item) => sum + item.quantity as int,
-    );
+    final totalItems = _cartItems.fold(0, (sum, item) => sum + item.quantity);
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -629,7 +627,11 @@ class _CashierScreenState extends State<CashierScreen> {
             CupertinoDialogAction(
               isDefaultAction: true,
               child: const Text('OK'),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
             ),
           ],
         ),
@@ -770,7 +772,7 @@ class _CashierScreenState extends State<CashierScreen> {
                 minSize: 32,
                 borderRadius: BorderRadius.circular(16),
                 child: const Icon(CupertinoIcons.minus, size: 16),
-                onPressed: () => _updateQuantity(item as ShoppingCartItem, -1),
+                onPressed: () => _updateQuantity(item, -1),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -788,7 +790,7 @@ class _CashierScreenState extends State<CashierScreen> {
                 minSize: 32,
                 borderRadius: BorderRadius.circular(16),
                 child: const Icon(CupertinoIcons.plus, size: 16),
-                onPressed: () => _updateQuantity(item as ShoppingCartItem, 1),
+                onPressed: () => _updateQuantity(item, 1),
               ),
             ],
           ),
@@ -850,7 +852,9 @@ class _CashierScreenState extends State<CashierScreen> {
                 ),
               ),
               onPressed: () {
-                Navigator.pop(context);
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
                 _processPayment();
               },
             ),
@@ -902,7 +906,11 @@ class _CashierScreenState extends State<CashierScreen> {
                     CupertinoIcons.xmark,
                     color: CupertinoColors.white,
                   ),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
+                  },
                 ),
               ],
             ),
@@ -928,7 +936,9 @@ class _CashierScreenState extends State<CashierScreen> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.pop(context);
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  }
                   _addToCart(product);
                 },
               ),
@@ -1114,13 +1124,19 @@ class _CashierScreenState extends State<CashierScreen> {
             CupertinoDialogAction(
               isDestructiveAction: true,
               child: const Text('Batal'),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
             ),
             CupertinoDialogAction(
               isDefaultAction: true,
               child: const Text('Bayar'),
               onPressed: () async {
-                Navigator.pop(context);
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
                 await _completePayment();
               },
             ),
@@ -1204,7 +1220,10 @@ class _CashierScreenState extends State<CashierScreen> {
 
         if (result != null && result == true) {
           // QRIS payment successful, complete the transaction
-          _completePayment();
+          print('DEBUG: QRIS payment returned true, calling _completePayment');
+          _completePayment(paymentMethod: PaymentMethod.qris);
+        } else {
+          print('DEBUG: QRIS payment result: $result');
         }
       });
     });
@@ -1308,7 +1327,10 @@ class _CashierScreenState extends State<CashierScreen> {
                     setState(() {
                       _navigationState = NavigationState.idle;
                     });
-                    _completePayment();
+                    print(
+                      'DEBUG: Bank transfer confirmed, calling _completePayment',
+                    );
+                    _completePayment(paymentMethod: PaymentMethod.transfer);
                   }
                 },
                 child: const Text('Sudah Transfer'),
@@ -1320,7 +1342,11 @@ class _CashierScreenState extends State<CashierScreen> {
     });
   }
 
-  Future<void> _completePayment({double? cashAmount, double? change}) async {
+  Future<void> _completePayment({
+    double? cashAmount,
+    double? change,
+    PaymentMethod? paymentMethod,
+  }) async {
     if (!mounted) return;
 
     setState(() {
@@ -1347,7 +1373,7 @@ class _CashierScreenState extends State<CashierScreen> {
           )
           .toList(),
       totalAmount: totalPrice,
-      paymentMethod: _selectedPaymentMethod,
+      paymentMethod: paymentMethod ?? _selectedPaymentMethod,
       status: TransactionStatus.paid,
       createdAt: DateTime.now(),
       paidAt: DateTime.now(),
@@ -1382,7 +1408,11 @@ class _CashierScreenState extends State<CashierScreen> {
             CupertinoDialogAction(
               isDefaultAction: true,
               child: const Text('OK'),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
             ),
           ],
         ),
@@ -1400,8 +1430,11 @@ class _CashierScreenState extends State<CashierScreen> {
 
     // Simpan transaksi ke database
     try {
-      await _databaseHelper.insertTransaction(transaction);
+      print('DEBUG: Attempting to save transaction to database...');
+      final result = await _databaseHelper.insertTransaction(transaction);
+      print('DEBUG: Transaction saved successfully with result: $result');
     } catch (e) {
+      print('DEBUG: Error saving transaction: $e');
       if (!mounted) return;
 
       // Tampilkan error jika gagal menyimpan transaksi
@@ -1414,7 +1447,11 @@ class _CashierScreenState extends State<CashierScreen> {
             CupertinoDialogAction(
               isDefaultAction: true,
               child: const Text('OK'),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
             ),
           ],
         ),
@@ -1450,9 +1487,11 @@ class _CashierScreenState extends State<CashierScreen> {
       setState(() {
         _navigationState = NavigationState.idle;
       });
-      // Jika user menekan selesai, kembali ke dashboard
+      // Jika user menekan selesai, kembali ke dashboard dengan aman
       if (result == 'completed') {
-        Navigator.of(context).pop();
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
       }
     });
   }

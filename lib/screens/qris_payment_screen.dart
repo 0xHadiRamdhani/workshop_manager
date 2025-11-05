@@ -296,7 +296,11 @@ class _QRISPaymentScreenState extends State<QRISPaymentScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
             ),
           ),
           const SizedBox(width: 12),
@@ -348,7 +352,9 @@ class _QRISPaymentScreenState extends State<QRISPaymentScreen> {
 
     // Simulasi delay untuk proses pembayaran
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pop(); // Tutup dialog loading
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop(); // Tutup dialog loading
+      }
 
       // Tampilkan dialog sukses
       showCupertinoDialog(
@@ -361,10 +367,14 @@ class _QRISPaymentScreenState extends State<QRISPaymentScreen> {
               isDefaultAction: true,
               child: const Text('OK'),
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog sukses
-                Navigator.of(
-                  context,
-                ).pop(true); // Kembali ke cashier dengan hasil
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop(); // Tutup dialog sukses
+                }
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(
+                    context,
+                  ).pop(true); // Kembali ke cashier dengan hasil
+                }
               },
             ),
           ],

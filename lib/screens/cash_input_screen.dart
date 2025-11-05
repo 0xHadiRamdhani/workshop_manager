@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:workshop_manager/screens/cashier_screen.dart';
+import '../screens/cashier_screen.dart';
 import '../models/transaction.dart';
 import '../models/cart_item.dart';
 
@@ -313,10 +313,11 @@ class _CashInputScreenState extends State<CashInputScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              onPressed: () => Navigator.pushReplacement(
-                context,
-                CupertinoPageRoute(builder: (context) => CashierScreen()),
-              ),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
             ),
           ),
           const SizedBox(width: 12),
@@ -369,7 +370,11 @@ class _CashInputScreenState extends State<CashInputScreen> {
             CupertinoDialogAction(
               isDefaultAction: true,
               child: const Text('OK'),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
             ),
           ],
         ),
@@ -377,6 +382,8 @@ class _CashInputScreenState extends State<CashInputScreen> {
       return;
     }
 
-    Navigator.pop(context, {'cashAmount': _cashAmount, 'change': _change});
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop({'cashAmount': _cashAmount, 'change': _change});
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -26,11 +27,12 @@ class AboutScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              const Center(
-                child: Icon(
-                  CupertinoIcons.wrench_fill,
-                  size: 80,
-                  color: CupertinoColors.systemBlue,
+              Center(
+                child: Lottie.asset(
+                  'assets/teamwork.json',
+                  width: 150,
+                  height: 150,
+                  fit: BoxFit.contain,
                 ),
               ),
               const SizedBox(height: 20),
