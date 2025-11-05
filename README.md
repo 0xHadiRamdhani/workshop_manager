@@ -4,41 +4,59 @@ Aplikasi manajemen workshop dan kasir untuk bengkel dengan desain bergaya iOS mi
 
 ## 📸 Screenshot
 
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
-*Dashboard menampilkan statistik harian, kendaraan aktif, dan transaksi terbaru*
-
-### Manajemen Workshop
-![Workshop](screenshots/workshop.png)
-*Daftar kendaraan dengan status real-time dan filter berdasarkan status*
-
-### Kasir & Transaksi
-![Cashier](screenshots/cashier.png)
-*Sistem kasir dengan daftar transaksi dan status pembayaran*
-
-### Input Pembayaran Tunai
-![Input Cash](screenshots/input_cash.png)
-*Form input pembayaran tunai dengan perhitungan otomatis*
-
-### Pembayaran QRIS
-![Payment QRIS](screenshots/payment_qris.png)
-*Halaman pembayaran QRIS dengan kode QR*
-
-### Keranjang Belanja
-![Cart](screenshots/cart.png)
-*Keranjang belanja dengan produk dan layanan yang dipilih*
-
-### Tambah Produk
-![Add Product](screenshots/add_product.png)
-*Form tambah produk dan layanan baru*
-
-### Riwayat Transaksi
-![History](screenshots/history.png)
-*Daftar riwayat transaksi lengkap dengan detail*
-
-### About App
-![About App](screenshots/about_app.png)
-*Informasi lengkap tentang aplikasi, credits, dan lisensi*
+<table>
+  <tr>
+    <td align="center">
+      <img src="screenshots/dashboard.png" width="200" alt="Dashboard"/>
+      <br><b>Dashboard</b>
+      <br>Statistik harian & data real-time
+    </td>
+    <td align="center">
+      <img src="screenshots/workshop.png" width="200" alt="Workshop"/>
+      <br><b>Manajemen Workshop</b>
+      <br>Daftar kendaraan dengan status
+    </td>
+    <td align="center">
+      <img src="screenshots/cashier.png" width="200" alt="Cashier"/>
+      <br><b>Kasir & Transaksi</b>
+      <br>Sistem kasir dengan status pembayaran
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="screenshots/input_cash.png" width="200" alt="Input Cash"/>
+      <br><b>Input Pembayaran</b>
+      <br>Form tunai dengan perhitungan otomatis
+    </td>
+    <td align="center">
+      <img src="screenshots/payment_qris.png" width="200" alt="QRIS"/>
+      <br><b>Pembayaran QRIS</b>
+      <br>Halaman QRIS dengan kode QR
+    </td>
+    <td align="center">
+      <img src="screenshots/cart.png" width="200" alt="Cart"/>
+      <br><b>Keranjang Belanja</b>
+      <br>Produk & layanan yang dipilih
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="screenshots/add_product.png" width="200" alt="Add Product"/>
+      <br><b>Tambah Produk</b>
+      <br>Form tambah produk baru
+    </td>
+    <td align="center">
+      <img src="screenshots/history.png" width="200" alt="History"/>
+      <br><b>Riwayat Transaksi</b>
+      <br>Daftar lengkap dengan detail
+    </td>
+    <td align="center">
+      <img src="screenshots/about_app.png" width="200" alt="About"/>
+      <br><b>About App</b>
+      <br>Info aplikasi & credits
+    </td>
+  </tr>
+</table>
 
 ## Fitur Utama
 
