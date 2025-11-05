@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:workshop_manager/main.dart';
+import 'package:workshop_manager/screens/workshop_screen.dart';
 import '../models/vehicle.dart';
 import '../database/database_helper.dart';
 
@@ -504,8 +506,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                 isDefaultAction: true,
                 child: const Text('OK'),
                 onPressed: () {
-                  Navigator.pop(context); // Tutup dialog sukses
-                  Navigator.pop(context); // Kembali ke WorkshopScreen
+                  Navigator.pop(context);
                 },
               ),
             ],

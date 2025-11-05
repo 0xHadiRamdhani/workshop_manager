@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/vehicle.dart';
 import '../models/transaction.dart';
 import '../database/database_helper.dart';
+import 'about_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -16,6 +17,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<Transaction> _transactions = [];
   final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
   bool _isLoading = true;
+
+  // Data harian untuk dashboard
+  int _dailyTransactionCount = 0;
+  double _dailyRevenue = 0.0;
+  int _dailyCompletedVehicles = 0;
 
   @override
   void initState() {
@@ -47,8 +53,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final vehicles = await _databaseHelper.getVehicles();
       final transactions = await _databaseHelper.getTransactions();
 
+      // Ambil data harian
+      final dailyTransactions = await _databaseHelper.getDailyTransactions();
+      final dailyRevenue = await _databaseHelper.getDailyRevenue();
+      final dailyCompletedVehicles = await _databaseHelper
+          .getDailyCompletedVehicles();
+
       print('Dashboard: Found ${vehicles.length} vehicles');
       print('Dashboard: Found ${transactions.length} transactions');
+      print('Dashboard: Daily transactions: ${dailyTransactions.length}');
+      print('Dashboard: Daily revenue: Rp ${dailyRevenue.toStringAsFixed(0)}');
+      print('Dashboard: Daily completed vehicles: $dailyCompletedVehicles');
 
       // Debug: print vehicle details
       for (var i = 0; i < vehicles.length; i++) {
@@ -74,6 +89,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         _vehicles = sortedVehicles;
         _transactions = sortedTransactions;
+        _dailyTransactionCount = dailyTransactions.length;
+        _dailyRevenue = dailyRevenue;
+        _dailyCompletedVehicles = dailyCompletedVehicles;
         _isLoading = false;
       });
 
@@ -102,11 +120,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Dashboard'),
+      navigationBar: CupertinoNavigationBar(
+        middle: const Text('Dashboard'),
         backgroundColor: CupertinoColors.darkBackgroundGray,
-        border: Border(
+        border: const Border(
           bottom: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: const Icon(
+                CupertinoIcons.refresh,
+                color: CupertinoColors.white,
+              ),
+              onPressed: _loadData,
+            ),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: const Icon(
+                CupertinoIcons.info_circle,
+                color: CupertinoColors.white,
+              ),
+              onPressed: _navigateToAboutScreen,
+            ),
+          ],
         ),
       ),
       child: SafeArea(
@@ -135,7 +174,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Kendaraan Aktif',
-                '${_vehicles.length}',
+                '${_vehicles.where((vehicle) => vehicle.status != VehicleStatus.delivered).length}',
                 CupertinoColors.systemBlue,
                 CupertinoIcons.car,
               ),
@@ -144,7 +183,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Pendapatan Hari Ini',
-                'Rp 1.250.000',
+                'Rp ${_dailyRevenue.toStringAsFixed(0)}',
                 CupertinoColors.systemGreen,
                 CupertinoIcons.money_dollar,
               ),
@@ -157,7 +196,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Transaksi Hari Ini',
-                '12',
+                '${_dailyTransactionCount}',
                 CupertinoColors.systemOrange,
                 CupertinoIcons.doc_text,
               ),
@@ -166,7 +205,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Selesai Hari Ini',
-                '8',
+                '${_dailyCompletedVehicles}',
                 CupertinoColors.systemPurple,
                 CupertinoIcons.checkmark_seal,
               ),
@@ -416,5 +455,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
+  }
+
+  void _navigateToAboutScreen() {
+    Navigator.of(
+      context,
+    ).push(CupertinoPageRoute(builder: (context) => const AboutScreen()));
   }
 }

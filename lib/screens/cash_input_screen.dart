@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:workshop_manager/screens/cashier_screen.dart';
 import '../models/transaction.dart';
 import '../models/cart_item.dart';
 
@@ -312,7 +313,10 @@ class _CashInputScreenState extends State<CashInputScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pushReplacement(
+                context,
+                CupertinoPageRoute(builder: (context) => CashierScreen()),
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -346,9 +350,11 @@ class _CashInputScreenState extends State<CashInputScreen> {
       case PaymentMethod.cash:
         return 'Tunai';
       case PaymentMethod.transfer:
-        return 'Transfer';
+        return 'Transfer Bank';
       case PaymentMethod.card:
-        return 'Kartu';
+        return 'Kartu Debit/Kredit';
+      case PaymentMethod.qris:
+        return 'QRIS';
     }
   }
 

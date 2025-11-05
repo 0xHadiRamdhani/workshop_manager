@@ -1,5 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import '../models/product.dart';
 import '../models/transaction.dart' as app_transaction;
 import '../models/vehicle.dart';
@@ -13,11 +15,18 @@ class DatabaseHelper {
   static bool _isInitialized = false;
 
   DatabaseHelper._init() {
-    // Inisialisasi database factory untuk platform desktop
+    // Inisialisasi database factory hanya untuk platform desktop
     if (!_isInitialized) {
       try {
-        sqfliteFfiInit();
-        databaseFactory = databaseFactoryFfi;
+        // Cek apakah ini platform desktop (Windows, Linux, macOS)
+        if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+          sqfliteFfiInit();
+          databaseFactory = databaseFactoryFfi;
+          print('FFI database factory initialized for desktop platform');
+        } else {
+          // Untuk mobile (Android/iOS), gunakan factory default
+          print('Using default database factory for mobile platform');
+        }
         _isInitialized = true;
       } catch (e) {
         print('Warning: Could not initialize FFI database factory: $e');
@@ -29,16 +38,27 @@ class DatabaseHelper {
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDB('workshop_manager.db');
+    print('Database initialized successfully');
     return _database!;
   }
 
   Future<Database> _initDB(String filePath) async {
     try {
+      // Untuk platform mobile, gunakan path yang benar
       final dbPath = await getDatabasesPath();
       final path = join(dbPath, filePath);
 
-      // Gunakan database factory yang sudah diinisialisasi
-      return await databaseFactory.openDatabase(
+      print('Initializing database at path: $path');
+
+      // Tidak perlu membuat direktori, sqflite akan otomatis membuatnya
+
+      // Gunakan database factory yang sesuai dengan platform
+      final factory =
+          (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
+          ? databaseFactoryFfi
+          : databaseFactory;
+
+      return await factory.openDatabase(
         path,
         options: OpenDatabaseOptions(
           version: 1,
@@ -46,23 +66,54 @@ class DatabaseHelper {
           onConfigure: (db) async {
             // Enable foreign keys
             await db.execute('PRAGMA foreign_keys = ON');
+            print('Database configured with foreign keys enabled');
           },
         ),
       );
     } catch (e) {
-      // Fallback untuk development - gunakan database in-memory
+      // Fallback untuk development - gunakan database file di direktori yang sama
       print('Error initializing database: $e');
+      // Fallback sederhana: gunakan current directory
       try {
-        // Coba dengan path sederhana
-        return await databaseFactory.openDatabase(
-          'workshop_manager.db',
-          options: OpenDatabaseOptions(version: 1, onCreate: _createDB),
+        final fallbackPath = './workshop_manager.db';
+        print('Trying fallback path: $fallbackPath');
+
+        // Gunakan database factory yang sesuai dengan platform
+        final factory =
+            (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
+            ? databaseFactoryFfi
+            : databaseFactory;
+
+        return await factory.openDatabase(
+          fallbackPath,
+          options: OpenDatabaseOptions(
+            version: 1,
+            onCreate: _createDB,
+            onConfigure: (db) async {
+              await db.execute('PRAGMA foreign_keys = ON');
+            },
+          ),
         );
       } catch (e2) {
-        print('Error with file database, using in-memory: $e2');
-        return await databaseFactory.openDatabase(
+        print('Error with fallback database: $e2');
+        // Fallback terakhir: gunakan in-memory untuk testing
+        print('Using in-memory database as final fallback');
+
+        // Gunakan database factory yang sesuai dengan platform
+        final factory =
+            (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
+            ? databaseFactoryFfi
+            : databaseFactory;
+
+        return await factory.openDatabase(
           ':memory:',
-          options: OpenDatabaseOptions(version: 1, onCreate: _createDB),
+          options: OpenDatabaseOptions(
+            version: 1,
+            onCreate: _createDB,
+            onConfigure: (db) async {
+              await db.execute('PRAGMA foreign_keys = ON');
+            },
+          ),
         );
       }
     }
@@ -293,6 +344,61 @@ class DatabaseHelper {
     return result.map((map) => _mapToTransaction(map)).toList();
   }
 
+  // Method untuk mendapatkan transaksi hari ini
+  Future<List<app_transaction.Transaction>> getDailyTransactions() async {
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    return await getTransactionsByDateRange(startOfDay, endOfDay);
+  }
+
+  // Method untuk mendapatkan total pendapatan hari ini
+  Future<double> getDailyRevenue() async {
+    final db = await database;
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    final result = await db.rawQuery(
+      '''
+      SELECT SUM(total_amount) as total_revenue
+      FROM transactions
+      WHERE created_at >= ? AND created_at < ? AND status = ?
+    ''',
+      [
+        startOfDay.millisecondsSinceEpoch,
+        endOfDay.millisecondsSinceEpoch,
+        app_transaction.TransactionStatus.paid.toString(),
+      ],
+    );
+
+    return result.first['total_revenue'] as double? ?? 0.0;
+  }
+
+  // Method untuk mendapatkan jumlah kendaraan yang selesai hari ini
+  Future<int> getDailyCompletedVehicles() async {
+    final db = await database;
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    final result = await db.rawQuery(
+      '''
+      SELECT COUNT(*) as completed_count
+      FROM vehicles
+      WHERE created_at >= ? AND created_at < ? AND status = ?
+    ''',
+      [
+        startOfDay.millisecondsSinceEpoch,
+        endOfDay.millisecondsSinceEpoch,
+        VehicleStatus.completed.toString(),
+      ],
+    );
+
+    return result.first['completed_count'] as int? ?? 0;
+  }
+
   Future<int> updateTransaction(app_transaction.Transaction transaction) async {
     final db = await database;
     return await db.update(
@@ -465,7 +571,43 @@ class DatabaseHelper {
   }
 
   Future close() async {
-    final db = await database;
-    db.close();
+    if (_database != null) {
+      print('Closing database...');
+      await _database!.close();
+      _database = null;
+      print('Database closed successfully');
+    }
+  }
+
+  // Method untuk cek koneksi database
+  Future<bool> isDatabaseOpen() async {
+    try {
+      final db = await database;
+      await db.execute('SELECT 1');
+      return true;
+    } catch (e) {
+      print('Database connection check failed: $e');
+      return false;
+    }
+  }
+
+  // Method untuk cek path database
+  Future<String?> getDatabasePath() async {
+    try {
+      Directory? appDir;
+      try {
+        if (Platform.isAndroid || Platform.isIOS) {
+          appDir = await getApplicationDocumentsDirectory();
+        } else {
+          appDir = Directory.current;
+        }
+      } catch (e) {
+        appDir = Directory.current;
+      }
+      return join(appDir.path, 'workshop_manager.db');
+    } catch (e) {
+      print('Error getting database path: $e');
+      return null;
+    }
   }
 }

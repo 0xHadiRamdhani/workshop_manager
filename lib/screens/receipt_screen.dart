@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:workshop_manager/main.dart';
+import 'package:workshop_manager/screens/cashier_screen.dart';
 import '../models/transaction.dart';
 import '../models/cart_item.dart';
 import 'dashboard_screen.dart';
@@ -256,10 +258,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
   }
 
   Widget _buildPaymentDetails() {
-    if (widget.cashAmount == null || widget.change == null) {
-      return const SizedBox.shrink();
-    }
-
+    // Selalu tampilkan detail pembayaran untuk semua metode
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -279,13 +278,36 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
           ),
           const SizedBox(height: 12),
           _buildDetailRow(
-            'Uang yang Diterima',
-            'Rp ${widget.cashAmount!.toStringAsFixed(0)}',
+            'Metode Pembayaran',
+            widget.transaction.paymentMethodText,
           ),
-          _buildDetailRow(
-            'Kembalian',
-            'Rp ${widget.change!.toStringAsFixed(0)}',
-          ),
+          // Untuk metode tunai, tampilkan detail uang
+          if (widget.cashAmount != null && widget.change != null) ...[
+            const SizedBox(height: 8),
+            _buildDetailRow(
+              'Uang yang Diterima',
+              'Rp ${widget.cashAmount!.toStringAsFixed(0)}',
+            ),
+            _buildDetailRow(
+              'Kembalian',
+              'Rp ${widget.change!.toStringAsFixed(0)}',
+            ),
+          ],
+          // Untuk metode non-tunai, tampilkan informasi tambahan
+          if (widget.transaction.paymentMethod == PaymentMethod.qris) ...[
+            const SizedBox(height: 8),
+            const Text(
+              'Pembayaran dilakukan melalui QRIS',
+              style: TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
+            ),
+          ] else if (widget.transaction.paymentMethod ==
+              PaymentMethod.transfer) ...[
+            const SizedBox(height: 8),
+            const Text(
+              'Pembayaran dilakukan melalui transfer bank',
+              style: TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
+            ),
+          ],
         ],
       ),
     );
@@ -396,8 +418,11 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                 ),
               ),
               onPressed: () {
-                // Kembali ke screen sebelumnya dengan aman dan kirim sinyal selesai
-                Navigator.of(context).pop('completed');
+                // Kembali ke screen sebelumnya dengan aman
+                Navigator.pushReplacement(
+                  context,
+                  CupertinoPageRoute(builder: (context) => CashierScreen()),
+                );
               },
             ),
           ),
@@ -483,6 +508,10 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
     if (widget.cashAmount != null && widget.change != null) {
       text += 'Uang: Rp${widget.cashAmount!.toStringAsFixed(0)}\n';
       text += 'Kembali: Rp${widget.change!.toStringAsFixed(0)}\n';
+    } else if (widget.transaction.paymentMethod == PaymentMethod.qris) {
+      text += 'Metode: QRIS\n';
+    } else if (widget.transaction.paymentMethod == PaymentMethod.transfer) {
+      text += 'Metode: Transfer Bank\n';
     }
 
     text += '\nTerima kasih!';

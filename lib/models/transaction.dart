@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum PaymentMethod { cash, transfer, card }
+enum PaymentMethod { cash, transfer, card, qris }
 
 enum TransactionStatus { pending, paid, cancelled }
 
@@ -36,9 +36,11 @@ class Transaction {
       case PaymentMethod.cash:
         return 'Tunai';
       case PaymentMethod.transfer:
-        return 'Transfer';
+        return 'Transfer Bank';
       case PaymentMethod.card:
-        return 'Kartu';
+        return 'Kartu Debit/Kredit';
+      case PaymentMethod.qris:
+        return 'QRIS';
     }
   }
 
