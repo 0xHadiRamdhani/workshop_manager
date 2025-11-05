@@ -84,12 +84,6 @@ flutter build ios --release --no-codesign
 flutter build web --release
 ```
 
-### GitHub Actions
-Proyek ini menggunakan GitHub Actions untuk otomatisasi build dan release. Workflow akan:
-- Build APK untuk Android
-- Build IPA untuk iOS  
-- Build versi web
-- Otomatis membuat release dengan asset yang dapat diunduh
 
 ## Struktur Proyek
 
@@ -164,6 +158,66 @@ Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) unt
 - 🛒 Sistem kasir untuk produk
 - 📊 Dashboard awal
 - 💾 Database SQLite lokal
+
+---
+
+## 📸 Screenshots
+
+Berikut adalah tampilan aplikasi Workshop Manager:
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="screenshots/dashboard.png" width="200" alt="Dashboard"/>
+      <br>
+      <strong>Dashboard</strong>
+    </td>
+    <td align="center">
+      <img src="screenshots/workshop.png" width="200" alt="Workshop List"/>
+      <br>
+      <strong>Daftar Kendaraan</strong>
+    </td>
+    <td align="center">
+      <img src="screenshots/cashier.png" width="200" alt="Cashier"/>
+      <br>
+      <strong>Kasir - Transaksi</strong>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="screenshots/cart.png" width="200" alt="Cart"/>
+      <br>
+      <strong>Keranjang Belanja</strong>
+    </td>
+    <td align="center">
+      <img src="screenshots/input_cash.png" width="200" alt="Cash Input"/>
+      <br>
+      <strong>Input Uang Cash</strong>
+    </td>
+    <td align="center">
+      <img src="screenshots/payment_qris.png" width="200" alt="QRIS Payment"/>
+      <br>
+      <strong>Pembayaran QRIS</strong>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="screenshots/history.png" width="200" alt="Transaction History"/>
+      <br>
+      <strong>Riwayat Transaksi</strong>
+    </td>
+    <td align="center">
+      <img src="screenshots/about_app.png" width="200" alt="About"/>
+      <br>
+      <strong>Tentang Aplikasi</strong>
+    </td>
+    <td align="center">
+      <br>
+      <br>
+      <strong></strong>
+    </td>
+  </tr>
+</table>
 
 ---
 
