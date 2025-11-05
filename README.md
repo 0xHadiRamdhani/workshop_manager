@@ -84,7 +84,6 @@ flutter build ios --release --no-codesign
 flutter build web --release
 ```
 
-
 ## Struktur Proyek
 
 ```
