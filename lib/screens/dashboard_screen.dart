@@ -4,6 +4,7 @@ import '../models/vehicle.dart';
 import '../models/transaction.dart';
 import '../database/database_helper.dart';
 import 'about_screen.dart';
+import 'printer_settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -129,6 +130,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: const Icon(
+                CupertinoIcons.printer,
+                color: CupertinoColors.white,
+              ),
+              onPressed: _navigateToPrinterSettings,
+            ),
             CupertinoButton(
               padding: EdgeInsets.zero,
               child: const Icon(
@@ -461,5 +470,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Navigator.of(
       context,
     ).push(CupertinoPageRoute(builder: (context) => const AboutScreen()));
+  }
+
+  void _navigateToPrinterSettings() {
+    Navigator.of(context).push(
+      CupertinoPageRoute(builder: (context) => const PrinterSettingsScreen()),
+    );
   }
 }

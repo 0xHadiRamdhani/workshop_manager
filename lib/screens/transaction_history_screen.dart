@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import '../models/transaction.dart';
 import '../database/database_helper.dart';
+import '../services/print_service.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
@@ -263,22 +265,42 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: CupertinoButton(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              color: CupertinoColors.systemBlue,
-              borderRadius: BorderRadius.circular(8),
-              child: const Text(
-                'Lihat Detail',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: CupertinoColors.white,
-                  fontWeight: FontWeight.w600,
+          Row(
+            children: [
+              Expanded(
+                child: CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  color: CupertinoColors.systemBlue,
+                  borderRadius: BorderRadius.circular(8),
+                  child: const Text(
+                    'Lihat Detail',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: CupertinoColors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onPressed: () => _showTransactionDetail(transaction),
                 ),
               ),
-              onPressed: () => _showTransactionDetail(transaction),
-            ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  color: CupertinoColors.systemGreen,
+                  borderRadius: BorderRadius.circular(8),
+                  child: const Text(
+                    'Cetak Struk',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: CupertinoColors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onPressed: () => _printReceipt(transaction),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -418,6 +440,209 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _printReceipt(Transaction transaction) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => Container(
+        height: 280,
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: CupertinoColors.darkBackgroundGray,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Cetak Struk',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: CupertinoColors.white,
+                    ),
+                  ),
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  child: const Icon(
+                    CupertinoIcons.xmark,
+                    color: CupertinoColors.white,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Pilih metode pencetakan:',
+              style: const TextStyle(
+                fontSize: 16,
+                color: CupertinoColors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: CupertinoButton(
+                        color: CupertinoColors.systemBlue,
+                        child: const Text(
+                          'Cetak via Bluetooth',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        onPressed: () => _printViaBluetooth(transaction),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: CupertinoButton(
+                        color: CupertinoColors.systemOrange,
+                        child: const Text(
+                          'Cetak via WiFi/Network',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        onPressed: () => _printViaWiFi(transaction),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: CupertinoButton(
+                        color: CupertinoColors.systemGrey,
+                        child: const Text(
+                          'Batal',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _printViaBluetooth(Transaction transaction) async {
+    Navigator.pop(context); // Tutup dialog
+
+    try {
+      // Cek koneksi bluetooth
+      bool isConnected = await PrintService.isBluetoothConnected();
+
+      if (!isConnected) {
+        // Scan dan hubungkan ke printer
+        List<BluetoothDevice> devices =
+            await PrintService.scanBluetoothPrinters();
+
+        if (devices.isEmpty) {
+          _showMessage('Tidak ada printer bluetooth yang tersedia');
+          return;
+        }
+
+        // Tampilkan dialog pemilihan printer
+        showCupertinoModalPopup(
+          context: context,
+          builder: (context) => Container(
+            height: 300,
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: CupertinoColors.darkBackgroundGray,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Pilih Printer Bluetooth',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: CupertinoColors.white,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: devices.length,
+                    itemBuilder: (context, index) {
+                      return CupertinoButton(
+                        child: Text(devices[index].name ?? 'Unknown Device'),
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          bool connected =
+                              await PrintService.connectBluetoothPrinter(
+                                devices[index],
+                              );
+                          if (connected) {
+                            _printViaBluetooth(transaction);
+                          } else {
+                            _showMessage('Gagal menghubungkan ke printer');
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+        return;
+      }
+
+      // Cetak struk
+      bool success = await PrintService.printReceipt(
+        transaction: transaction,
+        workshopName: 'Bengkel Banimasum',
+        workshopAddress: 'Jl. Raya Banimasum No. 123',
+        workshopPhone: '0812-3456-7890',
+      );
+
+      if (success) {
+        _showMessage('Struk berhasil dicetak');
+      } else {
+        _showMessage('Gagal mencetak struk');
+      }
+    } catch (e) {
+      _showMessage('Error: $e');
+    }
+  }
+
+  Future<void> _printViaWiFi(Transaction transaction) async {
+    Navigator.pop(context); // Tutup dialog
+
+    // Untuk sementara, WiFi printing belum diimplementasikan
+    _showMessage(
+      'Pencetakan via WiFi/Network belum tersedia. Silakan gunakan Bluetooth.',
+    );
+  }
+
+  void _showMessage(String message) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Informasi'),
+        content: Text(message),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('OK'),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
     );
   }
