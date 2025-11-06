@@ -22,6 +22,7 @@ Aplikasi manajemen workshop yang komprehensif untuk mengelola servis kendaraan, 
 - **Katalog Produk**: Lihat dan cari produk berdasarkan kategori
 - **Update Stok**: Otomatis update stok setelah transaksi
 - **Riwayat Transaksi**: Lihat semua transaksi yang pernah dilakukan
+- **Edit Produk**: Edit informasi produk (nama, harga, stok, kategori, deskripsi)
 - **Hapus Produk**: Fitur delete produk dari database (di detail produk)
 
 ### 📊 Dashboard
@@ -143,6 +144,11 @@ Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) unt
 - GitHub: [Hadi Ramdhani](https://github.com/0xHadiRamdhani)
 
 ## Changelog
+
+### v1.0.3
+- ✏️ Tambah fitur edit produk dengan layar khusus
+- 🔄 Update otomatis daftar produk setelah edit
+- 🎯 UI/UX yang konsisten dengan tambah produk
 
 ### v1.0.2
 - 🗑️ Tambah fitur delete produk di layar kasir

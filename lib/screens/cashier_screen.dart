@@ -10,6 +10,7 @@ import 'receipt_screen.dart';
 import 'add_product_screen.dart';
 import 'transaction_history_screen.dart';
 import 'qris_payment_screen.dart';
+import 'edit_product_screen.dart';
 
 // Enum untuk state navigasi yang lebih jelas
 enum NavigationState {
@@ -970,6 +971,23 @@ class _CashierScreenState extends State<CashierScreen> {
                 Expanded(
                   child: CupertinoButton(
                     padding: const EdgeInsets.symmetric(vertical: 12),
+                    color: CupertinoColors.systemOrange,
+                    borderRadius: BorderRadius.circular(12),
+                    child: const Text(
+                      'EDIT',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: CupertinoColors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onPressed: () => _editProduct(product),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: CupertinoButton(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     color: CupertinoColors.systemRed,
                     borderRadius: BorderRadius.circular(12),
                     child: const Text(
@@ -983,14 +1001,14 @@ class _CashierScreenState extends State<CashierScreen> {
                     onPressed: () => _confirmDeleteProduct(product),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     color: CupertinoColors.systemGreen,
                     borderRadius: BorderRadius.circular(12),
                     child: const Text(
-                      'TAMBAH KE KERANJANG',
+                      'BELI',
                       style: TextStyle(
                         fontSize: 14,
                         color: CupertinoColors.white,
@@ -1576,6 +1594,24 @@ class _CashierScreenState extends State<CashierScreen> {
     });
   }
 
+  void _editProduct(Product product) {
+    // Tutup dialog detail dulu
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+
+    // Navigasi ke layar edit produk
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => EditProductScreen(product: product),
+      ),
+    ).then((_) {
+      // Refresh daftar produk setelah edit
+      _loadProducts();
+    });
+  }
+
   void _confirmDeleteProduct(Product product) {
     showCupertinoDialog(
       context: context,
@@ -1687,6 +1723,24 @@ class _CashierScreenState extends State<CashierScreen> {
           ],
         ),
       );
+    }
+
+    void _editProduct(Product product) {
+      // Tutup dialog detail dulu
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+
+      // Navigasi ke layar edit produk
+      Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (context) => EditProductScreen(product: product),
+        ),
+      ).then((_) {
+        // Refresh daftar produk setelah edit
+        _loadProducts();
+      });
     }
   }
 }
