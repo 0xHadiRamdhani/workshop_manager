@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import '../models/transaction.dart';
 import '../database/database_helper.dart';
 import '../services/print_service.dart';
@@ -546,8 +545,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
 
       if (!isConnected) {
         // Scan dan hubungkan ke printer
-        List<BluetoothDevice> devices =
-            await PrintService.scanBluetoothPrinters();
+        List<dynamic> devices = await PrintService.scanBluetoothPrinters();
 
         if (devices.isEmpty) {
           _showMessage('Tidak ada printer bluetooth yang tersedia');

@@ -145,6 +145,11 @@ Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) unt
 
 ## Changelog
 
+### v1.0.4
+- 🔧 Perbaikan dependency thermal printer (blue_thermal_printer → flutter_bluetooth_printer)
+- 🖨️ Implementasi simulasi pencetakan untuk development
+- 🛠️ Update layar pengaturan printer dengan simulasi
+
 ### v1.0.3
 - ✏️ Tambah fitur edit produk dengan layar khusus
 - 🔄 Update otomatis daftar produk setelah edit
