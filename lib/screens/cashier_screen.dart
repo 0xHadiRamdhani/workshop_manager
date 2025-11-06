@@ -646,7 +646,11 @@ class _CashierScreenState extends State<CashierScreen> {
         (item) => item.product.id == product.id,
       );
       if (existingIndex >= 0) {
-        _cartItems[existingIndex].quantity++;
+        // Buat instance baru dengan quantity yang diupdate
+        final existingItem = _cartItems[existingIndex];
+        _cartItems[existingIndex] = existingItem.copyWith(
+          quantity: existingItem.quantity + 1,
+        );
       } else {
         _cartItems.add(ShoppingCartItem(product: product));
       }
@@ -656,18 +660,20 @@ class _CashierScreenState extends State<CashierScreen> {
   void _showCartDialog() {
     showCupertinoModalPopup(
       context: context,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.8,
-        decoration: const BoxDecoration(
-          color: CupertinoColors.darkBackgroundGray,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: Column(
-          children: [
-            _buildCartHeader(),
-            Expanded(child: _buildCartItems()),
-            _buildCartFooter(),
-          ],
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
+          height: MediaQuery.of(context).size.height * 0.8,
+          decoration: const BoxDecoration(
+            color: CupertinoColors.darkBackgroundGray,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: Column(
+            children: [
+              _buildCartHeader(),
+              Expanded(child: _buildCartItems(setState)),
+              _buildCartFooter(setState),
+            ],
+          ),
         ),
       ),
     );
@@ -709,7 +715,7 @@ class _CashierScreenState extends State<CashierScreen> {
     );
   }
 
-  Widget _buildCartItems() {
+  Widget _buildCartItems([StateSetter? dialogSetState]) {
     if (_cartItems.isEmpty) {
       return const Center(
         child: Text(
@@ -724,12 +730,15 @@ class _CashierScreenState extends State<CashierScreen> {
       itemCount: _cartItems.length,
       itemBuilder: (context, index) {
         final item = _cartItems[index];
-        return _buildShoppingCartItem(item);
+        return _buildShoppingCartItem(item, dialogSetState);
       },
     );
   }
 
-  Widget _buildShoppingCartItem(ShoppingCartItem item) {
+  Widget _buildShoppingCartItem(
+    ShoppingCartItem item, [
+    StateSetter? dialogSetState,
+  ]) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -772,7 +781,8 @@ class _CashierScreenState extends State<CashierScreen> {
                 minSize: 32,
                 borderRadius: BorderRadius.circular(16),
                 child: const Icon(CupertinoIcons.minus, size: 16),
-                onPressed: () => _updateQuantity(item, -1),
+                onPressed: () =>
+                    _updateQuantityInDialog(item, -1, dialogSetState),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -790,7 +800,8 @@ class _CashierScreenState extends State<CashierScreen> {
                 minSize: 32,
                 borderRadius: BorderRadius.circular(16),
                 child: const Icon(CupertinoIcons.plus, size: 16),
-                onPressed: () => _updateQuantity(item, 1),
+                onPressed: () =>
+                    _updateQuantityInDialog(item, 1, dialogSetState),
               ),
             ],
           ),
@@ -799,7 +810,7 @@ class _CashierScreenState extends State<CashierScreen> {
     );
   }
 
-  Widget _buildCartFooter() {
+  Widget _buildCartFooter([StateSetter? dialogSetState]) {
     final totalPrice = _cartItems.fold(
       0.0,
       (sum, item) => sum + item.totalPrice,
@@ -868,11 +879,44 @@ class _CashierScreenState extends State<CashierScreen> {
     if (!mounted) return;
 
     setState(() {
-      item.quantity += change;
-      if (item.quantity <= 0) {
+      final newQuantity = item.quantity + change;
+      if (newQuantity <= 0) {
         _cartItems.remove(item);
+      } else {
+        // Temukan index item dan replace dengan instance baru
+        final index = _cartItems.indexOf(item);
+        if (index >= 0) {
+          _cartItems[index] = item.copyWith(quantity: newQuantity);
+        }
       }
     });
+  }
+
+  void _updateQuantityInDialog(
+    ShoppingCartItem item,
+    int change,
+    StateSetter? dialogSetState,
+  ) {
+    if (!mounted) return;
+
+    // Update quantity di list utama
+    setState(() {
+      final newQuantity = item.quantity + change;
+      if (newQuantity <= 0) {
+        _cartItems.remove(item);
+      } else {
+        // Temukan index item dan replace dengan instance baru
+        final index = _cartItems.indexOf(item);
+        if (index >= 0) {
+          _cartItems[index] = item.copyWith(quantity: newQuantity);
+        }
+      }
+    });
+
+    // Trigger rebuild pada dialog jika tersedia
+    if (dialogSetState != null) {
+      dialogSetState(() {});
+    }
   }
 
   void _showProductDetail(Product product) {
@@ -952,44 +996,54 @@ class _CashierScreenState extends State<CashierScreen> {
   void _showPaymentMethodDialog() {
     showCupertinoModalPopup(
       context: context,
-      builder: (context) => Container(
-        height: 280, // Tambah height dari 250 ke 280
-        padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          color: CupertinoColors.darkBackgroundGray,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Pilih Metode Pembayaran',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: CupertinoColors.white,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
+          height: 280, // Tambah height dari 250 ke 280
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(
+            color: CupertinoColors.darkBackgroundGray,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Pilih Metode Pembayaran',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: CupertinoColors.white,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              // Gunakan Expanded untuk mengisi ruang yang tersedia
-              child: Column(
-                children: [
-                  _buildPaymentOption('Tunai', PaymentMethod.cash),
-                  const SizedBox(height: 8), // Tambah spacing antar opsi
-                  _buildPaymentOption('QRIS', PaymentMethod.qris),
-                  const SizedBox(height: 8),
-                  _buildPaymentOption('Transfer Bank', PaymentMethod.transfer),
-                ],
+              const SizedBox(height: 16),
+              Expanded(
+                // Gunakan Expanded untuk mengisi ruang yang tersedia
+                child: Column(
+                  children: [
+                    _buildPaymentOption('Tunai', PaymentMethod.cash, setState),
+                    const SizedBox(height: 8), // Tambah spacing antar opsi
+                    _buildPaymentOption('QRIS', PaymentMethod.qris, setState),
+                    const SizedBox(height: 8),
+                    _buildPaymentOption(
+                      'Transfer Bank',
+                      PaymentMethod.transfer,
+                      setState,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildPaymentOption(String title, PaymentMethod method) {
+  Widget _buildPaymentOption(
+    String title,
+    PaymentMethod method, [
+    StateSetter? dialogSetState,
+  ]) {
     final isSelected = _selectedPaymentMethod == method;
     return CupertinoButton(
       padding: const EdgeInsets.symmetric(
@@ -1000,12 +1054,12 @@ class _CashierScreenState extends State<CashierScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? CupertinoColors.systemBlue.withOpacity(0.2)
-              : CupertinoColors.systemGrey5,
+              : CupertinoColors.darkBackgroundGray,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected
                 ? CupertinoColors.systemBlue
-                : CupertinoColors.systemGrey4,
+                : CupertinoColors.white.withOpacity(0.3),
             width: 1,
           ),
         ),
@@ -1017,7 +1071,7 @@ class _CashierScreenState extends State<CashierScreen> {
                   : CupertinoIcons.circle,
               color: isSelected
                   ? CupertinoColors.systemBlue
-                  : CupertinoColors.systemGrey,
+                  : CupertinoColors.white.withOpacity(0.6),
               size: 20, // Kurangi ukuran icon
             ),
             const SizedBox(width: 10), // Kurangi spacing
@@ -1027,7 +1081,7 @@ class _CashierScreenState extends State<CashierScreen> {
                 fontSize: 15, // Kurangi ukuran font
                 color: isSelected
                     ? CupertinoColors.white
-                    : CupertinoColors.white,
+                    : CupertinoColors.white.withOpacity(0.8),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -1037,9 +1091,15 @@ class _CashierScreenState extends State<CashierScreen> {
       onPressed: () {
         if (!mounted) return;
 
+        // Update state utama
         setState(() {
           _selectedPaymentMethod = method;
         });
+
+        // Update state dialog jika tersedia
+        if (dialogSetState != null) {
+          dialogSetState(() {});
+        }
 
         // Tutup dialog dengan aman
         if (Navigator.of(context).canPop()) {

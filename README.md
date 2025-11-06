@@ -46,7 +46,7 @@ Aplikasi manajemen workshop yang komprehensif untuk mengelola servis kendaraan, 
 
 1. **Clone Repository**
 ```bash
-git clone https://github.com/username/workshop-manager.git
+git clone https://github.com/username/workshop_manager.git
 cd workshop-manager
 ```
 
@@ -138,9 +138,8 @@ Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) unt
 
 ## Kontak
 
-- Email: your.email@example.com
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- GitHub: [Your GitHub](https://github.com/yourusername)
+- Email: hadsxdev@icloud.com
+- GitHub: [Hadi Ramdhani](https://github.com/0xHadiRamdhani)
 
 ## Changelog
 
