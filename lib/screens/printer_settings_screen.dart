@@ -213,7 +213,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                                   const SizedBox(height: 4),
                                   Text(
                                     _connectedDevice != null
-                                        ? 'Terhubung: ${_connectedDevice!.name}'
+                                        ? 'Terhubung: ${_connectedDevice!['name']}'
                                         : 'Tidak ada printer yang terhubung',
                                     style: const TextStyle(
                                       fontSize: 14,
@@ -231,7 +231,10 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                             width: double.infinity,
                             child: CupertinoButton(
                               color: CupertinoColors.systemRed,
-                              child: const Text('Putuskan'),
+                              child: const Text(
+                                'Putuskan',
+                                style: TextStyle(color: Colors.black),
+                              ),
                               onPressed: _disconnectPrinter,
                             ),
                           ),
@@ -240,7 +243,10 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                             width: double.infinity,
                             child: CupertinoButton(
                               color: CupertinoColors.systemBlue,
-                              child: const Text('Test Print'),
+                              child: const Text(
+                                'Test Print',
+                                style: TextStyle(color: Colors.white),
+                              ),
                               onPressed: _testPrint,
                             ),
                           ),
@@ -315,7 +321,8 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                             itemBuilder: (context, index) {
                               final device = _devices[index];
                               final isConnected =
-                                  _connectedDevice?.address == device.address;
+                                  _connectedDevice?['address'] ==
+                                  device['address'];
 
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 8),
@@ -376,7 +383,10 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
                                           vertical: 6,
                                         ),
                                         color: CupertinoColors.systemBlue,
-                                        child: const Text('Hubungkan'),
+                                        child: const Text(
+                                          'Hubungkan',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
                                         onPressed: () =>
                                             _connectToPrinter(device),
                                       ),

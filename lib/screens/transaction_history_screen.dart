@@ -540,81 +540,36 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     Navigator.pop(context); // Tutup dialog
 
     try {
-      // Cek koneksi bluetooth
-      bool isConnected = await PrintService.isBluetoothConnected();
+      // Untuk sementara, gunakan simulasi pencetakan
+      // Implementasi thermal printer akan dilakukan di versi berikutnya
+      print('=== CETAK STRUK SIMULASI ===');
+      print('Bengkel Banimasum');
+      print('Jl. Raya Banimasum No. 123');
+      print('Telp: 0812-3456-7890');
+      print('--------------------------------');
+      print('ID Transaksi: ${transaction.id}');
+      print('Pelanggan: ${transaction.customerName}');
+      print('Tanggal: ${_formatDate(transaction.createdAt)}');
+      print('Metode: ${_getPaymentMethodText(transaction.paymentMethod)}');
+      print('--------------------------------');
 
-      if (!isConnected) {
-        // Scan dan hubungkan ke printer
-        List<dynamic> devices = await PrintService.scanBluetoothPrinters();
-
-        if (devices.isEmpty) {
-          _showMessage('Tidak ada printer bluetooth yang tersedia');
-          return;
-        }
-
-        // Tampilkan dialog pemilihan printer
-        showCupertinoModalPopup(
-          context: context,
-          builder: (context) => Container(
-            height: 300,
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: CupertinoColors.darkBackgroundGray,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  'Pilih Printer Bluetooth',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: CupertinoColors.white,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: devices.length,
-                    itemBuilder: (context, index) {
-                      return CupertinoButton(
-                        child: Text(devices[index].name ?? 'Unknown Device'),
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          bool connected =
-                              await PrintService.connectBluetoothPrinter(
-                                devices[index],
-                              );
-                          if (connected) {
-                            _printViaBluetooth(transaction);
-                          } else {
-                            _showMessage('Gagal menghubungkan ke printer');
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+      for (var service in transaction.services) {
+        print(
+          '${service.name} (${service.quantity}x) Rp ${(service.price * service.quantity).toStringAsFixed(0)}',
         );
-        return;
       }
 
-      // Cetak struk
-      bool success = await PrintService.printReceipt(
-        transaction: transaction,
-        workshopName: 'Bengkel Banimasum',
-        workshopAddress: 'Jl. Raya Banimasum No. 123',
-        workshopPhone: '0812-3456-7890',
-      );
-
-      if (success) {
-        _showMessage('Struk berhasil dicetak');
-      } else {
-        _showMessage('Gagal mencetak struk');
+      print('--------------------------------');
+      print('Total: Rp ${transaction.totalAmount.toStringAsFixed(0)}');
+      if (transaction.cashAmount != null) {
+        print('Cash: Rp ${transaction.cashAmount!.toStringAsFixed(0)}');
       }
+      if (transaction.changeAmount != null) {
+        print('Kembalian: Rp ${transaction.changeAmount!.toStringAsFixed(0)}');
+      }
+      print('=== END CETAK STRUK ===');
+
+      _showMessage('Struk berhasil dicetak (simulasi)');
     } catch (e) {
       _showMessage('Error: $e');
     }
