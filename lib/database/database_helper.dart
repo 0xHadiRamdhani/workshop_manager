@@ -39,7 +39,7 @@ class DatabaseHelper {
     if (_database != null) return _database!;
     _database = await _initDB(
       'workshop_manager_v2.db',
-    ); // Ganti nama database untuk force migrasi
+    ); // Kembali ke versi sebelum barcode
     print('Database initialized successfully');
     return _database!;
   }
@@ -63,7 +63,7 @@ class DatabaseHelper {
       return await factory.openDatabase(
         path,
         options: OpenDatabaseOptions(
-          version: 2, // Naikkan versi database
+          version: 2, // Kembali ke versi sebelum barcode
           onCreate: _createDB,
           onUpgrade: _onUpgrade, // Tambahkan handler untuk upgrade
           onConfigure: (db) async {
@@ -78,7 +78,7 @@ class DatabaseHelper {
       print('Error initializing database: $e');
       // Fallback sederhana: gunakan current directory
       try {
-        final fallbackPath = './workshop_manager_v2.db';
+        final fallbackPath = './workshop_manager_v3.db';
         print('Trying fallback path: $fallbackPath');
 
         // Gunakan database factory yang sesuai dengan platform

@@ -965,27 +965,47 @@ class _CashierScreenState extends State<CashierScreen> {
             if (product.description != null)
               _buildDetailRow('Deskripsi', product.description!),
             const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: CupertinoButton(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                color: CupertinoColors.systemGreen,
-                borderRadius: BorderRadius.circular(12),
-                child: const Text(
-                  'TAMBAH KE KERANJANG',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: CupertinoColors.white,
-                    fontWeight: FontWeight.bold,
+            Row(
+              children: [
+                Expanded(
+                  child: CupertinoButton(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    color: CupertinoColors.systemRed,
+                    borderRadius: BorderRadius.circular(12),
+                    child: const Text(
+                      'HAPUS',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: CupertinoColors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onPressed: () => _confirmDeleteProduct(product),
                   ),
                 ),
-                onPressed: () {
-                  if (Navigator.of(context).canPop()) {
-                    Navigator.of(context).pop();
-                  }
-                  _addToCart(product);
-                },
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: CupertinoButton(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    color: CupertinoColors.systemGreen,
+                    borderRadius: BorderRadius.circular(12),
+                    child: const Text(
+                      'TAMBAH KE KERANJANG',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: CupertinoColors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
+                      _addToCart(product);
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -1554,5 +1574,119 @@ class _CashierScreenState extends State<CashierScreen> {
         }
       }
     });
+  }
+
+  void _confirmDeleteProduct(Product product) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Hapus Produk'),
+        content: Text(
+          'Apakah Anda yakin ingin menghapus produk "${product.name}"?',
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: const Text('Batal'),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text('Hapus'),
+            onPressed: () async {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+              await _deleteProduct(product);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteProduct(Product product) async {
+    try {
+      // Cek apakah produk ada di keranjang
+      final isInCart = _cartItems.any((item) => item.product.id == product.id);
+      if (isInCart) {
+        showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('Produk di Keranjang'),
+            content: Text(
+              'Produk "${product.name}" sedang ada di keranjang. Hapus dari keranjang terlebih dahulu.',
+            ),
+            actions: [
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                child: const Text('OK'),
+                onPressed: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      // Hapus produk dari database
+      await _databaseHelper.deleteProduct(product.id);
+
+      // Tutup dialog detail produk
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+
+      // Refresh daftar produk
+      await _loadProducts();
+
+      // Tampilkan pesan sukses
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('Berhasil'),
+          content: Text('Produk "${product.name}" berhasil dihapus.'),
+          actions: [
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: const Text('OK'),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      // Tampilkan pesan error
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('Error'),
+          content: Text('Gagal menghapus produk: ${e.toString()}'),
+          actions: [
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: const Text('OK'),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 }
