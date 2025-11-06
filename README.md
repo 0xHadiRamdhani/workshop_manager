@@ -49,7 +49,7 @@ Aplikasi manajemen workshop yang komprehensif untuk mengelola servis kendaraan, 
 1. **Clone Repository**
 ```bash
 git clone https://github.com/username/workshop_manager.git
-cd workshop-manager
+cd workshop_manager
 ```
 
 2. **Install Dependencies**
