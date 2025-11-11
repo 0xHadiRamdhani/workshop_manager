@@ -99,7 +99,7 @@ void main() {
           customerName: 'Very Long Customer Name That Should Be Handled',
           services: services,
           totalAmount: 50000,
-          paymentMethod: PaymentMethod.qris,
+          paymentMethod: PaymentMethod.transfer,
           status: TransactionStatus.paid,
           createdAt: DateTime(2024, 1, 15, 14, 30),
           paidAt: DateTime(2024, 1, 15, 14, 30),
@@ -114,7 +114,7 @@ void main() {
         );
 
         // Verify the receipt is still formatted properly
-        expect(receipt.contains('QRIS'), true);
+        expect(receipt.contains('Transfer Bank'), true);
         expect(receipt.isNotEmpty, true);
       });
     });

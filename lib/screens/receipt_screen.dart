@@ -1,11 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:workshop_manager/main.dart';
-import 'package:workshop_manager/screens/cashier_screen.dart';
 import '../models/transaction.dart';
-import '../models/cart_item.dart';
-import 'dashboard_screen.dart';
 
 class ReceiptScreen extends StatefulWidget {
   final Transaction transaction;
@@ -35,11 +31,11 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
+          onPressed: _shareReceipt,
           child: const Icon(
             CupertinoIcons.share,
             color: CupertinoColors.systemBlue,
           ),
-          onPressed: _shareReceipt,
         ),
       ),
       child: SafeArea(
@@ -294,14 +290,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
             ),
           ],
           // Untuk metode non-tunai, tampilkan informasi tambahan
-          if (widget.transaction.paymentMethod == PaymentMethod.qris) ...[
-            const SizedBox(height: 8),
-            const Text(
-              'Pembayaran dilakukan melalui QRIS',
-              style: TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
-            ),
-          ] else if (widget.transaction.paymentMethod ==
-              PaymentMethod.transfer) ...[
+          if (widget.transaction.paymentMethod == PaymentMethod.transfer) ...[
             const SizedBox(height: 8),
             const Text(
               'Pembayaran dilakukan melalui transfer bank',
@@ -382,7 +371,9 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       decoration: BoxDecoration(
         color: CupertinoColors.darkBackgroundGray,
         border: Border(
-          top: BorderSide(color: CupertinoColors.systemGrey4.withOpacity(0.3)),
+          top: BorderSide(
+            color: CupertinoColors.systemGrey4.withValues(alpha: 0.3),
+          ),
         ),
       ),
       child: Row(
@@ -462,7 +453,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: CupertinoColors.systemGrey5,
+                color: CupertinoColors.darkBackgroundGray,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -515,8 +506,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
     if (widget.cashAmount != null && widget.change != null) {
       text += 'Uang: Rp${widget.cashAmount!.toStringAsFixed(0)}\n';
       text += 'Kembali: Rp${widget.change!.toStringAsFixed(0)}\n';
-    } else if (widget.transaction.paymentMethod == PaymentMethod.qris) {
-      text += 'Metode: QRIS\n';
     } else if (widget.transaction.paymentMethod == PaymentMethod.transfer) {
       text += 'Metode: Transfer Bank\n';
     }

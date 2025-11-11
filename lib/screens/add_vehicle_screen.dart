@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:workshop_manager/main.dart';
-import 'package:workshop_manager/screens/workshop_screen.dart';
 import '../models/vehicle.dart';
 import '../database/database_helper.dart';
 
@@ -342,7 +340,9 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
       decoration: BoxDecoration(
         color: CupertinoColors.darkBackgroundGray,
         border: Border(
-          top: BorderSide(color: CupertinoColors.systemGrey4.withOpacity(0.3)),
+          top: BorderSide(
+            color: CupertinoColors.systemGrey4.withValues(alpha: 0.3),
+          ),
         ),
       ),
       child: Row(
@@ -402,7 +402,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                 color: CupertinoColors.darkBackgroundGray,
                 border: Border(
                   bottom: BorderSide(
-                    color: CupertinoColors.systemGrey4.withOpacity(0.3),
+                    color: CupertinoColors.systemGrey4.withValues(alpha: 0.3),
                   ),
                 ),
               ),

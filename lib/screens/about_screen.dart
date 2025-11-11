@@ -14,10 +14,15 @@ class AboutScreen extends StatelessWidget {
         border: const Border(
           bottom: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
         ),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.back, color: CupertinoColors.white),
-          onPressed: () => Navigator.of(context).pop(),
+        leading: IconButton(
+          onPressed: () {
+            // Akses scaffold dari parent MaterialApp
+            final scaffoldState = Scaffold.maybeOf(context);
+            if (scaffoldState != null && scaffoldState.hasDrawer) {
+              scaffoldState.openDrawer();
+            }
+          },
+          icon: Icon(CupertinoIcons.bars),
         ),
       ),
       child: SafeArea(
@@ -49,7 +54,7 @@ class AboutScreen extends StatelessWidget {
               const SizedBox(height: 8),
               const Center(
                 child: Text(
-                  'Versi 1.0.0',
+                  'Versi 2.0.0',
                   style: TextStyle(
                     fontSize: 16,
                     color: CupertinoColors.systemGrey,
@@ -73,7 +78,7 @@ class AboutScreen extends StatelessWidget {
                 'Fitur Utama',
                 '• Manajemen kendaraan (tambah, edit, hapus)\n'
                     '• Transaksi servis dengan berbagai layanan\n'
-                    '• Pembayaran tunai dan QRIS\n'
+                    '• Pembayaran tunai dan transfer bank\n'
                     '• Riwayat transaksi lengkap\n'
                     '• Dashboard statistik harian\n'
                     '• Manajemen produk dan layanan\n'

@@ -11,9 +11,8 @@ Aplikasi manajemen workshop yang komprehensif untuk mengelola servis kendaraan, 
 - **Pembayaran Workshop**: Proses pembayaran saat kendaraan selesai diservis
 
 ### 💰 Sistem Pembayaran
-- **Multi Metode Pembayaran**: Tunai, QRIS, Transfer Bank
+- **Multi Metode Pembayaran**: Tunai dan Transfer Bank
 - **Input Uang Cash**: Interface khusus untuk pembayaran tunai dengan perhitungan otomatis
-- **QRIS Payment**: Pembayaran digital melalui QRIS
 - **Bank Transfer**: Informasi rekening untuk transfer bank
 - **Struk Digital**: Bukti pembayaran digital yang dapat dibagikan
 
@@ -101,7 +100,6 @@ lib/
 │   ├── workshop_screen.dart  # Manajemen workshop
 │   ├── cashier_screen.dart   # Kasir dan transaksi
 │   ├── cash_input_screen.dart # Input pembayaran tunai
-│   ├── qris_payment_screen.dart # Pembayaran QRIS
 │   ├── receipt_screen.dart   # Struk pembayaran
 │   └── ...
 ├── database/                 # Database helper
@@ -114,10 +112,9 @@ lib/
 ### Flow Pembayaran
 1. **Status Completed**: Ketika kendaraan statusnya "Selesai", tombol berubah menjadi "Serahkan Motor"
 2. **Dialog Pembayaran**: Muncul dialog pilihan metode pembayaran
-3. **Pilih Metode**: Pilih antara Tunai, QRIS, atau Transfer Bank
-4. **Proses Bayar**: 
+3. **Pilih Metode**: Pilih antara Tunai atau Transfer Bank
+4. **Proses Bayar**:
    - **Tunai**: Masukkan jumlah uang, otomatis hitung kembalian
-   - **QRIS**: Scan kode QR untuk pembayaran digital
    - **Transfer**: Tampilkan informasi rekening bank
 5. **Selesai**: Update status kendaraan menjadi "Diserahkan" dan buat transaksi
 
@@ -168,7 +165,7 @@ Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) unt
 ### v1.0.0
 - ✨ Sistem pembayaran workshop lengkap
 - 🏪 Manajemen kendaraan dan status servis
-- 💰 Multi metode pembayaran (Tunai, QRIS, Transfer)
+- 💰 Multi metode pembayaran (Tunai dan Transfer)
 - 📱 UI/UX modern dengan Cupertino design
 - 📊 Dashboard dengan statistik
 - 🔄 GitHub Actions untuk build otomatis
@@ -215,9 +212,9 @@ Berikut adalah tampilan aplikasi Workshop Manager:
       <strong>Input Uang Cash</strong>
     </td>
     <td align="center">
-      <img src="screenshots/payment_qris.png" width="200" alt="QRIS Payment"/>
       <br>
-      <strong>Pembayaran QRIS</strong>
+      <br>
+      <strong></strong>
     </td>
   </tr>
   <tr>

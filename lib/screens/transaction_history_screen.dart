@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../models/transaction.dart';
 import '../database/database_helper.dart';
-import '../services/print_service.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
@@ -47,10 +46,15 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         border: const Border(
           bottom: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
         ),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.xmark, color: CupertinoColors.white),
-          onPressed: () => Navigator.pop(context),
+        leading: IconButton(
+          onPressed: () {
+            // Akses scaffold dari parent MaterialApp
+            final scaffoldState = Scaffold.maybeOf(context);
+            if (scaffoldState != null && scaffoldState.hasDrawer) {
+              scaffoldState.openDrawer();
+            }
+          },
+          icon: Icon(CupertinoIcons.bars),
         ),
       ),
       child: SafeArea(
@@ -612,8 +616,6 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         return 'Transfer Bank';
       case PaymentMethod.card:
         return 'Kartu Debit/Kredit';
-      case PaymentMethod.qris:
-        return 'QRIS';
     }
   }
 

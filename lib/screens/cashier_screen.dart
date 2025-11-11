@@ -2,14 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../models/transaction.dart';
-import '../models/vehicle.dart';
 import '../models/cart_item.dart';
 import '../database/database_helper.dart';
 import 'cash_input_screen.dart';
 import 'receipt_screen.dart';
 import 'add_product_screen.dart';
-import 'transaction_history_screen.dart';
-import 'qris_payment_screen.dart';
 import 'edit_product_screen.dart';
 
 // Enum untuk state navigasi yang lebih jelas
@@ -18,7 +15,6 @@ enum NavigationState {
   navigatingToAddProduct,
   navigatingToTransactionHistory,
   navigatingToCashInput,
-  navigatingToQRISPayment,
   navigatingToBankTransfer,
   navigatingToReceipt,
   processingPayment,
@@ -101,6 +97,16 @@ class _CashierScreenState extends State<CashierScreen> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        leading: IconButton(
+          onPressed: () {
+            // Akses scaffold dari parent MaterialApp
+            final scaffoldState = Scaffold.maybeOf(context);
+            if (scaffoldState != null && scaffoldState.hasDrawer) {
+              scaffoldState.openDrawer();
+            }
+          },
+          icon: Icon(CupertinoIcons.bars),
+        ),
         middle: const Text('Kasir'),
         backgroundColor: CupertinoColors.darkBackgroundGray,
         border: const Border(
@@ -113,15 +119,6 @@ class _CashierScreenState extends State<CashierScreen> {
               padding: EdgeInsets.zero,
               child: Icon(CupertinoIcons.add, color: _getAddProductIconColor()),
               onPressed: _getAddProductOnPressed(),
-            ),
-            const SizedBox(width: 8),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              child: Icon(
-                CupertinoIcons.clock,
-                color: _getTransactionHistoryIconColor(),
-              ),
-              onPressed: _getTransactionHistoryOnPressed(),
             ),
           ],
         ),
@@ -587,8 +584,6 @@ class _CashierScreenState extends State<CashierScreen> {
         return 'Transfer Bank';
       case PaymentMethod.card:
         return 'Kartu Debit/Kredit';
-      case PaymentMethod.qris:
-        return 'QRIS';
     }
   }
 
@@ -603,18 +598,6 @@ class _CashierScreenState extends State<CashierScreen> {
     return _navigationState == NavigationState.navigatingToAddProduct
         ? null
         : _showAddProductDialog;
-  }
-
-  Color _getTransactionHistoryIconColor() {
-    return _navigationState == NavigationState.navigatingToTransactionHistory
-        ? CupertinoColors.systemGrey
-        : CupertinoColors.systemBlue;
-  }
-
-  VoidCallback? _getTransactionHistoryOnPressed() {
-    return _navigationState == NavigationState.navigatingToTransactionHistory
-        ? null
-        : _showTransactionHistory;
   }
 
   void _addToCart(Product product) {
@@ -876,23 +859,6 @@ class _CashierScreenState extends State<CashierScreen> {
     );
   }
 
-  void _updateQuantity(ShoppingCartItem item, int change) {
-    if (!mounted) return;
-
-    setState(() {
-      final newQuantity = item.quantity + change;
-      if (newQuantity <= 0) {
-        _cartItems.remove(item);
-      } else {
-        // Temukan index item dan replace dengan instance baru
-        final index = _cartItems.indexOf(item);
-        if (index >= 0) {
-          _cartItems[index] = item.copyWith(quantity: newQuantity);
-        }
-      }
-    });
-  }
-
   void _updateQuantityInDialog(
     ShoppingCartItem item,
     int change,
@@ -1060,8 +1026,6 @@ class _CashierScreenState extends State<CashierScreen> {
                   children: [
                     _buildPaymentOption('Tunai', PaymentMethod.cash, setState),
                     const SizedBox(height: 8), // Tambah spacing antar opsi
-                    _buildPaymentOption('QRIS', PaymentMethod.qris, setState),
-                    const SizedBox(height: 8),
                     _buildPaymentOption(
                       'Transfer Bank',
                       PaymentMethod.transfer,
@@ -1168,25 +1132,6 @@ class _CashierScreenState extends State<CashierScreen> {
     });
   }
 
-  void _showTransactionHistory() {
-    if (!mounted) return;
-
-    setState(() {
-      _navigationState = NavigationState.navigatingToTransactionHistory;
-    });
-
-    Navigator.push(
-      context,
-      CupertinoPageRoute(builder: (context) => TransactionHistoryScreen()),
-    ).then((_) {
-      if (!mounted) return;
-
-      setState(() {
-        _navigationState = NavigationState.idle;
-      });
-    });
-  }
-
   void _processPayment() {
     if (_cartItems.isEmpty) return;
 
@@ -1198,8 +1143,6 @@ class _CashierScreenState extends State<CashierScreen> {
     // Handle berbagai metode pembayaran
     if (_selectedPaymentMethod == PaymentMethod.cash) {
       _showCashInputScreen(totalPrice);
-    } else if (_selectedPaymentMethod == PaymentMethod.qris) {
-      _showQRISPaymentScreen(totalPrice);
     } else if (_selectedPaymentMethod == PaymentMethod.transfer) {
       _showBankTransferScreen(totalPrice);
     } else {
@@ -1280,48 +1223,6 @@ class _CashierScreenState extends State<CashierScreen> {
           final cashAmount = result['cashAmount'] as double;
           final change = result['change'] as double;
           _completePayment(cashAmount: cashAmount, change: change);
-        }
-      });
-    });
-  }
-
-  void _showQRISPaymentScreen(double totalPrice) {
-    if (!mounted) return;
-
-    setState(() {
-      _navigationState = NavigationState.navigatingToQRISPayment;
-    });
-
-    // Tutup dialog payment method terlebih dahulu
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    }
-
-    // Tunggu sebentar sebelum navigasi ke QRIS screen
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (!mounted) return;
-
-      Navigator.push(
-        context,
-        CupertinoPageRoute(
-          builder: (context) => QRISPaymentScreen(
-            totalAmount: totalPrice,
-            cartItems: List<ShoppingCartItem>.from(_cartItems),
-          ),
-        ),
-      ).then((result) {
-        if (!mounted) return;
-
-        setState(() {
-          _navigationState = NavigationState.idle;
-        });
-
-        if (result != null && result == true) {
-          // QRIS payment successful, complete the transaction
-          print('DEBUG: QRIS payment returned true, calling _completePayment');
-          _completePayment(paymentMethod: PaymentMethod.qris);
-        } else {
-          print('DEBUG: QRIS payment result: $result');
         }
       });
     });
@@ -1487,7 +1388,7 @@ class _CashierScreenState extends State<CashierScreen> {
         );
         if (productIndex >= 0) {
           final updatedProduct = _products[productIndex].copyWith(
-            stock: _products[productIndex].stock - item.quantity as int,
+            stock: _products[productIndex].stock - item.quantity,
           );
           await _databaseHelper.updateProduct(updatedProduct);
           _products[productIndex] = updatedProduct;
@@ -1723,24 +1624,6 @@ class _CashierScreenState extends State<CashierScreen> {
           ],
         ),
       );
-    }
-
-    void _editProduct(Product product) {
-      // Tutup dialog detail dulu
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      }
-
-      // Navigasi ke layar edit produk
-      Navigator.push(
-        context,
-        CupertinoPageRoute(
-          builder: (context) => EditProductScreen(product: product),
-        ),
-      ).then((_) {
-        // Refresh daftar produk setelah edit
-        _loadProducts();
-      });
     }
   }
 }

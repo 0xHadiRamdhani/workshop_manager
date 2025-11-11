@@ -318,7 +318,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
       decoration: BoxDecoration(
         color: CupertinoColors.darkBackgroundGray,
         border: Border(
-          top: BorderSide(color: CupertinoColors.systemGrey4.withOpacity(0.3)),
+          top: BorderSide(
+            color: CupertinoColors.systemGrey4.withValues(alpha: 0.3),
+          ),
         ),
       ),
       child: Row(
@@ -378,7 +380,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 color: CupertinoColors.darkBackgroundGray,
                 border: Border(
                   bottom: BorderSide(
-                    color: CupertinoColors.systemGrey4.withOpacity(0.3),
+                    color: CupertinoColors.systemGrey4.withValues(alpha: 0.3),
                   ),
                 ),
               ),

@@ -92,21 +92,9 @@ void main() {
         createdAt: DateTime(2024, 1, 1),
       );
 
-      final transactionQris = Transaction(
-        id: 'T004',
-        vehicleId: 'V004',
-        customerName: 'Test',
-        services: [ServiceItem(name: 'Service', price: 50000, quantity: 1)],
-        totalAmount: 50000,
-        paymentMethod: PaymentMethod.qris,
-        status: TransactionStatus.paid,
-        createdAt: DateTime(2024, 1, 1),
-      );
-
       expect(transactionCash.paymentMethodText, 'Tunai');
       expect(transactionTransfer.paymentMethodText, 'Transfer Bank');
       expect(transactionCard.paymentMethodText, 'Kartu Debit/Kredit');
-      expect(transactionQris.paymentMethodText, 'QRIS');
     });
 
     test('statusText should return correct text', () {
@@ -225,11 +213,10 @@ void main() {
   group('Enum Extension Tests', () {
     test('PaymentMethod enum should have correct values', () {
       const methods = PaymentMethod.values;
-      expect(methods.length, 4);
+      expect(methods.length, 3);
       expect(methods.contains(PaymentMethod.cash), true);
       expect(methods.contains(PaymentMethod.transfer), true);
       expect(methods.contains(PaymentMethod.card), true);
-      expect(methods.contains(PaymentMethod.qris), true);
     });
 
     test('TransactionStatus enum should have correct values', () {

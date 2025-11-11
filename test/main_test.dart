@@ -1,75 +1,53 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:workshop_manager/main.dart';
+import 'package:workshop_manager/widgets/app_drawer.dart';
 
 void main() {
   group('Main App Tests', () {
-    testWidgets('should create WorkshopManagerApp', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(WorkshopManagerApp());
+    testWidgets('should render MyApp widget', (WidgetTester tester) async {
+      await tester.pumpWidget(const MyApp());
 
-      expect(find.byType(WorkshopManagerApp), findsOneWidget);
+      expect(find.byType(MyApp), findsOneWidget);
     });
 
-    testWidgets('should have MainScreen as home', (WidgetTester tester) async {
-      await tester.pumpWidget(WorkshopManagerApp());
-
-      final mainScreen = find.byType(MainScreen);
-      expect(mainScreen, findsOneWidget);
-    });
-  });
-
-  group('MainScreen Tests', () {
-    testWidgets('should create MainScreen with correct structure', (
+    testWidgets('should render MainScreen with drawer navigation', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(CupertinoApp(home: MainScreen()));
+      await tester.pumpWidget(const MyApp());
 
       expect(find.byType(MainScreen), findsOneWidget);
-      expect(find.byType(CupertinoTabScaffold), findsOneWidget);
+      expect(find.byType(AppBar), findsOneWidget);
     });
 
-    testWidgets('should have three tabs', (WidgetTester tester) async {
-      await tester.pumpWidget(CupertinoApp(home: MainScreen()));
+    testWidgets('should show drawer when menu button is tapped', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MyApp());
 
-      final tabBar = find.byType(CupertinoTabBar);
-      expect(tabBar, findsOneWidget);
+      // Find and tap the menu button
+      final menuButton = find.byIcon(Icons.menu);
+      expect(menuButton, findsOneWidget);
 
-      final tabBarWidget = tester.widget<CupertinoTabBar>(tabBar);
-      expect(tabBarWidget.items.length, 3);
+      await tester.tap(menuButton);
+      await tester.pump(); // Use pump instead of pumpAndSettle
+
+      // Drawer should be visible
+      expect(find.byType(AppDrawer), findsOneWidget);
     });
 
-    testWidgets('should have correct tab labels', (WidgetTester tester) async {
-      await tester.pumpWidget(CupertinoApp(home: MainScreen()));
+    testWidgets('should navigate between screens', (WidgetTester tester) async {
+      await tester.pumpWidget(const MyApp());
 
-      expect(find.text('Dashboard'), findsOneWidget);
-      expect(find.text('Workshop'), findsOneWidget);
-      expect(find.text('Kasir'), findsOneWidget);
-    });
+      // Open drawer
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pump();
 
-    testWidgets('should have correct tab icons', (WidgetTester tester) async {
-      await tester.pumpWidget(CupertinoApp(home: MainScreen()));
+      // Tap on Workshop menu item
+      await tester.tap(find.text('Workshop'));
+      await tester.pump();
 
-      expect(find.byIcon(CupertinoIcons.home), findsOneWidget);
-      expect(find.byIcon(CupertinoIcons.wrench), findsOneWidget);
-      expect(find.byIcon(CupertinoIcons.money_dollar), findsOneWidget);
-    });
-
-    testWidgets('should switch between tabs', (WidgetTester tester) async {
-      await tester.pumpWidget(CupertinoApp(home: MainScreen()));
-
-      // Initially should show Dashboard
-      expect(find.text('Dashboard'), findsOneWidget);
-
-      // Find and tap on Workshop tab
-      final workshopTab = find.text('Workshop');
-      expect(workshopTab, findsOneWidget);
-
-      await tester.tap(workshopTab);
-      await tester.pumpAndSettle();
-
-      // Should still find Workshop after tapping
+      // Should navigate to Workshop screen
       expect(find.text('Workshop'), findsOneWidget);
     });
   });

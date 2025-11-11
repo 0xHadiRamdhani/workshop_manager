@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import '../models/vehicle.dart';
 import '../models/transaction.dart';
 import '../database/database_helper.dart';
-import 'about_screen.dart';
-import 'printer_settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -122,6 +120,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        leading: IconButton(
+          onPressed: () {
+            // Akses scaffold dari parent MaterialApp
+            final scaffoldState = Scaffold.maybeOf(context);
+            if (scaffoldState != null && scaffoldState.hasDrawer) {
+              scaffoldState.openDrawer();
+            }
+          },
+          icon: Icon(CupertinoIcons.bars),
+        ),
         middle: const Text('Dashboard'),
         backgroundColor: CupertinoColors.darkBackgroundGray,
         border: const Border(
@@ -133,26 +141,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             CupertinoButton(
               padding: EdgeInsets.zero,
               child: const Icon(
-                CupertinoIcons.printer,
-                color: CupertinoColors.white,
-              ),
-              onPressed: _navigateToPrinterSettings,
-            ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              child: const Icon(
                 CupertinoIcons.refresh,
                 color: CupertinoColors.white,
               ),
               onPressed: _loadData,
-            ),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              child: const Icon(
-                CupertinoIcons.info_circle,
-                color: CupertinoColors.white,
-              ),
-              onPressed: _navigateToAboutScreen,
             ),
           ],
         ),
@@ -463,18 +455,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  void _navigateToAboutScreen() {
-    Navigator.of(
-      context,
-    ).push(CupertinoPageRoute(builder: (context) => const AboutScreen()));
-  }
-
-  void _navigateToPrinterSettings() {
-    Navigator.of(context).push(
-      CupertinoPageRoute(builder: (context) => const PrinterSettingsScreen()),
     );
   }
 }

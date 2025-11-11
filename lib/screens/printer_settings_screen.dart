@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../services/print_service.dart';
 
 class PrinterSettingsScreen extends StatefulWidget {
   const PrinterSettingsScreen({super.key});
@@ -159,10 +158,15 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         border: const Border(
           bottom: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
         ),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.xmark, color: CupertinoColors.white),
-          onPressed: () => Navigator.pop(context),
+        leading: IconButton(
+          onPressed: () {
+            // Akses scaffold dari parent MaterialApp
+            final scaffoldState = Scaffold.maybeOf(context);
+            if (scaffoldState != null && scaffoldState.hasDrawer) {
+              scaffoldState.openDrawer();
+            }
+          },
+          icon: Icon(CupertinoIcons.bars),
         ),
       ),
       child: SafeArea(

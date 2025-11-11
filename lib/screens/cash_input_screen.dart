@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../screens/cashier_screen.dart';
 import '../models/transaction.dart';
 import '../models/cart_item.dart';
 
@@ -48,7 +47,7 @@ class _CashInputScreenState extends State<CashInputScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: const Text('Input Uang Cash'),
+        middle: const Text('Pembayaran Tunai'),
         backgroundColor: CupertinoColors.darkBackgroundGray,
         border: const Border(
           bottom: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
@@ -328,6 +327,9 @@ class _CashInputScreenState extends State<CashInputScreen> {
                   ? CupertinoColors.systemGreen
                   : CupertinoColors.systemGrey4,
               borderRadius: BorderRadius.circular(12),
+              onPressed: _cashAmount >= widget.totalAmount
+                  ? _processPayment
+                  : null,
               child: const Text(
                 'Proses Bayar',
                 style: TextStyle(
@@ -336,9 +338,6 @@ class _CashInputScreenState extends State<CashInputScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              onPressed: _cashAmount >= widget.totalAmount
-                  ? _processPayment
-                  : null,
             ),
           ),
         ],
@@ -354,8 +353,6 @@ class _CashInputScreenState extends State<CashInputScreen> {
         return 'Transfer Bank';
       case PaymentMethod.card:
         return 'Kartu Debit/Kredit';
-      case PaymentMethod.qris:
-        return 'QRIS';
     }
   }
 

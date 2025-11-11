@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum PaymentMethod { cash, transfer, card, qris }
+enum PaymentMethod { cash, transfer, card }
 
 enum TransactionStatus { pending, paid, cancelled }
 
@@ -16,6 +16,13 @@ class Transaction {
   final DateTime? paidAt;
   final double? cashAmount;
   final double? changeAmount;
+  final bool isDebt;
+  final double debtAmount;
+  final double debtPaidAmount;
+  final String debtStatus;
+  final DateTime? paymentDueDate;
+  final String? branchId;
+  final String? invoiceNumber;
 
   Transaction({
     required this.id,
@@ -29,6 +36,13 @@ class Transaction {
     this.paidAt,
     this.cashAmount,
     this.changeAmount,
+    this.isDebt = false,
+    this.debtAmount = 0.0,
+    this.debtPaidAmount = 0.0,
+    this.debtStatus = 'paid',
+    this.paymentDueDate,
+    this.branchId,
+    this.invoiceNumber,
   });
 
   String get paymentMethodText {
@@ -39,8 +53,6 @@ class Transaction {
         return 'Transfer Bank';
       case PaymentMethod.card:
         return 'Kartu Debit/Kredit';
-      case PaymentMethod.qris:
-        return 'QRIS';
     }
   }
 

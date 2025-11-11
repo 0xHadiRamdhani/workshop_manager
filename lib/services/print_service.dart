@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter_bluetooth_printer/flutter_bluetooth_printer.dart';
 import '../models/transaction.dart';
 

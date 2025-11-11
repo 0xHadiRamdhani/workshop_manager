@@ -5,7 +5,6 @@ import '../models/transaction.dart';
 import '../database/database_helper.dart';
 import 'add_vehicle_screen.dart';
 import 'cash_input_screen.dart';
-import 'qris_payment_screen.dart';
 import 'receipt_screen.dart';
 
 class WorkshopScreen extends StatefulWidget {
@@ -91,6 +90,16 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        leading: IconButton(
+          onPressed: () {
+            // Akses scaffold dari parent MaterialApp
+            final scaffoldState = Scaffold.maybeOf(context);
+            if (scaffoldState != null && scaffoldState.hasDrawer) {
+              scaffoldState.openDrawer();
+            }
+          },
+          icon: Icon(CupertinoIcons.bars),
+        ),
         middle: Text('Workshop'),
         backgroundColor: CupertinoColors.darkBackgroundGray,
         border: Border(
@@ -206,7 +215,7 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
                 }
               },
               groupValue: _selectedFilter,
-              backgroundColor: CupertinoColors.systemGrey5,
+              backgroundColor: CupertinoColors.darkBackgroundGray,
               thumbColor: CupertinoColors.systemBlue,
             ),
           ),
@@ -446,26 +455,27 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              Expanded(
-                child: CupertinoButton(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  color: vehicle.status == VehicleStatus.completed
-                      ? CupertinoColors.systemGreen
-                      : CupertinoColors.systemBlue,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Text(
-                    vehicle.status == VehicleStatus.completed
-                        ? 'Serahkan Motor'
-                        : 'Update Status',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: CupertinoColors.white,
-                      fontWeight: FontWeight.w500,
+              if (vehicle.status != VehicleStatus.delivered)
+                Expanded(
+                  child: CupertinoButton(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    color: vehicle.status == VehicleStatus.completed
+                        ? CupertinoColors.systemGreen
+                        : CupertinoColors.systemBlue,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Text(
+                      vehicle.status == VehicleStatus.completed
+                          ? 'Serahkan Motor'
+                          : 'Update Status',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: CupertinoColors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
+                    onPressed: () => _showStatusUpdateDialog(vehicle),
                   ),
-                  onPressed: () => _showStatusUpdateDialog(vehicle),
                 ),
-              ),
             ],
           ),
         ],
@@ -615,8 +625,6 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
         return 'Transfer Bank';
       case PaymentMethod.card:
         return 'Kartu Debit/Kredit';
-      case PaymentMethod.qris:
-        return 'QRIS';
     }
   }
 
@@ -745,8 +753,6 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
             const SizedBox(height: 12),
             _buildPaymentOption('Tunai', PaymentMethod.cash, vehicle),
             const SizedBox(height: 8),
-            _buildPaymentOption('QRIS', PaymentMethod.qris, vehicle),
-            const SizedBox(height: 8),
             _buildPaymentOption(
               'Transfer Bank',
               PaymentMethod.transfer,
@@ -800,8 +806,6 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
     switch (method) {
       case PaymentMethod.cash:
         return CupertinoIcons.money_dollar;
-      case PaymentMethod.qris:
-        return CupertinoIcons.qrcode;
       case PaymentMethod.transfer:
         return CupertinoIcons.building_2_fill;
       default:
@@ -817,8 +821,6 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
 
     if (method == PaymentMethod.cash) {
       _showCashInputScreen(vehicle);
-    } else if (method == PaymentMethod.qris) {
-      _showQRISPaymentScreen(vehicle);
     } else {
       // Transfer bank
       _processBankTransfer(vehicle);
@@ -826,6 +828,9 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
   }
 
   void _showCashInputScreen(Vehicle vehicle) {
+    print(
+      'Workshop: Opening CashInputScreen for vehicle ${vehicle.licensePlate}',
+    );
     Navigator.of(context)
         .push(
           CupertinoPageRoute(
@@ -837,32 +842,19 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
           ),
         )
         .then((result) {
+          print('Workshop: CashInputScreen returned with result: $result');
           if (result != null && result is Map<String, dynamic>) {
             final cashAmount = result['cashAmount'] as double;
             final change = result['change'] as double;
+            print(
+              'Workshop: Processing cash payment with cashAmount: $cashAmount, change: $change',
+            );
             _completePayment(
               vehicle,
               PaymentMethod.cash,
               cashAmount: cashAmount,
               change: change,
             );
-          }
-        });
-  }
-
-  void _showQRISPaymentScreen(Vehicle vehicle) {
-    Navigator.of(context)
-        .push(
-          CupertinoPageRoute(
-            builder: (context) => QRISPaymentScreen(
-              totalAmount: vehicle.estimatedCost ?? 0,
-              cartItems: [], // Kosongkan untuk workshop
-            ),
-          ),
-        )
-        .then((result) {
-          if (result != null && result == true) {
-            _completePayment(vehicle, PaymentMethod.qris);
           }
         });
   }
@@ -939,7 +931,13 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
             child: const Text('Sudah Transfer'),
             onPressed: () {
               Navigator.pop(context);
-              _completePayment(vehicle, PaymentMethod.transfer);
+              // Kembalikan data yang sama seperti metode lainnya
+              _completePayment(
+                vehicle,
+                PaymentMethod.transfer,
+                cashAmount: vehicle.estimatedCost,
+                change: 0.0,
+              );
             },
           ),
         ],
@@ -953,6 +951,10 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
     double? cashAmount,
     double? change,
   }) async {
+    print(
+      'Workshop: _completePayment called for vehicle ${vehicle.licensePlate} with method: $method',
+    );
+
     // Update status kendaraan menjadi delivered
     final updatedVehicle = vehicle.copyWith(
       status: VehicleStatus.delivered,
@@ -962,7 +964,9 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
     );
 
     try {
+      print('Workshop: Updating vehicle status to delivered...');
       await _databaseHelper.updateVehicle(updatedVehicle);
+      print('Workshop: Vehicle status updated successfully');
 
       // Buat transaksi untuk pembayaran workshop
       final transaction = Transaction(
@@ -985,32 +989,44 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
         changeAmount: change,
       );
 
+      print('Workshop: Inserting transaction...');
       await _databaseHelper.insertTransaction(transaction);
+      print('Workshop: Transaction inserted successfully');
 
-      if (!mounted) return;
+      // Simpan reference untuk navigasi
+      final currentContext = context;
+
+      print('Workshop: Loading vehicles...');
       _loadVehicles(); // Refresh data
 
-      // Navigasi langsung ke receipt screen dengan aman
-      if (!mounted) return;
+      print('Workshop: Navigating to receipt screen...');
 
-      // Navigasi ke receipt screen
-      Navigator.of(context)
-          .push(
-            CupertinoPageRoute(
-              builder: (context) => ReceiptScreen(
-                transaction: transaction,
-                cashAmount: method == PaymentMethod.cash ? cashAmount : null,
-                change: method == PaymentMethod.cash ? change : null,
+      // Navigasi ke receipt screen - lakukan setelah delay kecil untuk memastikan UI siap
+      Future.delayed(const Duration(milliseconds: 100), () {
+        print('Workshop: Executing delayed navigation to receipt screen');
+        Navigator.of(currentContext)
+            .push(
+              CupertinoPageRoute(
+                builder: (context) => ReceiptScreen(
+                  transaction: transaction,
+                  cashAmount: method == PaymentMethod.cash ? cashAmount : null,
+                  change: method == PaymentMethod.cash ? change : null,
+                ),
               ),
-            ),
-          )
-          .then((result) {
-            // Refresh data setelah kembali dari receipt
-            if (mounted) {
-              _loadVehicles();
-            }
-          });
+            )
+            .then((result) {
+              print('Workshop: Returned from receipt screen');
+              // Refresh data setelah kembali dari receipt
+              if (mounted) {
+                print('Workshop: Refreshing vehicles after receipt screen');
+                _loadVehicles();
+              }
+            });
+      });
+
+      print('Workshop: Navigation to receipt screen initiated');
     } catch (e) {
+      print('Workshop: Error in _completePayment: $e');
       if (!mounted) return;
       showCupertinoDialog(
         context: context,
