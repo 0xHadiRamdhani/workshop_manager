@@ -253,11 +253,6 @@ Berikut adalah tampilan aplikasi Workshop Manager:
       <br>
       <strong>Riwayat Transaksi</strong>
     </td>
-    <td align="center">
-      <br>
-      <br>
-      <strong></strong>
-    </td>
   </tr>
 </table>
 
