@@ -236,6 +236,11 @@ Berikut adalah tampilan aplikasi Workshop Manager:
       <br>
       <strong>Input Uang Cash</strong>
     </td>
+        <td align="center">
+      <img src="screenshots/about_app.png" width="200" alt="About"/>
+      <br>
+      <strong>Tentang Aplikasi</strong>
+    </td>
     <td align="center">
       <br>
       <br>
@@ -247,16 +252,6 @@ Berikut adalah tampilan aplikasi Workshop Manager:
       <img src="screenshots/history.png" width="200" alt="Transaction History"/>
       <br>
       <strong>Riwayat Transaksi</strong>
-    </td>
-    <td align="center">
-      <img src="screenshots/pdf_viewer.png" width="200" alt="PDF Viewer"/>
-      <br>
-      <strong>PDF Viewer & Sharing</strong>
-    </td>
-    <td align="center">
-      <img src="screenshots/about_app.png" width="200" alt="About"/>
-      <br>
-      <strong>Tentang Aplikasi</strong>
     </td>
     <td align="center">
       <br>
