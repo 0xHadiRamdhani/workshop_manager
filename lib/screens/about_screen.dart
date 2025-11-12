@@ -70,7 +70,7 @@ class AboutScreen extends StatelessWidget {
               _buildInfoSection(
                 'Dibuat oleh',
                 'SMK Bani Ma\'sum\n\n'
-                    'Programmer:\nHadi Ramdhani\n\n'
+                    'Programmer:\nHadi Ramdhani\nAkmal Alhafiz\n\n'
                     'UI/UX Designer:\nHadi Ramdhani',
               ),
               const SizedBox(height: 24),

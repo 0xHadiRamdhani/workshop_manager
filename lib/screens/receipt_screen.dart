@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/transaction.dart';
+import '../services/print_service.dart';
+import 'pdf_viewer_screen.dart';
 
 class ReceiptScreen extends StatefulWidget {
   final Transaction transaction;
@@ -20,6 +22,8 @@ class ReceiptScreen extends StatefulWidget {
 }
 
 class _ReceiptScreenState extends State<ReceiptScreen> {
+  bool _isGeneratingPDF = false;
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -29,13 +33,26 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
         border: const Border(
           bottom: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
         ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: _shareReceipt,
-          child: const Icon(
-            CupertinoIcons.share,
-            color: CupertinoColors.systemBlue,
-          ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: _shareReceipt,
+              child: const Icon(
+                CupertinoIcons.share,
+                color: CupertinoColors.systemBlue,
+              ),
+            ),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: _generatePDF,
+              child: const Icon(
+                CupertinoIcons.doc_fill,
+                color: CupertinoColors.systemGreen,
+              ),
+            ),
+          ],
         ),
       ),
       child: SafeArea(
@@ -421,49 +438,85 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
           ),
         ),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: CupertinoButton(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              color: CupertinoColors.systemGrey5,
-              borderRadius: BorderRadius.circular(12),
-              child: const Text(
-                'Kembali',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: CupertinoColors.white,
-                  fontWeight: FontWeight.w600,
+          Row(
+            children: [
+              Expanded(
+                child: CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  color: CupertinoColors.systemGrey5,
+                  borderRadius: BorderRadius.circular(12),
+                  child: const Text(
+                    'Kembali',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: CupertinoColors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
+                  },
                 ),
               ),
-              onPressed: () {
-                if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  color: CupertinoColors.systemBlue,
+                  borderRadius: BorderRadius.circular(12),
+                  child: const Text(
+                    'Selesai',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: CupertinoColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () {
+                    // Kembali ke screen sebelumnya dengan aman
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop('completed');
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: CupertinoButton(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              color: CupertinoColors.systemBlue,
-              borderRadius: BorderRadius.circular(12),
-              child: const Text(
-                'Selesai',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: CupertinoColors.white,
-                  fontWeight: FontWeight.bold,
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  color: CupertinoColors.systemGreen,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _isGeneratingPDF
+                          ? const CupertinoActivityIndicator()
+                          : const Icon(CupertinoIcons.doc_fill, size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        _isGeneratingPDF
+                            ? 'Membuat PDF...'
+                            : 'Simpan sebagai PDF',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: CupertinoColors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  onPressed: _isGeneratingPDF ? null : _generatePDF,
                 ),
               ),
-              onPressed: () {
-                // Kembali ke screen sebelumnya dengan aman
-                if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop('completed');
-                }
-              },
-            ),
+            ],
           ),
         ],
       ),
@@ -529,6 +582,59 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
 
     // Copy to clipboard
     Clipboard.setData(ClipboardData(text: receiptText));
+  }
+
+  Future<void> _generatePDF() async {
+    setState(() {
+      _isGeneratingPDF = true;
+    });
+
+    try {
+      // Generate PDF menggunakan PrintService
+      final pdfPath = await PrintService.generateAndSaveReceiptPDF(
+        transaction: widget.transaction,
+        workshopName: 'Workshop Manager',
+        workshopAddress: 'Jl. Workshop No. 123',
+        workshopPhone: '0812-3456-7890',
+      );
+
+      if (pdfPath != null) {
+        // Navigasi ke PDF viewer screen
+        Navigator.of(context).push(
+          CupertinoPageRoute(
+            builder: (context) => PDFViewerScreen(
+              pdfPath: pdfPath,
+              transactionId: widget.transaction.id,
+            ),
+          ),
+        );
+      } else {
+        _showErrorDialog('Gagal membuat PDF');
+      }
+    } catch (e) {
+      _showErrorDialog('Error generating PDF: $e');
+    } finally {
+      setState(() {
+        _isGeneratingPDF = false;
+      });
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text('OK'),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
   }
 
   String _generateReceiptText() {

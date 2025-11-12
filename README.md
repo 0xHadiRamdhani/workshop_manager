@@ -140,6 +140,9 @@ Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) unt
 - Email: hadsxdev@icloud.com
 - GitHub: [Hadi Ramdhani](https://github.com/0xHadiRamdhani)
 
+### Contributors
+- Akmal Alhafiz - GitHub: [akmalalhafiz](https://github.com/akmalalhafiz)
+
 ## Changelog
 
 ### v1.0.4

@@ -1,4 +1,8 @@
 import 'package:flutter_bluetooth_printer/flutter_bluetooth_printer.dart';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/transaction.dart';
 
 /// Service untuk pencetakan struk menggunakan printer thermal bluetooth
@@ -173,6 +177,154 @@ class PrintService {
       return false;
     } catch (e) {
       return false;
+    }
+  }
+
+  /// Generate PDF dari struk transaksi
+  static Future<String?> generateReceiptPDF({
+    required Transaction transaction,
+    required String workshopName,
+    required String workshopAddress,
+    required String workshopPhone,
+  }) async {
+    try {
+      // Format struk untuk PDF
+      String receiptContent = _formatReceipt(
+        transaction: transaction,
+        workshopName: workshopName,
+        workshopAddress: workshopAddress,
+        workshopPhone: workshopPhone,
+      );
+
+      // Buat file PDF sederhana (text-based)
+      final directory = await getApplicationDocumentsDirectory();
+
+      // Pastikan direktori ada
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+
+      final fileName =
+          'receipt_${transaction.id}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final filePath = '${directory.path}/$fileName';
+
+      // Buat konten PDF dalam format sederhana
+      String pdfContent = _createSimplePDFContent(
+        receiptContent: receiptContent,
+        transaction: transaction,
+      );
+
+      // Simpan sebagai file text dengan ekstensi .pdf untuk sekarang
+      // Nanti bisa diganti dengan library PDF yang sesungguhnya
+      final file = File(filePath);
+      await file.writeAsString(pdfContent);
+
+      print('PDF generated at: $filePath');
+      return filePath;
+    } catch (e) {
+      print('Error generating PDF: $e');
+      return null;
+    }
+  }
+
+  /// Buat konten PDF sederhana (text-based untuk sekarang)
+  static String _createSimplePDFContent({
+    required String receiptContent,
+    required Transaction transaction,
+  }) {
+    StringBuffer pdfContent = StringBuffer();
+
+    // Header PDF dengan format yang lebih menarik
+    pdfContent.writeln('╔════════════════════════════════════════════════╗');
+    pdfContent.writeln('║        WORKSHOP MANAGER - DIGITAL RECEIPT      ║');
+    pdfContent.writeln('╚════════════════════════════════════════════════╝');
+    pdfContent.writeln();
+
+    // Informasi transaksi dengan format yang rapi
+    pdfContent.writeln('📋 INFORMASI TRANSAKSI');
+    pdfContent.writeln('═══════════════════════════════════════════════════');
+    pdfContent.writeln('🆔 Transaction ID : ${transaction.id}');
+    pdfContent.writeln(
+      '📅 Tanggal        : ${_formatDateTime(transaction.createdAt)}',
+    );
+    pdfContent.writeln('👤 Pelanggan      : ${transaction.customerName}');
+    pdfContent.writeln('🏍️ Kendaraan      : ${transaction.vehicleId}');
+    pdfContent.writeln('💳 Metode Bayar   : ${transaction.paymentMethodText}');
+    pdfContent.writeln();
+
+    // Detail layanan
+    pdfContent.writeln('🔧 DETAIL LAYANAN');
+    pdfContent.writeln('═══════════════════════════════════════════════════');
+    for (var service in transaction.services) {
+      pdfContent.writeln('• ${service.name} (${service.quantity}x)');
+      pdfContent.writeln(
+        '  Harga: Rp ${service.price.toStringAsFixed(0)} x ${service.quantity} = Rp ${service.totalPrice.toStringAsFixed(0)}',
+      );
+    }
+    pdfContent.writeln();
+
+    // Total dan pembayaran
+    pdfContent.writeln('💰 RINCIAN PEMBAYARAN');
+    pdfContent.writeln('═══════════════════════════════════════════════════');
+    pdfContent.writeln(
+      'Total Tagihan     : Rp ${transaction.totalAmount.toStringAsFixed(0)}',
+    );
+
+    if (transaction.cashAmount != null) {
+      pdfContent.writeln(
+        'Uang yang Dibayar : Rp ${transaction.cashAmount!.toStringAsFixed(0)}',
+      );
+    }
+    if (transaction.changeAmount != null) {
+      pdfContent.writeln(
+        'Kembalian         : Rp ${transaction.changeAmount!.toStringAsFixed(0)}',
+      );
+    }
+    pdfContent.writeln();
+
+    // Struk yang sudah diformat
+    pdfContent.writeln('📄 STRUK PEMBAYARAN');
+    pdfContent.writeln('═══════════════════════════════════════════════════');
+    pdfContent.writeln(receiptContent);
+    pdfContent.writeln();
+
+    // Footer dengan informasi tambahan
+    pdfContent.writeln('╔════════════════════════════════════════════════╗');
+    pdfContent.writeln('║  Terima kasih atas kepercayaan Anda!           ║');
+    pdfContent.writeln('║  Semoga berkendara dengan aman dan nyaman.    ║');
+    pdfContent.writeln('╚════════════════════════════════════════════════╝');
+    pdfContent.writeln();
+    pdfContent.writeln('📱 Digital Receipt - Workshop Manager');
+    pdfContent.writeln('🕒 Generated: ${_formatDateTime(DateTime.now())}');
+    pdfContent.writeln('🔗 Save this receipt for your records');
+
+    return pdfContent.toString();
+  }
+
+  /// Generate dan save PDF untuk struk
+  static Future<String?> generateAndSaveReceiptPDF({
+    required Transaction transaction,
+    required String workshopName,
+    required String workshopAddress,
+    required String workshopPhone,
+  }) async {
+    try {
+      final pdfPath = await generateReceiptPDF(
+        transaction: transaction,
+        workshopName: workshopName,
+        workshopAddress: workshopAddress,
+        workshopPhone: workshopPhone,
+      );
+
+      if (pdfPath != null) {
+        print('Receipt PDF saved successfully: $pdfPath');
+        return pdfPath;
+      }
+
+      return null;
+    } catch (e) {
+      print('Error generating and saving receipt PDF: $e');
+      return null;
     }
   }
 }
