@@ -116,21 +116,34 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       final filePath = _pdfFile!.path;
       final fileName = filePath.split('/').last;
 
-      // Langsung buka WhatsApp dengan pesan
-      final whatsappUrl =
-          'https://wa.me/?text=${Uri.encodeComponent('$message\n\n📄 File: $fileName')}';
-
-      if (await canLaunch(whatsappUrl)) {
-        await launch(whatsappUrl);
-      } else {
-        // Fallback ke share biasa
-        await Share.share(
-          '$message\n\n📄 File: $fileName\n📍 Lokasi: $filePath',
+      // Coba gunakan share_plus untuk share file PDF langsung
+      try {
+        // Share file PDF dengan caption
+        await Share.shareXFiles(
+          [XFile(filePath)],
+          text: message,
           subject: 'Struk Workshop - ${widget.transactionId}',
         );
+      } catch (e) {
+        // Jika shareXFiles gagal, coba buka WhatsApp dengan URL scheme
+        final whatsappUrl =
+            'https://wa.me/?text=${Uri.encodeComponent('$message\n\n📄 File: $fileName\n\nFile PDF telah disimpan di perangkat Anda. Silakan bagikan secara manual melalui WhatsApp.')}';
+
+        if (await canLaunch(whatsappUrl)) {
+          await launch(whatsappUrl);
+        } else {
+          // Fallback ke share biasa
+          await Share.share(
+            '$message\n\n📄 File: $fileName\n📍 Lokasi: $filePath',
+            subject: 'Struk Workshop - ${widget.transactionId}',
+          );
+        }
       }
     } catch (e) {
-      _showManualShareDialog();
+      // Tampilkan error dialog yang lebih informatif
+      _showErrorDialog(
+        'Gagal membagikan ke WhatsApp. Silakan coba lagi atau gunakan metode share lainnya.',
+      );
     }
   }
 
@@ -202,23 +215,35 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         final filePath = _pdfFile!.path;
         final fileName = filePath.split('/').last;
 
-        // Buka WhatsApp secara langsung dengan pesan
-        final whatsappUrl =
-            'https://wa.me/?text=${Uri.encodeComponent('$message\n\n📄 File: $fileName')}';
-
-        if (await canLaunch(whatsappUrl)) {
-          await launch(whatsappUrl);
-        } else {
-          // Fallback ke share biasa
-          await Share.share(
-            '$message\n\n📄 File: $fileName\n📍 Lokasi: $filePath',
+        // Coba gunakan share_plus untuk share file PDF langsung
+        try {
+          // Share file PDF dengan caption
+          await Share.shareXFiles(
+            [XFile(filePath)],
+            text: message,
             subject: 'Struk Workshop - ${widget.transactionId}',
           );
+        } catch (e) {
+          // Jika shareXFiles gagal, coba buka WhatsApp dengan URL scheme
+          final whatsappUrl =
+              'https://wa.me/?text=${Uri.encodeComponent('$message\n\n📄 File: $fileName\n\nFile PDF telah disimpan di perangkat Anda. Silakan bagikan secara manual melalui WhatsApp.')}';
+
+          if (await canLaunch(whatsappUrl)) {
+            await launch(whatsappUrl);
+          } else {
+            // Fallback ke share biasa
+            await Share.share(
+              '$message\n\n📄 File: $fileName\n📍 Lokasi: $filePath',
+              subject: 'Struk Workshop - ${widget.transactionId}',
+            );
+          }
         }
       }
     } catch (e) {
-      // Fallback ke metode manual
-      _showManualShareDialog();
+      // Tampilkan error dialog yang lebih informatif
+      _showErrorDialog(
+        'Gagal membagikan ke WhatsApp. Silakan coba lagi atau gunakan metode share lainnya.',
+      );
     }
   }
 
@@ -673,9 +698,16 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(CupertinoIcons.share, size: 20),
+                                Icon(
+                                  CupertinoIcons.share,
+                                  size: 20,
+                                  color: Colors.white,
+                                ),
                                 SizedBox(width: 8),
-                                Text('Share PDF'),
+                                Text(
+                                  'Share PDF',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ],
                             ),
                             onPressed: _sharePDF,
@@ -690,9 +722,13 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                                 Icon(
                                   CupertinoIcons.arrow_up_right_square,
                                   size: 20,
+                                  color: Colors.white,
                                 ),
                                 SizedBox(width: 8),
-                                Text('Panduan Buka PDF'),
+                                Text(
+                                  'Panduan Buka PDF',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ],
                             ),
                             onPressed: _openWithExternalApp,
@@ -704,9 +740,16 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(CupertinoIcons.download_circle, size: 20),
+                                Icon(
+                                  CupertinoIcons.download_circle,
+                                  size: 20,
+                                  color: Colors.white,
+                                ),
                                 SizedBox(width: 8),
-                                Text('Simpan ke Downloads'),
+                                Text(
+                                  'Simpan ke Downloads',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ],
                             ),
                             onPressed: _saveToDownloads,
@@ -718,9 +761,16 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(CupertinoIcons.printer, size: 20),
+                                Icon(
+                                  CupertinoIcons.printer,
+                                  size: 20,
+                                  color: Colors.white,
+                                ),
                                 SizedBox(width: 8),
-                                Text('Cetak Ulang'),
+                                Text(
+                                  'Cetak Ulang',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ],
                             ),
                             onPressed: () {
