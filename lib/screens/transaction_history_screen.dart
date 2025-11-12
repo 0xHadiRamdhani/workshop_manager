@@ -311,32 +311,35 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   }
 
   Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                color: CupertinoColors.systemGrey,
-                fontWeight: FontWeight.w500,
+    return Material(
+      type: MaterialType.transparency,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 80,
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: CupertinoColors.systemGrey,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: CupertinoColors.white,
+            Expanded(
+              child: Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: CupertinoColors.white,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -357,12 +360,15 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    'Detail Transaksi',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: CupertinoColors.white,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Text(
+                      'Detail Transaksi',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: CupertinoColors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -400,45 +406,51 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                 'Rp ${transaction.changeAmount!.toStringAsFixed(0)}',
               ),
             const SizedBox(height: 16),
-            const Text(
-              'Item Transaksi:',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: CupertinoColors.white,
+            Material(
+              type: MaterialType.transparency,
+              child: const Text(
+                'Item Transaksi:',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: CupertinoColors.white,
+                ),
               ),
             ),
             const SizedBox(height: 8),
             Expanded(
-              child: ListView.builder(
-                itemCount: transaction.services.length,
-                itemBuilder: (context, index) {
-                  final service = transaction.services[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '${service.name} (${service.quantity}x)',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: CupertinoColors.white,
+              child: Material(
+                type: MaterialType.transparency,
+                child: ListView.builder(
+                  itemCount: transaction.services.length,
+                  itemBuilder: (context, index) {
+                    final service = transaction.services[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${service.name} (${service.quantity}x)',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: CupertinoColors.white,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          'Rp ${(service.price * service.quantity).toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: CupertinoColors.systemBlue,
-                            fontWeight: FontWeight.w600,
+                          Text(
+                            'Rp ${(service.price * service.quantity).toStringAsFixed(0)}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: CupertinoColors.systemBlue,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ],
@@ -463,12 +475,15 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    'Cetak Struk',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: CupertinoColors.white,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Text(
+                      'Cetak Struk',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: CupertinoColors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -483,11 +498,14 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            Text(
-              'Pilih metode pencetakan:',
-              style: const TextStyle(
-                fontSize: 16,
-                color: CupertinoColors.white,
+            Material(
+              type: MaterialType.transparency,
+              child: Text(
+                'Pilih metode pencetakan:',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: CupertinoColors.white,
+                ),
               ),
             ),
             const SizedBox(height: 16),

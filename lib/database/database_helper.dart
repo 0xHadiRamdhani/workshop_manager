@@ -563,6 +563,33 @@ class DatabaseHelper {
     }
 
     if (oldVersion < 4) {
+      // Tambahkan tabel technicians jika belum ada
+      try {
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS technicians (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            email TEXT,
+            specialization TEXT,
+            experience_years INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'active',
+            created_at INTEGER NOT NULL,
+            last_active INTEGER,
+            rating REAL DEFAULT 0,
+            total_services INTEGER DEFAULT 0,
+            salary_type TEXT DEFAULT 'daily',
+            salary_amount REAL DEFAULT 0
+          )
+        ''');
+        print('Created technicians table for version 4 migration');
+
+        // Insert default technicians
+        await _insertDefaultTechnicians(db);
+      } catch (e) {
+        print('Error creating technicians table: $e');
+      }
+
       // Tambahkan tabel bookings jika belum ada
       try {
         await db.execute('''
@@ -978,9 +1005,51 @@ class DatabaseHelper {
   }
 
   Future<List<Technician>> getTechnicians() async {
-    final db = await database;
-    final result = await db.query('technicians', orderBy: 'created_at DESC');
-    return result.map((map) => _mapToTechnician(map)).toList();
+    try {
+      final db = await database;
+      final result = await db.query('technicians', orderBy: 'created_at DESC');
+      return result.map((map) => _mapToTechnician(map)).toList();
+    } catch (e) {
+      print('Error getting technicians: $e');
+      // Jika tabel tidak ada, coba buat tabel dan kembalikan data default
+      if (e.toString().contains('no such table')) {
+        try {
+          final db = await database;
+          await db.execute('''
+            CREATE TABLE IF NOT EXISTS technicians (
+              id TEXT PRIMARY KEY,
+              name TEXT NOT NULL,
+              phone TEXT NOT NULL,
+              email TEXT,
+              specialization TEXT,
+              experience_years INTEGER DEFAULT 0,
+              status TEXT DEFAULT 'active',
+              created_at INTEGER NOT NULL,
+              last_active INTEGER,
+              rating REAL DEFAULT 0,
+              total_services INTEGER DEFAULT 0,
+              salary_type TEXT DEFAULT 'daily',
+              salary_amount REAL DEFAULT 0
+            )
+          ''');
+          print('Created technicians table on-demand');
+
+          // Insert default technicians
+          await _insertDefaultTechnicians(db);
+
+          // Retry query
+          final result = await db.query(
+            'technicians',
+            orderBy: 'created_at DESC',
+          );
+          return result.map((map) => _mapToTechnician(map)).toList();
+        } catch (e2) {
+          print('Error creating technicians table on-demand: $e2');
+          return []; // Return empty list as fallback
+        }
+      }
+      return []; // Return empty list for other errors
+    }
   }
 
   Future<List<Technician>> getActiveTechnicians() async {

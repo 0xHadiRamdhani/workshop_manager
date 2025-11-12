@@ -93,12 +93,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Informasi Dasar',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Informasi Dasar',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -131,12 +134,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Harga',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Harga',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -171,12 +177,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Stok',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Stok',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -211,12 +220,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Deskripsi',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Deskripsi',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -242,12 +254,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: CupertinoColors.systemGrey,
-            fontWeight: FontWeight.w500,
+        Material(
+          type: MaterialType.transparency,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              color: CupertinoColors.systemGrey,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -270,12 +285,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Kategori',
-          style: TextStyle(
-            fontSize: 14,
-            color: CupertinoColors.systemGrey,
-            fontWeight: FontWeight.w500,
+        Material(
+          type: MaterialType.transparency,
+          child: const Text(
+            'Kategori',
+            style: TextStyle(
+              fontSize: 14,
+              color: CupertinoColors.systemGrey,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
         const SizedBox(height: 8),

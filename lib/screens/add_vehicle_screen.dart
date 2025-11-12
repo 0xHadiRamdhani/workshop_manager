@@ -49,29 +49,32 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
         ),
       ),
       child: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildCustomerInfoSection(),
-                      const SizedBox(height: 24),
-                      _buildVehicleInfoSection(),
-                      const SizedBox(height: 24),
-                      _buildProblemSection(),
-                      const SizedBox(height: 24),
-                      _buildEstimationSection(),
-                    ],
+        child: Material(
+          type: MaterialType.transparency,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildCustomerInfoSection(),
+                        const SizedBox(height: 24),
+                        _buildVehicleInfoSection(),
+                        const SizedBox(height: 24),
+                        _buildProblemSection(),
+                        const SizedBox(height: 24),
+                        _buildEstimationSection(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              _buildActionButtons(),
-            ],
+                _buildActionButtons(),
+              ],
+            ),
           ),
         ),
       ),

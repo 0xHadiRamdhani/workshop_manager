@@ -85,30 +85,39 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
             color: CupertinoColors.systemGreen,
           ),
           const SizedBox(height: 12),
-          const Text(
-            'PEMBAYARAN BERHASIL',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'PEMBAYARAN BERHASIL',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'ID: ${widget.transaction.id}',
-            style: const TextStyle(
-              fontSize: 14,
-              color: CupertinoColors.systemGrey,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              'ID: ${widget.transaction.id}',
+              style: const TextStyle(
+                fontSize: 14,
+                color: CupertinoColors.systemGrey,
+              ),
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            _formatDateTime(
-              widget.transaction.paidAt ?? widget.transaction.createdAt,
-            ),
-            style: const TextStyle(
-              fontSize: 12,
-              color: CupertinoColors.systemGrey,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              _formatDateTime(
+                widget.transaction.paidAt ?? widget.transaction.createdAt,
+              ),
+              style: const TextStyle(
+                fontSize: 12,
+                color: CupertinoColors.systemGrey,
+              ),
             ),
           ),
         ],
@@ -127,12 +136,15 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Detail Transaksi',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Detail Transaksi',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -160,12 +172,15 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Item yang Dibeli',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Item yang Dibeli',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -195,30 +210,39 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  item.name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: CupertinoColors.white,
+                Material(
+                  type: MaterialType.transparency,
+                  child: Text(
+                    item.name,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: CupertinoColors.white,
+                    ),
                   ),
                 ),
-                Text(
-                  'Rp ${item.price.toStringAsFixed(0)} x ${item.quantity}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: CupertinoColors.systemGrey,
+                Material(
+                  type: MaterialType.transparency,
+                  child: Text(
+                    'Rp ${item.price.toStringAsFixed(0)} x ${item.quantity}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: CupertinoColors.systemGrey,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          Text(
-            'Rp ${item.totalPrice.toStringAsFixed(0)}',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              'Rp ${item.totalPrice.toStringAsFixed(0)}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
         ],
@@ -231,21 +255,27 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       padding: const EdgeInsets.only(top: 8),
       child: Row(
         children: [
-          const Text(
-            'TOTAL',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'TOTAL',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const Spacer(),
-          Text(
-            'Rp ${widget.transaction.totalAmount.toStringAsFixed(0)}',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.systemGreen,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              'Rp ${widget.transaction.totalAmount.toStringAsFixed(0)}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.systemGreen,
+              ),
             ),
           ),
         ],
@@ -264,12 +294,15 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Detail Pembayaran',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Detail Pembayaran',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -318,20 +351,26 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
             color: CupertinoColors.systemGrey,
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Terima kasih atas kunjungan Anda!',
-            style: TextStyle(
-              fontSize: 14,
-              color: CupertinoColors.white,
-              fontWeight: FontWeight.w500,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Terima kasih atas kunjungan Anda!',
+              style: TextStyle(
+                fontSize: 14,
+                color: CupertinoColors.white,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            'Simpan struk ini sebagai bukti pembayaran',
-            style: const TextStyle(
-              fontSize: 12,
-              color: CupertinoColors.systemGrey,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              'Simpan struk ini sebagai bukti pembayaran',
+              style: const TextStyle(
+                fontSize: 12,
+                color: CupertinoColors.systemGrey,
+              ),
             ),
           ),
         ],
@@ -344,20 +383,26 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              color: CupertinoColors.systemGrey,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                color: CupertinoColors.systemGrey,
+              ),
             ),
           ),
           const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: color ?? CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: color ?? CupertinoColors.white,
+              ),
             ),
           ),
         ],

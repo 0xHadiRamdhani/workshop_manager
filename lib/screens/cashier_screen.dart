@@ -678,20 +678,26 @@ class _CashierScreenState extends State<CashierScreen> {
       ),
       child: Row(
         children: [
-          const Text(
-            'Keranjang Belanja',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Keranjang Belanja',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const Spacer(),
-          Text(
-            '$totalItems item',
-            style: const TextStyle(
-              fontSize: 16,
-              color: CupertinoColors.systemGrey,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              '$totalItems item',
+              style: const TextStyle(
+                fontSize: 16,
+                color: CupertinoColors.systemGrey,
+              ),
             ),
           ),
         ],
@@ -740,19 +746,25 @@ class _CashierScreenState extends State<CashierScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  item.product.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: CupertinoColors.white,
+                Material(
+                  type: MaterialType.transparency,
+                  child: Text(
+                    item.product.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: CupertinoColors.white,
+                    ),
                   ),
                 ),
-                Text(
-                  'Rp ${item.product.price.toStringAsFixed(0)}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: CupertinoColors.systemBlue,
+                Material(
+                  type: MaterialType.transparency,
+                  child: Text(
+                    'Rp ${item.product.price.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: CupertinoColors.systemBlue,
+                    ),
                   ),
                 ),
               ],
@@ -770,12 +782,15 @@ class _CashierScreenState extends State<CashierScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(
-                  '${item.quantity}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: CupertinoColors.white,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Text(
+                    '${item.quantity}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: CupertinoColors.white,
+                    ),
                   ),
                 ),
               ),
@@ -812,21 +827,27 @@ class _CashierScreenState extends State<CashierScreen> {
         children: [
           Row(
             children: [
-              const Text(
-                'Total:',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: CupertinoColors.white,
+              Material(
+                type: MaterialType.transparency,
+                child: const Text(
+                  'Total:',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: CupertinoColors.white,
+                  ),
                 ),
               ),
               const Spacer(),
-              Text(
-                'Rp ${totalPrice.toStringAsFixed(0)}',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: CupertinoColors.systemGreen,
+              Material(
+                type: MaterialType.transparency,
+                child: Text(
+                  'Rp ${totalPrice.toStringAsFixed(0)}',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: CupertinoColors.systemGreen,
+                  ),
                 ),
               ),
             ],
@@ -854,6 +875,7 @@ class _CashierScreenState extends State<CashierScreen> {
               },
             ),
           ),
+          SizedBox(height: 10),
         ],
       ),
     );
@@ -1011,12 +1033,15 @@ class _CashierScreenState extends State<CashierScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Pilih Metode Pembayaran',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: CupertinoColors.white,
+              Material(
+                type: MaterialType.transparency,
+                child: const Text(
+                  'Pilih Metode Pembayaran',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: CupertinoColors.white,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),

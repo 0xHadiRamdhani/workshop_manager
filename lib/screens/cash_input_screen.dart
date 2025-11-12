@@ -93,21 +93,27 @@ class _CashInputScreenState extends State<CashInputScreen> {
       ),
       child: Column(
         children: [
-          const Text(
-            'Total Pembayaran',
-            style: TextStyle(
-              fontSize: 16,
-              color: CupertinoColors.systemGrey,
-              fontWeight: FontWeight.w500,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Total Pembayaran',
+              style: TextStyle(
+                fontSize: 16,
+                color: CupertinoColors.systemGrey,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Rp ${widget.totalAmount.toStringAsFixed(0)}',
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              'Rp ${widget.totalAmount.toStringAsFixed(0)}',
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
         ],
@@ -126,12 +132,15 @@ class _CashInputScreenState extends State<CashInputScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Masukkan Jumlah Uang',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Masukkan Jumlah Uang',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -141,12 +150,15 @@ class _CashInputScreenState extends State<CashInputScreen> {
             keyboardType: TextInputType.number,
             prefix: const Padding(
               padding: EdgeInsets.only(left: 12),
-              child: Text(
-                'Rp',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: CupertinoColors.systemGrey,
-                  fontWeight: FontWeight.w500,
+              child: Material(
+                type: MaterialType.transparency,
+                child: Text(
+                  'Rp',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: CupertinoColors.systemGrey,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ),
@@ -164,11 +176,14 @@ class _CashInputScreenState extends State<CashInputScreen> {
             },
           ),
           const SizedBox(height: 12),
-          Text(
-            'Metode: ${_getPaymentMethodText(widget.paymentMethod)}',
-            style: const TextStyle(
-              fontSize: 14,
-              color: CupertinoColors.systemGrey,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              'Metode: ${_getPaymentMethodText(widget.paymentMethod)}',
+              style: const TextStyle(
+                fontSize: 14,
+                color: CupertinoColors.systemGrey,
+              ),
             ),
           ),
         ],
@@ -193,25 +208,31 @@ class _CashInputScreenState extends State<CashInputScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            _change >= 0 ? 'Kembalian' : 'Kurang Bayar',
-            style: TextStyle(
-              fontSize: 16,
-              color: _change >= 0
-                  ? CupertinoColors.systemGreen
-                  : CupertinoColors.systemRed,
-              fontWeight: FontWeight.w500,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              _change >= 0 ? 'Kembalian' : 'Kurang Bayar',
+              style: TextStyle(
+                fontSize: 16,
+                color: _change >= 0
+                    ? CupertinoColors.systemGreen
+                    : CupertinoColors.systemRed,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Rp ${_change.abs().toStringAsFixed(0)}',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: _change >= 0
-                  ? CupertinoColors.systemGreen
-                  : CupertinoColors.systemRed,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              'Rp ${_change.abs().toStringAsFixed(0)}',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: _change >= 0
+                    ? CupertinoColors.systemGreen
+                    : CupertinoColors.systemRed,
+              ),
             ),
           ),
         ],
@@ -229,12 +250,15 @@ class _CashInputScreenState extends State<CashInputScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Ringkasan Pembayaran',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: const Text(
+              'Ringkasan Pembayaran',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.white,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -270,17 +294,23 @@ class _CashInputScreenState extends State<CashInputScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: 14, color: CupertinoColors.systemGrey),
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 14, color: CupertinoColors.systemGrey),
+            ),
           ),
           const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: isImportant ? 16 : 14,
-              fontWeight: isImportant ? FontWeight.bold : FontWeight.normal,
-              color: color ?? CupertinoColors.white,
+          Material(
+            type: MaterialType.transparency,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: isImportant ? 16 : 14,
+                fontWeight: isImportant ? FontWeight.bold : FontWeight.normal,
+                color: color ?? CupertinoColors.white,
+              ),
             ),
           ),
         ],

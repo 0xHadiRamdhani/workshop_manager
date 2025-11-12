@@ -42,16 +42,19 @@ class _LoyaltyScreenState extends State<LoyaltyScreen> {
   void _showErrorDialog(String message) {
     showCupertinoDialog(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            child: const Text('OK'),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
+      builder: (context) => SizedBox(
+        width: MediaQuery.of(context).size.width * 0.9,
+        child: CupertinoAlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: const Text('OK'),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -94,53 +97,57 @@ class _LoyaltyScreenState extends State<LoyaltyScreen> {
 
     showCupertinoDialog(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Tambah Member Baru'),
-        content: Column(
-          children: [
-            const SizedBox(height: 16),
-            CupertinoTextField(
-              controller: nameController,
-              placeholder: 'Nama Lengkap',
+      builder: (context) => SizedBox(
+        width: MediaQuery.of(context).size.width * 0.9,
+        height: 100,
+        child: CupertinoAlertDialog(
+          title: const Text('Tambah Member Baru'),
+          content: Column(
+            children: [
+              const SizedBox(height: 16),
+              CupertinoTextField(
+                controller: nameController,
+                placeholder: 'Nama Lengkap',
+              ),
+              const SizedBox(height: 12),
+              CupertinoTextField(
+                controller: phoneController,
+                placeholder: 'Nomor Telepon',
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 12),
+              CupertinoTextField(
+                controller: emailController,
+                placeholder: 'Email (opsional)',
+                keyboardType: TextInputType.emailAddress,
+              ),
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              child: const Text('Batal'),
+              onPressed: () => Navigator.pop(context),
             ),
-            const SizedBox(height: 12),
-            CupertinoTextField(
-              controller: phoneController,
-              placeholder: 'Nomor Telepon',
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 12),
-            CupertinoTextField(
-              controller: emailController,
-              placeholder: 'Email (opsional)',
-              keyboardType: TextInputType.emailAddress,
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: const Text('Tambah'),
+              onPressed: () {
+                if (nameController.text.isNotEmpty &&
+                    phoneController.text.isNotEmpty) {
+                  _addLoyaltyMember(
+                    nameController.text,
+                    phoneController.text,
+                    emailController.text,
+                  );
+                  Navigator.pop(context);
+                } else {
+                  _showErrorDialog('Nama dan nomor telepon harus diisi');
+                }
+              },
             ),
           ],
         ),
-        actions: [
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            child: const Text('Batal'),
-            onPressed: () => Navigator.pop(context),
-          ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            child: const Text('Tambah'),
-            onPressed: () {
-              if (nameController.text.isNotEmpty &&
-                  phoneController.text.isNotEmpty) {
-                _addLoyaltyMember(
-                  nameController.text,
-                  phoneController.text,
-                  emailController.text,
-                );
-                Navigator.pop(context);
-              } else {
-                _showErrorDialog('Nama dan nomor telepon harus diisi');
-              }
-            },
-          ),
-        ],
       ),
     );
   }
@@ -171,16 +178,19 @@ class _LoyaltyScreenState extends State<LoyaltyScreen> {
 
       showCupertinoDialog(
         context: context,
-        builder: (context) => CupertinoAlertDialog(
-          title: const Text('Berhasil'),
-          content: Text('$name telah ditambahkan sebagai member Bronze'),
-          actions: [
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              child: const Text('OK'),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ],
+        builder: (context) => SizedBox(
+          width: MediaQuery.of(context).size.width * 0.9,
+          child: CupertinoAlertDialog(
+            title: const Text('Berhasil'),
+            content: Text('$name telah ditambahkan sebagai member Bronze'),
+            actions: [
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                child: const Text('OK'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
         ),
       );
     } catch (e) {

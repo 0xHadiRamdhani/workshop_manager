@@ -163,94 +163,97 @@ class _AddBookingScreenState extends State<AddBookingScreen> {
       child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTextField(
-                  controller: _nameController,
-                  label: 'Nama Pelanggan',
-                  placeholder: 'Masukkan nama pelanggan',
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Nama wajib diisi'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _phoneController,
-                  label: 'Nomor Telepon',
-                  placeholder: '081234567890',
-                  keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Nomor telepon wajib diisi';
-                    if (value.length < 10)
-                      return 'Nomor telepon minimal 10 digit';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _emailController,
-                  label: 'Email (Opsional)',
-                  placeholder: 'email@example.com',
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _vehicleTypeController,
-                  label: 'Jenis Kendaraan',
-                  placeholder: 'Contoh: Honda Beat, Yamaha NMAX',
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Jenis kendaraan wajib diisi'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _licensePlateController,
-                  label: 'Nomor Polisi (Opsional)',
-                  placeholder: 'B 1234 ABC',
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _serviceTypeController,
-                  label: 'Jenis Servis',
-                  placeholder: 'Contoh: Ganti Oli, Service Rutin',
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Jenis servis wajib diisi'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                _buildDateTimeSelector(),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _notesController,
-                  label: 'Catatan (Opsional)',
-                  placeholder: 'Catatan tambahan',
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    color: CupertinoColors.systemBlue,
-                    borderRadius: BorderRadius.circular(12),
-                    child: _isLoading
-                        ? const CupertinoActivityIndicator()
-                        : const Text(
-                            'SIMPAN BOOKING',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: CupertinoColors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                    onPressed: _isLoading ? null : _saveBooking,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTextField(
+                    controller: _nameController,
+                    label: 'Nama Pelanggan',
+                    placeholder: 'Masukkan nama pelanggan',
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Nama wajib diisi'
+                        : null,
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _phoneController,
+                    label: 'Nomor Telepon',
+                    placeholder: '081234567890',
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Nomor telepon wajib diisi';
+                      if (value.length < 10)
+                        return 'Nomor telepon minimal 10 digit';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _emailController,
+                    label: 'Email (Opsional)',
+                    placeholder: 'email@example.com',
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _vehicleTypeController,
+                    label: 'Jenis Kendaraan',
+                    placeholder: 'Contoh: Honda Beat, Yamaha NMAX',
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Jenis kendaraan wajib diisi'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _licensePlateController,
+                    label: 'Nomor Polisi (Opsional)',
+                    placeholder: 'B 1234 ABC',
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _serviceTypeController,
+                    label: 'Jenis Servis',
+                    placeholder: 'Contoh: Ganti Oli, Service Rutin',
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Jenis servis wajib diisi'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDateTimeSelector(),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _notesController,
+                    label: 'Catatan (Opsional)',
+                    placeholder: 'Catatan tambahan',
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      color: CupertinoColors.systemBlue,
+                      borderRadius: BorderRadius.circular(12),
+                      child: _isLoading
+                          ? const CupertinoActivityIndicator()
+                          : const Text(
+                              'SIMPAN BOOKING',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: CupertinoColors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                      onPressed: _isLoading ? null : _saveBooking,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

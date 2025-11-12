@@ -14,7 +14,7 @@ void main() {
         final transaction = Transaction(
           id: 'T001',
           vehicleId: 'V001',
-          customerName: 'John Doe',
+          customerName: 'Hadi Ramdhani',
           services: services,
           totalAmount: 575000,
           paymentMethod: PaymentMethod.cash,
@@ -38,7 +38,7 @@ void main() {
         expect(receipt.contains('Jl. Raya No. 123'), true);
         expect(receipt.contains('Telp: 081234567890'), true);
         expect(receipt.contains('T001'), true);
-        expect(receipt.contains('John Doe'), true);
+        expect(receipt.contains('Hadi Ramdhani'), true);
         expect(receipt.contains('V001'), true);
         expect(receipt.contains('Oil Change (1x)'), true);
         expect(receipt.contains('Tire Replacement (2x)'), true);

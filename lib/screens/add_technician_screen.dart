@@ -97,100 +97,103 @@ class _AddTechnicianScreenState extends State<AddTechnicianScreen> {
       child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTextField(
-                  controller: _nameController,
-                  label: 'Nama Lengkap',
-                  placeholder: 'Masukkan nama teknisi',
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Nama wajib diisi'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _phoneController,
-                  label: 'Nomor Telepon',
-                  placeholder: '081234567890',
-                  keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Nomor telepon wajib diisi';
-                    if (value.length < 10)
-                      return 'Nomor telepon minimal 10 digit';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _emailController,
-                  label: 'Email (Opsional)',
-                  placeholder: 'email@example.com',
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _specializationController,
-                  label: 'Spesialisasi',
-                  placeholder: 'Contoh: Mesin, Kelistrikan, AC',
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Spesialisasi wajib diisi'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _experienceController,
-                  label: 'Pengalaman (Tahun)',
-                  placeholder: '5',
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Pengalaman wajib diisi';
-                    if (int.tryParse(value) == null)
-                      return 'Harus berupa angka';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildSalaryTypeSelector(),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _salaryController,
-                  label: 'Jumlah Gaji',
-                  placeholder: '150000',
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Jumlah gaji wajib diisi';
-                    if (double.tryParse(value) == null)
-                      return 'Harus berupa angka';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    color: CupertinoColors.systemBlue,
-                    borderRadius: BorderRadius.circular(12),
-                    child: _isLoading
-                        ? const CupertinoActivityIndicator()
-                        : const Text(
-                            'SIMPAN TEKNISI',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: CupertinoColors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                    onPressed: _isLoading ? null : _saveTechnician,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTextField(
+                    controller: _nameController,
+                    label: 'Nama Lengkap',
+                    placeholder: 'Masukkan nama teknisi',
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Nama wajib diisi'
+                        : null,
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _phoneController,
+                    label: 'Nomor Telepon',
+                    placeholder: '081234567890',
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Nomor telepon wajib diisi';
+                      if (value.length < 10)
+                        return 'Nomor telepon minimal 10 digit';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _emailController,
+                    label: 'Email (Opsional)',
+                    placeholder: 'email@example.com',
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _specializationController,
+                    label: 'Spesialisasi',
+                    placeholder: 'Contoh: Mesin, Kelistrikan, AC',
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Spesialisasi wajib diisi'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _experienceController,
+                    label: 'Pengalaman (Tahun)',
+                    placeholder: '5',
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Pengalaman wajib diisi';
+                      if (int.tryParse(value) == null)
+                        return 'Harus berupa angka';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildSalaryTypeSelector(),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _salaryController,
+                    label: 'Jumlah Gaji',
+                    placeholder: '150000',
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Jumlah gaji wajib diisi';
+                      if (double.tryParse(value) == null)
+                        return 'Harus berupa angka';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      color: CupertinoColors.systemBlue,
+                      borderRadius: BorderRadius.circular(12),
+                      child: _isLoading
+                          ? const CupertinoActivityIndicator()
+                          : const Text(
+                              'SIMPAN TEKNISI',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: CupertinoColors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                      onPressed: _isLoading ? null : _saveTechnician,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
