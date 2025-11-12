@@ -15,6 +15,9 @@ Aplikasi manajemen workshop yang komprehensif untuk mengelola servis kendaraan, 
 - **Input Uang Cash**: Interface khusus untuk pembayaran tunai dengan perhitungan otomatis
 - **Bank Transfer**: Informasi rekening untuk transfer bank
 - **Struk Digital**: Bukti pembayaran digital yang dapat dibagikan
+- **PDF Generator**: Konversi struk ke format PDF untuk dokumentasi
+- **Share ke WhatsApp**: Bagikan struk langsung ke WhatsApp dengan satu klik
+- **Multi-platform Sharing**: Bagikan struk ke berbagai aplikasi (email, media sosial, dll)
 
 ### 🛒 Manajemen Kasir
 - **Keranjang Belanja**: Tambahkan produk ke keranjang
@@ -23,17 +26,25 @@ Aplikasi manajemen workshop yang komprehensif untuk mengelola servis kendaraan, 
 - **Riwayat Transaksi**: Lihat semua transaksi yang pernah dilakukan
 - **Edit Produk**: Edit informasi produk (nama, harga, stok, kategori, deskripsi)
 - **Hapus Produk**: Fitur delete produk dari database (di detail produk)
+- **PDF Viewer**: Lihat dan bagikan struk dalam format PDF
+- **Save to Downloads**: Simpan file PDF ke penyimpanan perangkat
 
 ### 📊 Dashboard
 - **Ringkasan Harian**: Statistik transaksi harian
 - **Grafik Penjualan**: Visualisasi data penjualan
 - **Status Workshop**: Ringkasan status kendaraan di workshop
+- **Program Loyalty**: Sistem poin dan diskon untuk pelanggan setia
+- **Manajemen Teknisi**: Kelola data teknisi dan spesialisasi
+- **Analitik Laporan**: Laporan penjualan dan performa bisnis
 
 ### 📱 Teknologi
 - **Flutter**: Framework cross-platform
 - **SQLite**: Database lokal untuk penyimpanan data
 - **Cupertino Design**: UI/UX yang konsisten dengan iOS
 - **Dark Theme**: Tampilan modern dengan tema gelap
+- **PDF Generation**: Pembuatan file PDF dari data transaksi
+- **Share Plus**: Integrasi sharing ke berbagai platform
+- **URL Launcher**: Pembukaan aplikasi eksternal (WhatsApp, dll)
 
 ## Instalasi
 
@@ -101,6 +112,7 @@ lib/
 │   ├── cashier_screen.dart   # Kasir dan transaksi
 │   ├── cash_input_screen.dart # Input pembayaran tunai
 │   ├── receipt_screen.dart   # Struk pembayaran
+│   ├── pdf_viewer_screen.dart # Viewer dan sharing PDF
 │   └── ...
 ├── database/                 # Database helper
 │   └── database_helper.dart  # SQLite operations
@@ -117,6 +129,8 @@ lib/
    - **Tunai**: Masukkan jumlah uang, otomatis hitung kembalian
    - **Transfer**: Tampilkan informasi rekening bank
 5. **Selesai**: Update status kendaraan menjadi "Diserahkan" dan buat transaksi
+6. **PDF Generator**: Otomatis buat file PDF dari struk pembayaran
+7. **Share Options**: Bagikan struk ke WhatsApp, email, atau aplikasi lain
 
 ### Status Pembayaran
 - **Sudah Dibayar**: Hijau dengan icon checkmark
@@ -144,6 +158,14 @@ Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) unt
 - Akmal Alhafiz - GitHub: [akmalalhafiz](https://github.com/akmalalhafiz14)
 
 ## Changelog
+
+### v1.0.5
+- 📄 **PDF Generator**: Fitur konversi struk ke format PDF
+- 📤 **WhatsApp Sharing**: Bagikan struk langsung ke WhatsApp
+- 💾 **Save to Downloads**: Simpan file PDF ke penyimpanan perangkat
+- 📋 **Copy File Path**: Salin path file untuk dibuka manual
+- 🎯 **PDF Viewer Screen**: Layar khusus untuk melihat dan mengelola file PDF
+- 🔗 **Share Plus Integration**: Bagikan ke berbagai aplikasi dengan mudah
 
 ### v1.0.4
 - 🔧 Perbaikan dependency thermal printer (blue_thermal_printer → flutter_bluetooth_printer)
@@ -227,6 +249,11 @@ Berikut adalah tampilan aplikasi Workshop Manager:
       <strong>Riwayat Transaksi</strong>
     </td>
     <td align="center">
+      <img src="screenshots/pdf_viewer.png" width="200" alt="PDF Viewer"/>
+      <br>
+      <strong>PDF Viewer & Sharing</strong>
+    </td>
+    <td align="center">
       <img src="screenshots/about_app.png" width="200" alt="About"/>
       <br>
       <strong>Tentang Aplikasi</strong>
@@ -240,5 +267,61 @@ Berikut adalah tampilan aplikasi Workshop Manager:
 </table>
 
 ---
+
+## 📄 Fitur PDF dan Sharing
+
+Aplikasi ini dilengkapi dengan sistem PDF generation dan sharing yang komprehensif:
+
+### 🎯 PDF Generation
+- **Otomatis**: File PDF dibuat otomatis setelah pembayaran berhasil
+- **Format Profesional**: Tampilan struk yang rapih dengan informasi lengkap
+- **Preview Teks**: Preview konten PDF sebelum dibagikan
+- **Multi-platform**: Bekerja di Android, iOS, dan Web
+
+### 📤 Sharing Options
+- **WhatsApp**: Bagikan langsung ke WhatsApp dengan satu klik
+- **Email**: Kirim struk melalui email
+- **Aplikasi Lain**: Bagikan ke aplikasi apapun yang mendukung (Telegram, Signal, dll)
+- **Copy Path**: Salin path file untuk dibuka manual
+- **Save to Downloads**: Simpan file PDF ke penyimpanan perangkat
+
+### 🔧 Cara Menggunakan
+1. **Setelah Pembayaran**: PDF otomatis dibuat dan tersedia di layar receipt
+2. **Klik "Simpan sebagai PDF"**: Untuk membuat dan melihat PDF
+3. **Pilih Metode Sharing**: WhatsApp, email, atau aplikasi lain
+4. **Download Manual**: Gunakan tombol "Simpan ke Downloads" untuk menyimpan file
+
+**⭐ Jika proyek ini bermanfaat, jangan lupa untuk memberikan bintang!**
+
+---
+
+## 📄 Fitur PDF dan Sharing
+
+Aplikasi ini dilengkapi dengan sistem PDF generation dan sharing yang komprehensif:
+
+### 🎯 PDF Generation
+- **Otomatis**: File PDF dibuat otomatis setelah pembayaran berhasil
+- **Format Profesional**: Tampilan struk yang rapih dengan informasi lengkap
+- **Preview Teks**: Preview konten PDF sebelum dibagikan
+- **Multi-platform**: Bekerja di Android, iOS, dan Web
+
+### 📤 Sharing Options
+- **WhatsApp**: Bagikan langsung ke WhatsApp dengan satu klik
+- **Email**: Kirim struk melalui email
+- **Aplikasi Lain**: Bagikan ke aplikasi apapun yang mendukung (Telegram, Signal, dll)
+- **Copy Path**: Salin path file untuk dibuka manual
+- **Save to Downloads**: Simpan file PDF ke penyimpanan perangkat
+
+### 🔧 Cara Menggunakan
+1. **Setelah Pembayaran**: PDF otomatis dibuat dan tersedia di layar receipt
+2. **Klik "Simpan sebagai PDF"**: Untuk membuat dan melihat PDF
+3. **Pilih Metode Sharing**: WhatsApp, email, atau aplikasi lain
+4. **Download Manual**: Gunakan tombol "Simpan ke Downloads" untuk menyimpan file
+
+### 💡 Tips Penggunaan
+- File PDF disimpan di folder Downloads/Documents perangkat
+- Gunakan tombol "Panduan Buka PDF" untuk instruksi membuka file
+- Share info file ke WhatsApp untuk memudahkan pelanggan
+- File PDF dapat dibuka dengan aplikasi viewer apapun (Adobe Acrobat, WPS, dll)
 
 **⭐ Jika proyek ini bermanfaat, jangan lupa untuk memberikan bintang!**
