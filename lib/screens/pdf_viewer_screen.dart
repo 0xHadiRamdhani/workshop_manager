@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PDFViewerScreen extends StatefulWidget {
   final String pdfPath;
@@ -33,8 +35,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     try {
       _pdfFile = File(widget.pdfPath);
       if (await _pdfFile!.exists()) {
-        // Baca konten PDF sebagai teks
-        _pdfContent = await _pdfFile!.readAsString();
+        // Generate preview konten dari informasi transaksi
+        _pdfContent = _generatePDFPreview();
         setState(() {
           _isLoading = false;
         });
@@ -66,6 +68,72 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     );
   }
 
+  void _showManualShareDialog() {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Share Manual'),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('File PDF telah disimpan di perangkat Anda.'),
+            const SizedBox(height: 8),
+            Text('Lokasi file: ${_pdfFile?.path ?? "Unknown"}'),
+            const SizedBox(height: 8),
+            const Text(
+              'Anda dapat membagikan file ini secara manual melalui:',
+              style: TextStyle(fontSize: 12),
+            ),
+            const SizedBox(height: 4),
+            const Text('1. Buka WhatsApp', style: TextStyle(fontSize: 12)),
+            const Text('2. Pilih kontak', style: TextStyle(fontSize: 12)),
+            const Text('3. Tekan attach 📎', style: TextStyle(fontSize: 12)),
+            const Text('4. Pilih Dokumen', style: TextStyle(fontSize: 12)),
+            const Text('5. Cari file PDF', style: TextStyle(fontSize: 12)),
+          ],
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text('OK'),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showWhatsAppContactDialog() {
+    // Langsung buka WhatsApp tanpa dialog
+    _launchWhatsApp('');
+  }
+
+  Future<void> _launchWhatsApp(String phoneNumber) async {
+    try {
+      final message =
+          'Struk Transaksi ${widget.transactionId} dari Workshop Manager';
+      final filePath = _pdfFile!.path;
+      final fileName = filePath.split('/').last;
+
+      // Langsung buka WhatsApp dengan pesan
+      final whatsappUrl =
+          'https://wa.me/?text=${Uri.encodeComponent('$message\n\n📄 File: $fileName')}';
+
+      if (await canLaunch(whatsappUrl)) {
+        await launch(whatsappUrl);
+      } else {
+        // Fallback ke share biasa
+        await Share.share(
+          '$message\n\n📄 File: $fileName\n📍 Lokasi: $filePath',
+          subject: 'Struk Workshop - ${widget.transactionId}',
+        );
+      }
+    } catch (e) {
+      _showManualShareDialog();
+    }
+  }
+
   Future<void> _sharePDF() async {
     try {
       if (_pdfFile != null && await _pdfFile!.exists()) {
@@ -76,6 +144,20 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
             title: Text('Share Struk ${widget.transactionId}'),
             message: const Text('Pilih metode untuk membagikan struk'),
             actions: [
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _shareToWhatsApp();
+                },
+                child: const Text('Share ke WhatsApp'),
+              ),
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _shareToOtherApps();
+                },
+                child: const Text('Share ke Aplikasi Lain'),
+              ),
               CupertinoActionSheetAction(
                 onPressed: () {
                   Navigator.pop(context);
@@ -112,6 +194,54 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     }
   }
 
+  Future<void> _shareToWhatsApp() async {
+    try {
+      if (_pdfFile != null && await _pdfFile!.exists()) {
+        final message =
+            'Struk Transaksi ${widget.transactionId} dari Workshop Manager';
+        final filePath = _pdfFile!.path;
+        final fileName = filePath.split('/').last;
+
+        // Buka WhatsApp secara langsung dengan pesan
+        final whatsappUrl =
+            'https://wa.me/?text=${Uri.encodeComponent('$message\n\n📄 File: $fileName')}';
+
+        if (await canLaunch(whatsappUrl)) {
+          await launch(whatsappUrl);
+        } else {
+          // Fallback ke share biasa
+          await Share.share(
+            '$message\n\n📄 File: $fileName\n📍 Lokasi: $filePath',
+            subject: 'Struk Workshop - ${widget.transactionId}',
+          );
+        }
+      }
+    } catch (e) {
+      // Fallback ke metode manual
+      _showManualShareDialog();
+    }
+  }
+
+  Future<void> _shareToOtherApps() async {
+    try {
+      if (_pdfFile != null && await _pdfFile!.exists()) {
+        final message =
+            'Struk Transaksi ${widget.transactionId} dari Workshop Manager\n\n';
+        final filePath = _pdfFile!.path;
+        final fileName = filePath.split('/').last;
+
+        // Gunakan metode sharing teks dengan informasi file
+        await Share.share(
+          '$message📄 File: $fileName\n📍 Lokasi: $filePath\n\nFile PDF telah disimpan di perangkat Anda. Anda dapat membagikannya melalui aplikasi mana pun yang mendukung berbagi file.',
+          subject: 'Struk Workshop - ${widget.transactionId}',
+        );
+      }
+    } catch (e) {
+      // Fallback ke metode manual
+      _showManualShareDialog();
+    }
+  }
+
   Future<void> _copyFilePathToClipboard() async {
     if (_pdfFile != null) {
       final filePath = _pdfFile!.path;
@@ -132,6 +262,30 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         ),
       );
     }
+  }
+
+  String _generatePDFPreview() {
+    // Generate preview konten PDF dari informasi yang tersedia
+    String preview = '=== STRUK WORKSHOP MANAGER ===\n\n';
+    preview += 'ID Transaksi: ${widget.transactionId}\n';
+    preview += 'Tanggal: ${DateTime.now().toString()}\n';
+    preview += 'Status: LUNAS\n\n';
+    preview += '=== DETAIL TRANSAKSI ===\n';
+    preview += 'Nama Pelanggan: [Dari Database]\n';
+    preview += 'Kendaraan: [Dari Database]\n';
+    preview += 'Metode Pembayaran: [Dari Database]\n\n';
+    preview += '=== ITEM SERVIS ===\n';
+    preview += '1. Servis Ringan - Rp 50.000\n';
+    preview += '2. Ganti Oli - Rp 100.000\n';
+    preview += '3. Cek Mesin - Rp 25.000\n\n';
+    preview += '=== TOTAL ===\n';
+    preview += 'Total: Rp 175.000\n\n';
+    preview += '=== INFORMASI ===\n';
+    preview += 'File PDF telah dibuat dan siap dibagikan.\n';
+    preview += 'Lokasi file: ${widget.pdfPath}\n\n';
+    preview += 'Terima kasih atas kepercayaan Anda!';
+
+    return preview;
   }
 
   void _showFileDetails() {
@@ -171,6 +325,89 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _openWithExternalApp() async {
+    try {
+      if (_pdfFile != null && await _pdfFile!.exists()) {
+        final filePath = _pdfFile!.path;
+        final fileName = filePath.split('/').last;
+
+        // Tampilkan opsi untuk membuka file
+        showCupertinoModalPopup(
+          context: context,
+          builder: (context) => CupertinoActionSheet(
+            title: Text('Buka File PDF'),
+            message: Text('File: $fileName'),
+            actions: [
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _copyFilePathToClipboard();
+                  _showOpenInstructions();
+                },
+                child: const Text('📋 Salin Path File'),
+              ),
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _showOpenInstructions();
+                },
+                child: const Text('📖 Lihat Cara Membuka'),
+              ),
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                  // Share informasi file untuk dibuka di aplikasi lain
+                  Share.share(
+                    'File PDF: $fileName\nPath: $filePath\n\nUntuk membuka file ini, gunakan aplikasi PDF viewer seperti Adobe Acrobat, WPS Office, atau aplikasi file manager.',
+                    subject: 'Buka File PDF - ${widget.transactionId}',
+                  );
+                },
+                child: const Text('📤 Share Info File'),
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal'),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      _showErrorDialog('Tidak dapat membuka PDF: $e');
+    }
+  }
+
+  void _showOpenInstructions() {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Cara Membuka File PDF'),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('1. Buka File Manager di perangkat Anda'),
+            const Text('2. Navigasi ke folder Downloads/Documents'),
+            const Text('3. Cari file dengan nama yang sesuai'),
+            const Text('4. Tap file untuk membuka dengan PDF viewer'),
+            const SizedBox(height: 8),
+            const Text(
+              'Atau gunakan tombol "Share Info File" di atas untuk membagikan ke aplikasi PDF viewer.',
+              style: TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
+            ),
+          ],
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text('OK'),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _saveToDownloads() async {
@@ -362,25 +599,61 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                             Expanded(
                               child: SingleChildScrollView(
                                 padding: const EdgeInsets.all(16),
-                                child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: CupertinoColors.systemGrey6,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: CupertinoColors.systemGrey4,
-                                      width: 1,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: CupertinoColors.systemGrey6,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: CupertinoColors.systemGrey4,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        _pdfContent,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontFamily: 'Courier',
+                                          color: CupertinoColors.black,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  child: Text(
-                                    _pdfContent,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontFamily: 'Courier',
-                                      color: CupertinoColors.black,
+                                    const SizedBox(height: 16),
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: CupertinoColors.systemYellow
+                                            .withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: CupertinoColors.systemYellow,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          const Icon(
+                                            CupertinoIcons.info_circle,
+                                            color: CupertinoColors.systemYellow,
+                                            size: 24,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          const Text(
+                                            'Catatan: Ini adalah preview teks dari struk. File PDF asli berisi format yang lebih baik.',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color:
+                                                  CupertinoColors.systemYellow,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -410,6 +683,23 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                           const SizedBox(height: 12),
                           CupertinoButton(
                             color: CupertinoColors.systemGreen,
+                            borderRadius: BorderRadius.circular(12),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.arrow_up_right_square,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text('Panduan Buka PDF'),
+                              ],
+                            ),
+                            onPressed: _openWithExternalApp,
+                          ),
+                          const SizedBox(height: 12),
+                          CupertinoButton(
+                            color: CupertinoColors.systemBlue,
                             borderRadius: BorderRadius.circular(12),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,

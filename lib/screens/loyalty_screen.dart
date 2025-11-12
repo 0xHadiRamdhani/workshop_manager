@@ -43,7 +43,8 @@ class _LoyaltyScreenState extends State<LoyaltyScreen> {
     showCupertinoDialog(
       context: context,
       builder: (context) => SizedBox(
-        width: MediaQuery.of(context).size.width * 0.9,
+        width: MediaQuery.of(context).size.width * 0.95,
+        height: 150,
         child: CupertinoAlertDialog(
           title: const Text('Error'),
           content: Text(message),
@@ -98,8 +99,8 @@ class _LoyaltyScreenState extends State<LoyaltyScreen> {
     showCupertinoDialog(
       context: context,
       builder: (context) => SizedBox(
-        width: MediaQuery.of(context).size.width * 0.9,
-        height: 100,
+        width: MediaQuery.of(context).size.width * 0.95,
+        height: 400,
         child: CupertinoAlertDialog(
           title: const Text('Tambah Member Baru'),
           content: Column(
@@ -179,7 +180,8 @@ class _LoyaltyScreenState extends State<LoyaltyScreen> {
       showCupertinoDialog(
         context: context,
         builder: (context) => SizedBox(
-          width: MediaQuery.of(context).size.width * 0.9,
+          width: MediaQuery.of(context).size.width * 0.95,
+          height: 150,
           child: CupertinoAlertDialog(
             title: const Text('Berhasil'),
             content: Text('$name telah ditambahkan sebagai member Bronze'),

@@ -72,29 +72,32 @@ class _EditProductScreenState extends State<EditProductScreen> {
         ),
       ),
       child: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildBasicInfoSection(),
-                      const SizedBox(height: 24),
-                      _buildPricingSection(),
-                      const SizedBox(height: 24),
-                      _buildStockSection(),
-                      const SizedBox(height: 24),
-                      _buildDescriptionSection(),
-                    ],
+        child: Material(
+          type: MaterialType.transparency,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildBasicInfoSection(),
+                        const SizedBox(height: 24),
+                        _buildPricingSection(),
+                        const SizedBox(height: 24),
+                        _buildStockSection(),
+                        const SizedBox(height: 24),
+                        _buildDescriptionSection(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              _buildActionButtons(),
-            ],
+                _buildActionButtons(),
+              ],
+            ),
           ),
         ),
       ),

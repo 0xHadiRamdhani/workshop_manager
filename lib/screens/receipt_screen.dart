@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import '../models/transaction.dart';
 import '../services/print_service.dart';
 import 'pdf_viewer_screen.dart';

@@ -918,102 +918,108 @@ class _CashierScreenState extends State<CashierScreen> {
           color: CupertinoColors.darkBackgroundGray,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    product.name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      product.name,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: CupertinoColors.white,
+                      ),
+                    ),
+                  ),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: const Icon(
+                      CupertinoIcons.xmark,
                       color: CupertinoColors.white,
-                    ),
-                  ),
-                ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: const Icon(
-                    CupertinoIcons.xmark,
-                    color: CupertinoColors.white,
-                  ),
-                  onPressed: () {
-                    if (Navigator.of(context).canPop()) {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildDetailRow('Kategori', product.category),
-            _buildDetailRow('Harga', 'Rp ${product.price.toStringAsFixed(0)}'),
-            _buildDetailRow('Stok', '${product.stock}'),
-            if (product.description != null)
-              _buildDetailRow('Deskripsi', product.description!),
-            const Spacer(),
-            Row(
-              children: [
-                Expanded(
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    color: CupertinoColors.systemOrange,
-                    borderRadius: BorderRadius.circular(12),
-                    child: const Text(
-                      'EDIT',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: CupertinoColors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onPressed: () => _editProduct(product),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    color: CupertinoColors.systemRed,
-                    borderRadius: BorderRadius.circular(12),
-                    child: const Text(
-                      'HAPUS',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: CupertinoColors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onPressed: () => _confirmDeleteProduct(product),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    color: CupertinoColors.systemGreen,
-                    borderRadius: BorderRadius.circular(12),
-                    child: const Text(
-                      'BELI',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: CupertinoColors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
                     ),
                     onPressed: () {
                       if (Navigator.of(context).canPop()) {
                         Navigator.of(context).pop();
                       }
-                      _addToCart(product);
                     },
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildDetailRow('Kategori', product.category),
+              _buildDetailRow(
+                'Harga',
+                'Rp ${product.price.toStringAsFixed(0)}',
+              ),
+              _buildDetailRow('Stok', '${product.stock}'),
+              if (product.description != null)
+                _buildDetailRow('Deskripsi', product.description!),
+              const Spacer(),
+              Row(
+                children: [
+                  Expanded(
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      color: CupertinoColors.systemOrange,
+                      borderRadius: BorderRadius.circular(12),
+                      child: const Text(
+                        'EDIT',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: CupertinoColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () => _editProduct(product),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      color: CupertinoColors.systemRed,
+                      borderRadius: BorderRadius.circular(12),
+                      child: const Text(
+                        'HAPUS',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: CupertinoColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () => _confirmDeleteProduct(product),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      color: CupertinoColors.systemGreen,
+                      borderRadius: BorderRadius.circular(12),
+                      child: const Text(
+                        'BELI',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: CupertinoColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () {
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                        _addToCart(product);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -141,7 +141,7 @@ Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) unt
 - GitHub: [Hadi Ramdhani](https://github.com/0xHadiRamdhani)
 
 ### Contributors
-- Akmal Alhafiz - GitHub: [akmalalhafiz](https://github.com/akmalalhafiz)
+- Akmal Alhafiz - GitHub: [akmalalhafiz](https://github.com/akmalalhafiz14)
 
 ## Changelog
 
