@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../models/transaction.dart';
 import '../database/database_helper.dart';
+import '../services/print_service.dart';
+import 'pdf_viewer_screen.dart';
 
 class TransactionHistoryScreen extends StatefulWidget {
   const TransactionHistoryScreen({super.key});
@@ -540,6 +542,18 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: CupertinoButton(
+                        color: CupertinoColors.systemGreen,
+                        child: const Text(
+                          'Simpan sebagai PDF',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        onPressed: () => _generateAndSavePDF(transaction),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: CupertinoButton(
                         color: CupertinoColors.systemGrey,
                         child: const Text(
                           'Batal',
@@ -604,6 +618,36 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     _showMessage(
       'Pencetakan via WiFi/Network belum tersedia. Silakan gunakan Bluetooth.',
     );
+  }
+
+  Future<void> _generateAndSavePDF(Transaction transaction) async {
+    Navigator.pop(context); // Tutup dialog
+
+    try {
+      // Generate PDF menggunakan PrintService
+      final pdfPath = await PrintService.generateAndSaveReceiptPDF(
+        transaction: transaction,
+        workshopName: 'Workshop Manager',
+        workshopAddress: 'Jl. Workshop No. 123',
+        workshopPhone: '0812-3456-7890',
+      );
+
+      if (pdfPath != null) {
+        // Navigasi ke PDF viewer screen
+        Navigator.of(context).push(
+          CupertinoPageRoute(
+            builder: (context) => PDFViewerScreen(
+              pdfPath: pdfPath,
+              transactionId: transaction.id,
+            ),
+          ),
+        );
+      } else {
+        _showMessage('Gagal membuat PDF');
+      }
+    } catch (e) {
+      _showMessage('Error generating PDF: $e');
+    }
   }
 
   void _showMessage(String message) {
