@@ -4,13 +4,13 @@ Aplikasi manajemen workshop yang komprehensif untuk mengelola servis kendaraan, 
 
 ## Fitur Utama
 
-### 🏪 Manajemen Workshop
+### Manajemen Workshop
 - **Pendaftaran Kendaraan**: Tambahkan kendaraan baru dengan detail pelanggan
 - **Status Servis**: Pantau status servis (Menunggu, Proses, Selesai, Diserahkan)
 - **Estimasi Biaya**: Hitung estimasi biaya servis
 - **Pembayaran Workshop**: Proses pembayaran saat kendaraan selesai diservis
 
-### 💰 Sistem Pembayaran
+### Sistem Pembayaran
 - **Multi Metode Pembayaran**: Tunai dan Transfer Bank
 - **Input Uang Cash**: Interface khusus untuk pembayaran tunai dengan perhitungan otomatis
 - **Bank Transfer**: Informasi rekening untuk transfer bank
@@ -19,7 +19,7 @@ Aplikasi manajemen workshop yang komprehensif untuk mengelola servis kendaraan, 
 - **Share ke WhatsApp**: Bagikan struk langsung ke WhatsApp dengan satu klik
 - **Multi-platform Sharing**: Bagikan struk ke berbagai aplikasi (email, media sosial, dll)
 
-### 🛒 Manajemen Kasir
+### Manajemen Kasir
 - **Keranjang Belanja**: Tambahkan produk ke keranjang
 - **Katalog Produk**: Lihat dan cari produk berdasarkan kategori
 - **Update Stok**: Otomatis update stok setelah transaksi
@@ -29,7 +29,7 @@ Aplikasi manajemen workshop yang komprehensif untuk mengelola servis kendaraan, 
 - **PDF Viewer**: Lihat dan bagikan struk dalam format PDF
 - **Save to Downloads**: Simpan file PDF ke penyimpanan perangkat
 
-### 📊 Dashboard
+### Dashboard
 - **Ringkasan Harian**: Statistik transaksi harian
 - **Grafik Penjualan**: Visualisasi data penjualan
 - **Status Workshop**: Ringkasan status kendaraan di workshop
@@ -37,7 +37,7 @@ Aplikasi manajemen workshop yang komprehensif untuk mengelola servis kendaraan, 
 - **Manajemen Teknisi**: Kelola data teknisi dan spesialisasi
 - **Analitik Laporan**: Laporan penjualan dan performa bisnis
 
-### 📱 Teknologi
+### Teknologi
 - **Flutter**: Framework cross-platform
 - **SQLite**: Database lokal untuk penyimpanan data
 - **Cupertino Design**: UI/UX yang konsisten dengan iOS
@@ -160,50 +160,50 @@ Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) unt
 ## Changelog
 
 ### v1.0.5
-- 📄 **PDF Generator**: Fitur konversi struk ke format PDF
-- 📤 **WhatsApp Sharing**: Bagikan struk langsung ke WhatsApp
-- 💾 **Save to Downloads**: Simpan file PDF ke penyimpanan perangkat
-- 📋 **Copy File Path**: Salin path file untuk dibuka manual
-- 🎯 **PDF Viewer Screen**: Layar khusus untuk melihat dan mengelola file PDF
-- 🔗 **Share Plus Integration**: Bagikan ke berbagai aplikasi dengan mudah
+- **PDF Generator**: Fitur konversi struk ke format PDF
+- **WhatsApp Sharing**: Bagikan struk langsung ke WhatsApp
+- **Save to Downloads**: Simpan file PDF ke penyimpanan perangkat
+- **Copy File Path**: Salin path file untuk dibuka manual
+- **PDF Viewer Screen**: Layar khusus untuk melihat dan mengelola file PDF
+- **Share Plus Integration**: Bagikan ke berbagai aplikasi dengan mudah
 
 ### v1.0.4
-- 🔧 Perbaikan dependency thermal printer (blue_thermal_printer → flutter_bluetooth_printer)
-- 🖨️ Implementasi simulasi pencetakan untuk development
-- 🛠️ Update layar pengaturan printer dengan simulasi
+- Perbaikan dependency thermal printer (blue_thermal_printer → flutter_bluetooth_printer)
+- Implementasi simulasi pencetakan untuk development
+- Update layar pengaturan printer dengan simulasi
 
 ### v1.0.3
-- ✏️ Tambah fitur edit produk dengan layar khusus
-- 🔄 Update otomatis daftar produk setelah edit
-- 🎯 UI/UX yang konsisten dengan tambah produk
+- Tambah fitur edit produk dengan layar khusus
+- Update otomatis daftar produk setelah edit
+- UI/UX yang konsisten dengan tambah produk
 
 ### v1.0.2
-- 🗑️ Tambah fitur delete produk di layar kasir
-- ✨ Konfirmasi penghapusan produk dengan dialog
-- 🔒 Validasi produk tidak bisa dihapus jika ada di keranjang
+- Tambah fitur delete produk di layar kasir
+- Konfirmasi penghapusan produk dengan dialog
+- Validasi produk tidak bisa dihapus jika ada di keranjang
 
 ### v1.0.1
-- 🔄 Perbaikan bug update quantity di cashier screen
-- 🗑️ Hapus fitur barcode scanning untuk mencegah error pembayaran
-- 🔧 Optimasi state management dengan immutable data patterns
+- Perbaikan bug update quantity di cashier screen
+- Hapus fitur barcode scanning untuk mencegah error pembayaran
+- Optimasi state management dengan immutable data patterns
 
 ### v1.0.0
-- ✨ Sistem pembayaran workshop lengkap
-- 🏪 Manajemen kendaraan dan status servis
-- 💰 Multi metode pembayaran (Tunai dan Transfer)
-- 📱 UI/UX modern dengan Cupertino design
-- 📊 Dashboard dengan statistik
-- 🔄 GitHub Actions untuk build otomatis
+- Sistem pembayaran workshop lengkap
+- Manajemen kendaraan dan status servis
+- Multi metode pembayaran (Tunai dan Transfer)
+- UI/UX modern dengan Cupertino design
+- Dashboard dengan statistik
+- GitHub Actions untuk build otomatis
 
 ### v0.9.0
-- 🏪 Manajemen workshop dasar
-- 🛒 Sistem kasir untuk produk
-- 📊 Dashboard awal
-- 💾 Database SQLite lokal
+- Manajemen workshop dasar
+- Sistem kasir untuk produk
+- Dashboard awal
+- Database SQLite lokal
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 Berikut adalah tampilan aplikasi Workshop Manager:
 
@@ -258,24 +258,24 @@ Berikut adalah tampilan aplikasi Workshop Manager:
 
 ---
 
-## 📄 Fitur PDF dan Sharing
+## Fitur PDF dan Sharing
 
 Aplikasi ini dilengkapi dengan sistem PDF generation dan sharing yang komprehensif:
 
-### 🎯 PDF Generation
+### PDF Generation
 - **Otomatis**: File PDF dibuat otomatis setelah pembayaran berhasil
 - **Format Profesional**: Tampilan struk yang rapih dengan informasi lengkap
 - **Preview Teks**: Preview konten PDF sebelum dibagikan
 - **Multi-platform**: Bekerja di Android, iOS, dan Web
 
-### 📤 Sharing Options
+### Sharing Options
 - **WhatsApp**: Bagikan langsung ke WhatsApp dengan satu klik
 - **Email**: Kirim struk melalui email
 - **Aplikasi Lain**: Bagikan ke aplikasi apapun yang mendukung (Telegram, Signal, dll)
 - **Copy Path**: Salin path file untuk dibuka manual
 - **Save to Downloads**: Simpan file PDF ke penyimpanan perangkat
 
-### 🔧 Cara Menggunakan
+### Cara Menggunakan
 1. **Setelah Pembayaran**: PDF otomatis dibuat dan tersedia di layar receipt
 2. **Klik "Simpan sebagai PDF"**: Untuk membuat dan melihat PDF
 3. **Pilih Metode Sharing**: WhatsApp, email, atau aplikasi lain
@@ -308,10 +308,10 @@ Aplikasi ini dilengkapi dengan sistem PDF generation dan sharing yang komprehens
 3. **Pilih Metode Sharing**: WhatsApp, email, atau aplikasi lain
 4. **Download Manual**: Gunakan tombol "Simpan ke Downloads" untuk menyimpan file
 
-### 💡 Tips Penggunaan
+### Tips Penggunaan
 - File PDF disimpan di folder Downloads/Documents perangkat
 - Gunakan tombol "Panduan Buka PDF" untuk instruksi membuka file
 - Share info file ke WhatsApp untuk memudahkan pelanggan
 - File PDF dapat dibuka dengan aplikasi viewer apapun (Adobe Acrobat, WPS, dll)
 
-**⭐ Jika proyek ini bermanfaat, jangan lupa untuk memberikan bintang!**
+**Jika proyek ini bermanfaat, jangan lupa untuk memberikan bintang!**

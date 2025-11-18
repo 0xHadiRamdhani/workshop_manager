@@ -61,12 +61,12 @@ Saya telah berhasil mengimplementasikan fitur payment method hutang yang lengkap
 6. Jika lunas, status berubah menjadi "paid"
 
 ## Fitur-fitur Hutang
-- ✅ Pembayaran bisa dilakukan secara parsial
-- ✅ Status hutang otomatis update (pending → partial → paid)
-- ✅ Jatuh tempo otomatis 30 hari dari tanggal transaksi
-- ✅ Integrasi dengan PDF receipt
-- ✅ Tampilan khusus untuk transaksi hutang
-- ✅ Informasi detail hutang di receipt
+- Pembayaran bisa dilakukan secara parsial
+- Status hutang otomatis update (pending → partial → paid)
+- Jatuh tempo otomatis 30 hari dari tanggal transaksi
+- Integrasi dengan PDF receipt
+- Tampilan khusus untuk transaksi hutang
+- Informasi detail hutang di receipt
 
 ## Testing
 Untuk menguji fitur ini:
