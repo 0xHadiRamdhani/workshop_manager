@@ -412,12 +412,15 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
               child: Row(
                 children: [
                   const Expanded(
-                    child: Text(
-                      'Pilih Tanggal',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: CupertinoColors.white,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: Text(
+                        'Pilih Tanggal',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: CupertinoColors.white,
+                        ),
                       ),
                     ),
                   ),

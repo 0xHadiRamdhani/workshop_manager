@@ -240,7 +240,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             CupertinoButton(
               padding: EdgeInsets.zero,
               child: const Icon(
-                CupertinoIcons.settings,
+                CupertinoIcons.delete,
                 color: CupertinoColors.white,
               ),
               onPressed: () => _showResetDialog(),
@@ -594,8 +594,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: CupertinoColors.systemGrey5,
+                  color: CupertinoColors.darkBackgroundGray,
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.white, width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: data['color'].withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [

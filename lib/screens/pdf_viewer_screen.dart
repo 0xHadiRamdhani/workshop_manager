@@ -104,49 +104,6 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     );
   }
 
-  void _showWhatsAppContactDialog() {
-    // Langsung buka WhatsApp tanpa dialog
-    _launchWhatsApp('');
-  }
-
-  Future<void> _launchWhatsApp(String phoneNumber) async {
-    try {
-      final message =
-          'Struk Transaksi ${widget.transactionId} dari Workshop Manager';
-      final filePath = _pdfFile!.path;
-      final fileName = filePath.split('/').last;
-
-      // Coba gunakan share_plus untuk share file PDF langsung
-      try {
-        // Share file PDF dengan caption
-        await Share.shareXFiles(
-          [XFile(filePath)],
-          text: message,
-          subject: 'Struk Workshop - ${widget.transactionId}',
-        );
-      } catch (e) {
-        // Jika shareXFiles gagal, coba buka WhatsApp dengan URL scheme
-        final whatsappUrl =
-            'https://wa.me/?text=${Uri.encodeComponent('$message\n\n📄 File: $fileName\n\nFile PDF telah disimpan di perangkat Anda. Silakan bagikan secara manual melalui WhatsApp.')}';
-
-        if (await canLaunch(whatsappUrl)) {
-          await launch(whatsappUrl);
-        } else {
-          // Fallback ke share biasa
-          await Share.share(
-            '$message\n\n📄 File: $fileName\n📍 Lokasi: $filePath',
-            subject: 'Struk Workshop - ${widget.transactionId}',
-          );
-        }
-      }
-    } catch (e) {
-      // Tampilkan error dialog yang lebih informatif
-      _showErrorDialog(
-        'Gagal membagikan ke WhatsApp. Silakan coba lagi atau gunakan metode share lainnya.',
-      );
-    }
-  }
-
   Future<void> _sharePDF() async {
     try {
       if (_pdfFile != null && await _pdfFile!.exists()) {
@@ -162,40 +119,55 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                   Navigator.pop(context);
                   _shareToWhatsApp();
                 },
-                child: const Text('Share ke WhatsApp'),
+                child: const Text(
+                  'Share ke WhatsApp',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
               CupertinoActionSheetAction(
                 onPressed: () {
                   Navigator.pop(context);
                   _shareToOtherApps();
                 },
-                child: const Text('Share ke Aplikasi Lain'),
+                child: const Text(
+                  'Share ke Aplikasi Lain',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
               CupertinoActionSheetAction(
                 onPressed: () {
                   Navigator.pop(context);
                   _copyFilePathToClipboard();
                 },
-                child: const Text('Salin Path File'),
+                child: const Text(
+                  'Salin Path File',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
               CupertinoActionSheetAction(
                 onPressed: () {
                   Navigator.pop(context);
                   _saveToDownloads();
                 },
-                child: const Text('Simpan dan Bagikan'),
+                child: const Text(
+                  'Simpan dan Bagikan',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
               CupertinoActionSheetAction(
                 onPressed: () {
                   Navigator.pop(context);
                   _showFileDetails();
                 },
-                child: const Text('Lihat Detail File'),
+                child: const Text(
+                  'Lihat Detail File',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
+              child: const Text('Batal', style: TextStyle(color: Colors.white)),
             ),
           ),
         );
@@ -215,35 +187,26 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         final filePath = _pdfFile!.path;
         final fileName = filePath.split('/').last;
 
-        // Coba gunakan share_plus untuk share file PDF langsung
+        // Gunakan share_plus untuk share file PDF langsung ke WhatsApp
         try {
-          // Share file PDF dengan caption
+          // Share file PDF dengan caption - ini akan membuka share sheet
+          // Pengguna bisa memilih WhatsApp dari daftar aplikasi yang tersedia
           await Share.shareXFiles(
             [XFile(filePath)],
             text: message,
             subject: 'Struk Workshop - ${widget.transactionId}',
           );
         } catch (e) {
-          // Jika shareXFiles gagal, coba buka WhatsApp dengan URL scheme
-          final whatsappUrl =
-              'https://wa.me/?text=${Uri.encodeComponent('$message\n\n📄 File: $fileName\n\nFile PDF telah disimpan di perangkat Anda. Silakan bagikan secara manual melalui WhatsApp.')}';
-
-          if (await canLaunch(whatsappUrl)) {
-            await launch(whatsappUrl);
-          } else {
-            // Fallback ke share biasa
-            await Share.share(
-              '$message\n\n📄 File: $fileName\n📍 Lokasi: $filePath',
-              subject: 'Struk Workshop - ${widget.transactionId}',
-            );
-          }
+          print('Error sharing PDF: $e');
+          // Fallback: beri tahu user untuk share manual
+          _showManualShareDialog();
         }
+      } else {
+        _showErrorDialog('File PDF tidak ditemukan');
       }
     } catch (e) {
-      // Tampilkan error dialog yang lebih informatif
-      _showErrorDialog(
-        'Gagal membagikan ke WhatsApp. Silakan coba lagi atau gunakan metode share lainnya.',
-      );
+      print('Error sharing to WhatsApp: $e');
+      _showErrorDialog('Gagal membagikan ke WhatsApp. Error: ${e.toString()}');
     }
   }
 
@@ -251,19 +214,30 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     try {
       if (_pdfFile != null && await _pdfFile!.exists()) {
         final message =
-            'Struk Transaksi ${widget.transactionId} dari Workshop Manager\n\n';
+            'Struk Transaksi ${widget.transactionId} dari Workshop Manager';
         final filePath = _pdfFile!.path;
         final fileName = filePath.split('/').last;
 
-        // Gunakan metode sharing teks dengan informasi file
-        await Share.share(
-          '$message📄 File: $fileName\n📍 Lokasi: $filePath\n\nFile PDF telah disimpan di perangkat Anda. Anda dapat membagikannya melalui aplikasi mana pun yang mendukung berbagi file.',
-          subject: 'Struk Workshop - ${widget.transactionId}',
-        );
+        // Gunakan share_plus untuk share file PDF ke aplikasi lain
+        try {
+          await Share.shareXFiles(
+            [XFile(filePath)],
+            text: message,
+            subject: 'Struk Workshop - ${widget.transactionId}',
+          );
+        } catch (e) {
+          // Jika shareXFiles gagal, fallback ke share teks dengan informasi
+          await Share.share(
+            '$message\n\n📄 File: $fileName\n📍 Lokasi: $filePath\n\nFile PDF telah disimpan di perangkat Anda.',
+            subject: 'Struk Workshop - ${widget.transactionId}',
+          );
+        }
+      } else {
+        _showErrorDialog('File PDF tidak ditemukan');
       }
     } catch (e) {
-      // Fallback ke metode manual
-      _showManualShareDialog();
+      print('Error sharing to other apps: $e');
+      _showErrorDialog('Gagal membagikan file: ${e.toString()}');
     }
   }
 
@@ -280,7 +254,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
           actions: [
             CupertinoDialogAction(
               isDefaultAction: true,
-              child: const Text('OK'),
+              child: const Text('OK', style: TextStyle(color: Colors.white)),
               onPressed: () => Navigator.pop(context),
             ),
           ],
@@ -352,103 +326,24 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     }
   }
 
-  Future<void> _openWithExternalApp() async {
-    try {
-      if (_pdfFile != null && await _pdfFile!.exists()) {
-        final filePath = _pdfFile!.path;
-        final fileName = filePath.split('/').last;
-
-        // Tampilkan opsi untuk membuka file
-        showCupertinoModalPopup(
-          context: context,
-          builder: (context) => CupertinoActionSheet(
-            title: Text('Buka File PDF'),
-            message: Text('File: $fileName'),
-            actions: [
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _copyFilePathToClipboard();
-                  _showOpenInstructions();
-                },
-                child: const Text('📋 Salin Path File'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showOpenInstructions();
-                },
-                child: const Text('📖 Lihat Cara Membuka'),
-              ),
-              CupertinoActionSheetAction(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Share informasi file untuk dibuka di aplikasi lain
-                  Share.share(
-                    'File PDF: $fileName\nPath: $filePath\n\nUntuk membuka file ini, gunakan aplikasi PDF viewer seperti Adobe Acrobat, WPS Office, atau aplikasi file manager.',
-                    subject: 'Buka File PDF - ${widget.transactionId}',
-                  );
-                },
-                child: const Text('📤 Share Info File'),
-              ),
-            ],
-            cancelButton: CupertinoActionSheetAction(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      _showErrorDialog('Tidak dapat membuka PDF: $e');
-    }
-  }
-
-  void _showOpenInstructions() {
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Cara Membuka File PDF'),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('1. Buka File Manager di perangkat Anda'),
-            const Text('2. Navigasi ke folder Downloads/Documents'),
-            const Text('3. Cari file dengan nama yang sesuai'),
-            const Text('4. Tap file untuk membuka dengan PDF viewer'),
-            const SizedBox(height: 8),
-            const Text(
-              'Atau gunakan tombol "Share Info File" di atas untuk membagikan ke aplikasi PDF viewer.',
-              style: TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
-            ),
-          ],
-        ),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            child: const Text('OK'),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _saveToDownloads() async {
     try {
       if (_pdfFile == null) return;
 
-      // Gunakan direktori dokumen sebagai fallback jika Downloads tidak tersedia
+      // Gunakan direktori yang accessible untuk aplikasi
       Directory? directory;
 
+      // Coba beberapa opsi direktori
       try {
-        directory = await getDownloadsDirectory();
+        // Untuk Android, coba Downloads directory
+        if (Platform.isAndroid) {
+          directory = await getDownloadsDirectory();
+        }
       } catch (e) {
         print('Downloads directory not available: $e');
       }
 
-      // Jika Downloads tidak tersedia (di iOS), gunakan Documents directory
+      // Fallback ke Documents directory
       if (directory == null) {
         directory = await getApplicationDocumentsDirectory();
       }
@@ -462,19 +357,50 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         await directory.create(recursive: true);
       }
 
+      // Copy file PDF
       await _pdfFile!.copy(newPath);
+
+      // Tampilkan informasi lokasi file yang lebih jelas
+      String locationName;
+      if (directory.path.contains('Download')) {
+        locationName = 'Downloads';
+      } else if (directory.path.contains('Documents')) {
+        locationName = 'Documents';
+      } else {
+        locationName = 'Aplikasi';
+      }
 
       showCupertinoDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(
           title: const Text('Berhasil'),
-          content: Text(
-            'PDF berhasil disimpan di ${directory!.path.split('/').last} sebagai $fileName',
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('PDF berhasil disimpan di folder $locationName'),
+              const SizedBox(height: 8),
+              Text(
+                'Nama file: $fileName',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: CupertinoColors.systemGrey,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Anda dapat menemukan file ini di file manager perangkat Anda.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: CupertinoColors.systemGrey2,
+                ),
+              ),
+            ],
           ),
           actions: [
             CupertinoDialogAction(
               isDefaultAction: true,
-              child: const Text('OK'),
+              child: const Text('OK', style: TextStyle(color: Colors.white)),
               onPressed: () => Navigator.pop(context),
             ),
           ],
@@ -575,7 +501,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                       ),
                     ),
 
-                    // Preview konten PDF
+                    // Preview PDF yang sebenarnya
                     Expanded(
                       child: Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -620,62 +546,79 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                                 ],
                               ),
                             ),
-                            // Konten PDF
+                            // Preview PDF - fallback ke teks jika preview gagal
                             Expanded(
-                              child: SingleChildScrollView(
+                              child: Container(
+                                width: double.infinity,
                                 padding: const EdgeInsets.all(16),
                                 child: Column(
                                   children: [
-                                    Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: CupertinoColors.systemGrey6,
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: CupertinoColors.systemGrey4,
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        _pdfContent,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontFamily: 'Courier',
-                                          color: CupertinoColors.black,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: CupertinoColors.systemYellow
-                                            .withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: CupertinoColors.systemYellow,
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          const Icon(
-                                            CupertinoIcons.info_circle,
-                                            color: CupertinoColors.systemYellow,
-                                            size: 24,
-                                          ),
-                                          const SizedBox(height: 8),
-                                          const Text(
-                                            'Catatan: Ini adalah preview teks dari struk. File PDF asli berisi format yang lebih baik.',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color:
-                                                  CupertinoColors.systemYellow,
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        padding: const EdgeInsets.all(16),
+                                        child: Column(
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              padding: const EdgeInsets.all(12),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    CupertinoColors.systemGrey6,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: CupertinoColors
+                                                      .systemGrey4,
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                _pdfContent,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontFamily: 'Courier',
+                                                  color: CupertinoColors.black,
+                                                ),
+                                              ),
                                             ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
+                                            const SizedBox(height: 16),
+                                            Container(
+                                              padding: const EdgeInsets.all(12),
+                                              decoration: BoxDecoration(
+                                                color: CupertinoColors
+                                                    .systemYellow
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: CupertinoColors
+                                                      .systemYellow,
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              child: Column(
+                                                children: [
+                                                  const Icon(
+                                                    CupertinoIcons.info_circle,
+                                                    color: CupertinoColors
+                                                        .systemYellow,
+                                                    size: 24,
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  const Text(
+                                                    'Preview PDF tidak tersedia. File PDF akan tetap bisa dibagikan.',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: CupertinoColors
+                                                          .systemYellow,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -731,7 +674,55 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                                 ),
                               ],
                             ),
-                            onPressed: _openWithExternalApp,
+                            onPressed: () {
+                              // Tampilkan panduan cara membuka PDF
+                              showCupertinoDialog(
+                                context: context,
+                                builder: (context) => CupertinoAlertDialog(
+                                  title: const Text(
+                                    'Cara Membuka File PDF',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  content: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        '1. Buka File Manager di perangkat Anda',
+                                      ),
+                                      const Text(
+                                        '2. Navigasi ke folder Downloads/Documents',
+                                      ),
+                                      const Text(
+                                        '3. Cari file dengan nama yang sesuai',
+                                      ),
+                                      const Text(
+                                        '4. Tap file untuk membuka dengan PDF viewer',
+                                      ),
+                                      const SizedBox(height: 8),
+                                      const Text(
+                                        'Atau gunakan tombol "Share PDF" di atas untuk membagikan ke aplikasi PDF viewer.',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: CupertinoColors.systemGrey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  actions: [
+                                    CupertinoDialogAction(
+                                      isDefaultAction: true,
+                                      child: const Text(
+                                        'OK',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      onPressed: () => Navigator.pop(context),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
                           const SizedBox(height: 12),
                           CupertinoButton(
@@ -753,45 +744,6 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                               ],
                             ),
                             onPressed: _saveToDownloads,
-                          ),
-                          const SizedBox(height: 12),
-                          CupertinoButton(
-                            color: CupertinoColors.systemGrey5,
-                            borderRadius: BorderRadius.circular(12),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.printer,
-                                  size: 20,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Cetak Ulang',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
-                            ),
-                            onPressed: () {
-                              // Implement print functionality
-                              showCupertinoDialog(
-                                context: context,
-                                builder: (context) => CupertinoAlertDialog(
-                                  title: const Text('Info'),
-                                  content: const Text(
-                                    'Fitur cetak ulang akan segera tersedia',
-                                  ),
-                                  actions: [
-                                    CupertinoDialogAction(
-                                      isDefaultAction: true,
-                                      child: const Text('OK'),
-                                      onPressed: () => Navigator.pop(context),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
                           ),
                         ],
                       ),

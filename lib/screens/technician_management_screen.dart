@@ -455,60 +455,63 @@ class _TechnicianManagementScreenState
           color: CupertinoColors.darkBackgroundGray,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Detail Teknisi',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: CupertinoColors.white,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Detail Teknisi',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: CupertinoColors.white,
+                      ),
                     ),
                   ),
-                ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: const Icon(
-                    CupertinoIcons.xmark,
-                    color: CupertinoColors.white,
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: const Icon(
+                      CupertinoIcons.xmark,
+                      color: CupertinoColors.white,
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildDetailItem('Nama', technician.name),
-            _buildDetailItem('Telepon', technician.phone),
-            if (technician.email != null)
-              _buildDetailItem('Email', technician.email!),
-            _buildDetailItem('Spesialisasi', technician.specialization),
-            _buildDetailItem(
-              'Pengalaman',
-              '${technician.experienceYears} tahun',
-            ),
-            _buildDetailItem(
-              'Status',
-              technician.statusText,
-              color: technician.statusColor,
-            ),
-            _buildDetailItem(
-              'Rating',
-              '${technician.rating.toStringAsFixed(1)} / 5.0',
-            ),
-            _buildDetailItem(
-              'Total Servis',
-              '${technician.totalServices} kendaraan',
-            ),
-            _buildDetailItem('Tipe Gaji', technician.salaryTypeText),
-            _buildDetailItem(
-              'Jumlah Gaji',
-              'Rp ${technician.salaryAmount?.toStringAsFixed(0) ?? '0'}',
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildDetailItem('Nama', technician.name),
+              _buildDetailItem('Telepon', technician.phone),
+              if (technician.email != null)
+                _buildDetailItem('Email', technician.email!),
+              _buildDetailItem('Spesialisasi', technician.specialization),
+              _buildDetailItem(
+                'Pengalaman',
+                '${technician.experienceYears} tahun',
+              ),
+              _buildDetailItem(
+                'Status',
+                technician.statusText,
+                color: technician.statusColor,
+              ),
+              _buildDetailItem(
+                'Rating',
+                '${technician.rating.toStringAsFixed(1)} / 5.0',
+              ),
+              _buildDetailItem(
+                'Total Servis',
+                '${technician.totalServices} kendaraan',
+              ),
+              _buildDetailItem('Tipe Gaji', technician.salaryTypeText),
+              _buildDetailItem(
+                'Jumlah Gaji',
+                'Rp ${technician.salaryAmount?.toStringAsFixed(0) ?? '0'}',
+              ),
+            ],
+          ),
         ),
       ),
     );

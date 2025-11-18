@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:workshop_manager/screens/about_school_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/workshop_screen.dart';
 import 'screens/cashier_screen.dart';
@@ -71,6 +72,7 @@ class _MainScreenState extends State<MainScreen> {
     const LoyaltyScreen(),
     const PrinterSettingsScreen(),
     const AboutScreen(),
+    const AboutSchoolScreen(),
   ];
 
   final List<String> _titles = [
@@ -86,6 +88,7 @@ class _MainScreenState extends State<MainScreen> {
     'Program Loyalty',
     'Pengaturan Printer',
     'Tentang Aplikasi',
+    'Tentang Sekolah',
   ];
 
   void _onItemSelected(int index) {

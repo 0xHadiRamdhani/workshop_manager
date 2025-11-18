@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2024-11-18T04:32:00.000Z" agent="5.0" version="24.0.0" etag="workshop_manager_use_case" type="device">
+  <diagram name="Workshop Manager Use Case" id="workshop-manager-use-case">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Aktor -->
+        <mxCell id="actor-admin" value="Admin Workshop" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="200" width="30" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="actor-kasir" value="Kasir" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="400" width="30" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="actor-teknisi" value="Teknisi" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="600" width="30" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="actor-pelanggan" value="Pelanggan" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="100" width="30" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Sistem -->
+        <mxCell id="system-boundary" value="Workshop Manager System" style="shape=rect;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="200" y="50" width="900" height="700" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Manajemen Workshop -->
+        <mxCell id="uc-add-vehicle" value="Tambah Kendaraan" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="250" y="100" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc-view-vehicles" value="Lihat Daftar Kendaraan" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="400" y="100" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc-update-status" value="Update Status Kendaraan" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="550" y="100" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc-view-detail" value="Lihat Detail Kendaraan" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="700" y="100" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Manajemen Teknisi -->
+        <mxCell id="uc-manage-technician" value="Manajemen Teknisi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="250" y="200" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Kasir -->
+        <mxCell id="uc-manage-products" value="Manajemen Produk" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="250" y="300" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc-process-payment" value="Proses Pembayaran" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="400" y="300" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc-view-cart" value="Lihat Keranjang" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="550" y="300" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc-payment-methods" value="Pilih Metode Pembayaran" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="700" y="300" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Booking -->
+        <mxCell id="uc-add-booking" value="Tambah Booking" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="250" y="400" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc-view-bookings" value="Lihat Daftar Booking" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="400" y="400" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc-confirm-booking" value="Konfirmasi Booking" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="550" y="400" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc-complete-booking" value="Selesaikan Booking" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="700" y="400" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Transaksi -->
+        <mxCell id="uc-view-transactions" value="Lihat Riwayat Transaksi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="250" y="500" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc-view-receipt" value="Lihat Struk" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="400" y="500" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc-print-receipt" value="Cetak Struk" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="550" y="500" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Hutang -->
+        <mxCell id="uc-debt-management" value="Manajemen Hutang" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="700" y="500" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Analitik -->
+        <mxCell id="uc-view-analytics" value="Lihat Analitik Bisnis" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="250" y="600" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Dashboard -->
+        <mxCell id="uc-view-dashboard" value="Lihat Dashboard" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="400" y="600" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Notifikasi -->
+        <mxCell id="uc-view-notifications" value="Lihat Notifikasi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="550" y="600" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Loyalty -->
+        <mxCell id="uc-loyalty-program" value="Program Loyalty" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="700" y="600" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Printer -->
+        <mxCell id="uc-printer-settings" value="Pengaturan Printer" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="850" y="100" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Use Case Tentang -->
+        <mxCell id="uc-about-app" value="Tentang Aplikasi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="850" y="200" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Koneksi Aktor ke Use Case -->
+        <!-- Pelanggan -->
+        <mxCell id="link-pelanggan-booking" style="edgeStyle=none;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-pelanggan" target="uc-add-booking">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Admin -->
+        <mxCell id="link-admin-vehicle" style="edgeStyle=none;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-admin" target="uc-add-vehicle">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="link-admin-view-vehicles" style="edgeStyle=none;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-admin" target="uc-view-vehicles">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="110" y="230" as="sourcePoint" />
+            <mxPoint x="400" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="link-admin-technician" style="edgeStyle=none;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-admin" target="uc-manage-technician">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="110" y="230" as="sourcePoint" />
+            <mxPoint x="250" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="link-admin-analytics" style="edgeStyle=none;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-admin" target="uc-view-analytics">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="110" y="230" as="sourcePoint" />
+            <mxPoint x="250" y="630" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Kasir -->
+        <mxCell id="link-kasir-products" style="edgeStyle=none;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-kasir" target="uc-manage-products">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="430" as="sourcePoint" />
+            <mxPoint x="250" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="link-kasir-payment" style="edgeStyle=none;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-kasir" target="uc-process-payment">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="430" as="sourcePoint" />
+            <mxPoint x="400" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="link-kasir-transactions" style="edgeStyle=none;html=1;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor-kasir" target="uc-view-transactions">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="430" as="sourcePoint" />
+            <mxPoint x="250" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Include Relationships -->
+        <mxCell id="include-payment-methods" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=1 4;" edge="1" parent="1" source="uc-process-payment" target="uc-payment-methods">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="include-view-cart" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=1 4;" edge="1" parent="1" source="uc-process-payment" target="uc-view-cart">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Extend Relationships -->
+        <mxCell id="extend-receipt" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" edge="1" parent="1" source="uc-process-payment" target="uc-view-receipt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="extend-print" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;" edge="1" parent="1" source="uc-view-receipt" target="uc-print-receipt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

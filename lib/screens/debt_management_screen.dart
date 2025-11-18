@@ -26,7 +26,26 @@ class _DebtManagementScreenState extends State<DebtManagementScreen> {
   Future<void> _loadDebtData() async {
     try {
       final allTransactions = await _databaseHelper.getTransactions();
-      final debtTransactions = allTransactions.where((t) => t.isDebt).toList();
+
+      // Debug: Print semua transaksi untuk melihat data
+      print('DEBUG: Total transactions: ${allTransactions.length}');
+      for (final t in allTransactions) {
+        print(
+          'DEBUG: Transaction ${t.id} - isDebt: ${t.isDebt}, debtAmount: ${t.debtAmount}, debtPaidAmount: ${t.debtPaidAmount}, paymentMethod: ${t.paymentMethod}',
+        );
+      }
+
+      // Filter transaksi yang memiliki hutang (isDebt = true) atau yang memiliki debtAmount > 0
+      final debtTransactions = allTransactions
+          .where((t) => t.isDebt || t.debtAmount > 0)
+          .toList();
+
+      print('DEBUG: Filtered debt transactions: ${debtTransactions.length}');
+      for (final t in debtTransactions) {
+        print(
+          'DEBUG: Debt transaction ${t.id} - debtAmount: ${t.debtAmount}, debtPaidAmount: ${t.debtPaidAmount}',
+        );
+      }
 
       double totalDebt = 0.0;
       double totalPaid = 0.0;
@@ -35,6 +54,8 @@ class _DebtManagementScreenState extends State<DebtManagementScreen> {
         totalDebt += transaction.debtAmount;
         totalPaid += transaction.debtPaidAmount;
       }
+
+      print('DEBUG: totalDebt: $totalDebt, totalPaid: $totalPaid');
 
       setState(() {
         _debtTransactions = debtTransactions;
@@ -556,7 +577,10 @@ class _DebtManagementScreenState extends State<DebtManagementScreen> {
                   child: CupertinoButton(
                     color: CupertinoColors.systemBlue,
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: const Text('Bayar Sekarang'),
+                    child: const Text(
+                      'Bayar Sekarang',
+                      style: TextStyle(color: Colors.white),
+                    ),
                     onPressed: () => _showPaymentDialog(transaction),
                   ),
                 ),

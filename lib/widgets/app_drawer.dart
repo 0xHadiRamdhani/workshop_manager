@@ -196,6 +196,11 @@ class AppDrawer extends StatelessWidget {
         title: 'Tentang Aplikasi',
         index: 11,
       ),
+      _buildMenuItem(
+        icon: CupertinoIcons.info,
+        title: 'Tentang Sekolah',
+        index: 12,
+      ),
     ];
 
     return items;

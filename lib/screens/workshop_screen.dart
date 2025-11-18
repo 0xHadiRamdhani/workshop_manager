@@ -625,6 +625,8 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
         return 'Transfer Bank';
       case PaymentMethod.card:
         return 'Kartu Debit/Kredit';
+      case PaymentMethod.debt:
+        return 'Hutang';
     }
   }
 
@@ -672,93 +674,98 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
           color: CupertinoColors.darkBackgroundGray,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Pembayaran Servis',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: CupertinoColors.white,
-                    ),
-                  ),
-                ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: const Icon(
-                    CupertinoIcons.xmark,
-                    color: CupertinoColors.white,
-                  ),
-                  onPressed: () {
-                    if (Navigator.of(context).canPop()) {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: CupertinoColors.darkBackgroundGray,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: CupertinoColors.white.withOpacity(0.3),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Text(
-                    'Pelanggan: ${vehicle.customerName}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: CupertinoColors.white,
+                  Expanded(
+                    child: Text(
+                      'Pembayaran Servis',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: CupertinoColors.white,
+                      ),
                     ),
                   ),
-                  Text(
-                    'Kendaraan: ${vehicle.vehicleType} • ${vehicle.licensePlate}',
-                    style: const TextStyle(
-                      fontSize: 14,
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: const Icon(
+                      CupertinoIcons.xmark,
                       color: CupertinoColors.white,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Biaya Servis: Rp ${vehicle.estimatedCost?.toStringAsFixed(0) ?? '0'}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: CupertinoColors.systemGreen,
-                    ),
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
+                    },
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Pilih Metode Pembayaran:',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: CupertinoColors.white,
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: CupertinoColors.darkBackgroundGray,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: CupertinoColors.white.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Pelanggan: ${vehicle.customerName}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: CupertinoColors.white,
+                      ),
+                    ),
+                    Text(
+                      'Kendaraan: ${vehicle.vehicleType} • ${vehicle.licensePlate}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: CupertinoColors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Biaya Servis: Rp ${vehicle.estimatedCost?.toStringAsFixed(0) ?? '0'}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: CupertinoColors.systemGreen,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            _buildPaymentOption('Tunai', PaymentMethod.cash, vehicle),
-            const SizedBox(height: 8),
-            _buildPaymentOption(
-              'Transfer Bank',
-              PaymentMethod.transfer,
-              vehicle,
-            ),
-          ],
+              const SizedBox(height: 24),
+              const Text(
+                'Pilih Metode Pembayaran:',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: CupertinoColors.white,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildPaymentOption('Tunai', PaymentMethod.cash, vehicle),
+              const SizedBox(height: 8),
+              _buildPaymentOption(
+                'Transfer Bank',
+                PaymentMethod.transfer,
+                vehicle,
+              ),
+              const SizedBox(height: 8),
+              _buildPaymentOption('Hutang', PaymentMethod.debt, vehicle),
+            ],
+          ),
         ),
       ),
     );
@@ -808,6 +815,8 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
         return CupertinoIcons.money_dollar;
       case PaymentMethod.transfer:
         return CupertinoIcons.building_2_fill;
+      case PaymentMethod.debt:
+        return CupertinoIcons.creditcard;
       default:
         return CupertinoIcons.money_dollar;
     }
@@ -821,6 +830,9 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
 
     if (method == PaymentMethod.cash) {
       _showCashInputScreen(vehicle);
+    } else if (method == PaymentMethod.debt) {
+      // Proses pembayaran hutang
+      _processDebtPayment(vehicle);
     } else {
       // Transfer bank
       _processBankTransfer(vehicle);
@@ -945,6 +957,63 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
     );
   }
 
+  void _processDebtPayment(Vehicle vehicle) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Konfirmasi Pembayaran Hutang'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Pembayaran akan dicatat sebagai hutang.'),
+            const SizedBox(height: 8),
+            Text('Pelanggan: ${vehicle.customerName}'),
+            Text('Kendaraan: ${vehicle.vehicleType} • ${vehicle.licensePlate}'),
+            const SizedBox(height: 8),
+            Text(
+              'Jumlah: Rp ${vehicle.estimatedCost?.toStringAsFixed(0) ?? '0'}',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: CupertinoColors.systemBlue,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Pelanggan dapat melunasi hutang ini di lain waktu.',
+              style: TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
+            ),
+          ],
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: const Text('Batal'),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text('Ya, Catat Hutang'),
+            onPressed: () {
+              Navigator.pop(context);
+              // Proses pembayaran hutang
+              _completePayment(
+                vehicle,
+                PaymentMethod.debt,
+                cashAmount: 0.0, // Tidak ada uang tunai yang diterima
+                change: 0.0,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _completePayment(
     Vehicle vehicle,
     PaymentMethod method, {
@@ -960,7 +1029,7 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
       status: VehicleStatus.delivered,
       paymentMethod: method,
       actualCost: vehicle.estimatedCost,
-      isPaid: true,
+      isPaid: method != PaymentMethod.debt, // Hutang belum dibayar penuh
     );
 
     try {
@@ -982,11 +1051,18 @@ class _WorkshopScreenState extends State<WorkshopScreen> {
         ],
         totalAmount: vehicle.estimatedCost ?? 0,
         paymentMethod: method,
-        status: TransactionStatus.paid,
+        status: method == PaymentMethod.debt
+            ? TransactionStatus.pending
+            : TransactionStatus.paid,
         createdAt: DateTime.now(),
-        paidAt: DateTime.now(),
+        paidAt: method == PaymentMethod.debt ? null : DateTime.now(),
         cashAmount: cashAmount,
         changeAmount: change,
+        isDebt: method == PaymentMethod.debt,
+        debtAmount: method == PaymentMethod.debt
+            ? (vehicle.estimatedCost ?? 0)
+            : 0,
+        debtPaidAmount: 0, // Untuk hutang, belum ada yang dibayar
       );
 
       print('Workshop: Inserting transaction...');

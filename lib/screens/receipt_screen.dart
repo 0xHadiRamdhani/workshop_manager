@@ -85,29 +85,40 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
   }
 
   Widget _buildReceiptHeader() {
+    final isDebt = widget.transaction.paymentMethod == PaymentMethod.debt;
+    final headerColor = isDebt
+        ? CupertinoColors.systemOrange.withOpacity(0.2)
+        : CupertinoColors.systemBlue.withOpacity(0.2);
+    final borderColor = isDebt
+        ? CupertinoColors.systemOrange.withOpacity(0.3)
+        : CupertinoColors.systemBlue.withOpacity(0.3);
+    final iconColor = isDebt
+        ? CupertinoColors.systemOrange
+        : CupertinoColors.systemGreen;
+    final titleText = isDebt ? 'TRANSAKSI HUTANG' : 'PEMBAYARAN BERHASIL';
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBlue.withOpacity(0.2),
+        color: headerColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: CupertinoColors.systemBlue.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: borderColor, width: 1),
       ),
       child: Column(
         children: [
-          const Icon(
-            CupertinoIcons.checkmark_circle_fill,
+          Icon(
+            isDebt
+                ? CupertinoIcons.clock
+                : CupertinoIcons.checkmark_circle_fill,
             size: 48,
-            color: CupertinoColors.systemGreen,
+            color: iconColor,
           ),
           const SizedBox(height: 12),
           Material(
             type: MaterialType.transparency,
-            child: const Text(
-              'PEMBAYARAN BERHASIL',
-              style: TextStyle(
+            child: Text(
+              titleText,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: CupertinoColors.white,
@@ -138,6 +149,20 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
               ),
             ),
           ),
+          if (isDebt) ...[
+            const SizedBox(height: 8),
+            Material(
+              type: MaterialType.transparency,
+              child: Text(
+                'Status: ${widget.transaction.statusText}',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: widget.transaction.statusColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -346,6 +371,49 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
             const Text(
               'Pembayaran dilakukan melalui transfer bank',
               style: TextStyle(fontSize: 12, color: CupertinoColors.systemGrey),
+            ),
+          ],
+          // Untuk metode hutang, tampilkan informasi hutang
+          if (widget.transaction.paymentMethod == PaymentMethod.debt) ...[
+            const SizedBox(height: 8),
+            _buildDetailRow(
+              'Total Hutang',
+              'Rp ${widget.transaction.debtAmount.toStringAsFixed(0)}',
+            ),
+            _buildDetailRow(
+              'Sudah Dibayar',
+              'Rp ${widget.transaction.debtPaidAmount.toStringAsFixed(0)}',
+            ),
+            _buildDetailRow(
+              'Sisa Hutang',
+              'Rp ${(widget.transaction.debtAmount - widget.transaction.debtPaidAmount).toStringAsFixed(0)}',
+            ),
+            if (widget.transaction.paymentDueDate != null) ...[
+              const SizedBox(height: 4),
+              _buildDetailRow(
+                'Jatuh Tempo',
+                _formatDate(widget.transaction.paymentDueDate!),
+              ),
+            ],
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: CupertinoColors.systemYellow.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: CupertinoColors.systemYellow,
+                  width: 1,
+                ),
+              ),
+              child: const Text(
+                'Pembayaran dapat dilakukan melalui menu Manajemen Hutang',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: CupertinoColors.systemYellow,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ],
@@ -639,7 +707,8 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
   }
 
   String _generateReceiptText() {
-    String text = 'STRUK PEMBAYARAN\n';
+    final isDebt = widget.transaction.paymentMethod == PaymentMethod.debt;
+    String text = isDebt ? 'STRUK TRANSAKSI HUTANG\n' : 'STRUK PEMBAYARAN\n';
     text += '================\n\n';
     text += 'ID: ${widget.transaction.id}\n';
     text +=
@@ -660,6 +729,19 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
       text += 'Kembali: Rp${widget.change!.toStringAsFixed(0)}\n';
     } else if (widget.transaction.paymentMethod == PaymentMethod.transfer) {
       text += 'Metode: Transfer Bank\n';
+    } else if (isDebt) {
+      text += '\nDETAIL HUTANG:\n';
+      text +=
+          'Total Hutang: Rp${widget.transaction.debtAmount.toStringAsFixed(0)}\n';
+      text +=
+          'Sudah Dibayar: Rp${widget.transaction.debtPaidAmount.toStringAsFixed(0)}\n';
+      text +=
+          'Sisa Hutang: Rp${(widget.transaction.debtAmount - widget.transaction.debtPaidAmount).toStringAsFixed(0)}\n';
+      if (widget.transaction.paymentDueDate != null) {
+        text +=
+            'Jatuh Tempo: ${_formatDate(widget.transaction.paymentDueDate!)}\n';
+      }
+      text += '\nPembayaran dapat dilakukan melalui menu Manajemen Hutang\n';
     }
 
     text += '\nTerima kasih!';

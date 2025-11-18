@@ -467,50 +467,53 @@ class _BookingScreenState extends State<BookingScreen> {
           color: CupertinoColors.darkBackgroundGray,
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Detail Booking',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: CupertinoColors.white,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Detail Booking',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: CupertinoColors.white,
+                      ),
                     ),
                   ),
-                ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: const Icon(
-                    CupertinoIcons.xmark,
-                    color: CupertinoColors.white,
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: const Icon(
+                      CupertinoIcons.xmark,
+                      color: CupertinoColors.white,
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildDetailItem('Nama Pelanggan', booking.customerName),
-            _buildDetailItem('Telepon', booking.phoneNumber),
-            if (booking.email != null)
-              _buildDetailItem('Email', booking.email!),
-            _buildDetailItem('Jenis Kendaraan', booking.vehicleType),
-            if (booking.licensePlate != null)
-              _buildDetailItem('Nomor Polisi', booking.licensePlate!),
-            _buildDetailItem('Jenis Servis', booking.serviceType),
-            _buildDetailItem('Tanggal', booking.formattedDate),
-            _buildDetailItem('Waktu', booking.formattedTime),
-            _buildDetailItem(
-              'Status',
-              booking.statusText,
-              color: booking.statusColor,
-            ),
-            if (booking.notes != null)
-              _buildDetailItem('Catatan', booking.notes!),
-          ],
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildDetailItem('Nama Pelanggan', booking.customerName),
+              _buildDetailItem('Telepon', booking.phoneNumber),
+              if (booking.email != null)
+                _buildDetailItem('Email', booking.email!),
+              _buildDetailItem('Jenis Kendaraan', booking.vehicleType),
+              if (booking.licensePlate != null)
+                _buildDetailItem('Nomor Polisi', booking.licensePlate!),
+              _buildDetailItem('Jenis Servis', booking.serviceType),
+              _buildDetailItem('Tanggal', booking.formattedDate),
+              _buildDetailItem('Waktu', booking.formattedTime),
+              _buildDetailItem(
+                'Status',
+                booking.statusText,
+                color: booking.statusColor,
+              ),
+              if (booking.notes != null)
+                _buildDetailItem('Catatan', booking.notes!),
+            ],
+          ),
         ),
       ),
     );

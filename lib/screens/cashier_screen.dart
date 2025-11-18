@@ -584,6 +584,8 @@ class _CashierScreenState extends State<CashierScreen> {
         return 'Transfer Bank';
       case PaymentMethod.card:
         return 'Kartu Debit/Kredit';
+      case PaymentMethod.debt:
+        return 'Hutang';
     }
   }
 
@@ -1030,7 +1032,7 @@ class _CashierScreenState extends State<CashierScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => Container(
-          height: 280, // Tambah height dari 250 ke 280
+          height: 350, // Tambah height untuk menampung opsi hutang
           padding: const EdgeInsets.all(16),
           decoration: const BoxDecoration(
             color: CupertinoColors.darkBackgroundGray,
@@ -1056,12 +1058,14 @@ class _CashierScreenState extends State<CashierScreen> {
                 child: Column(
                   children: [
                     _buildPaymentOption('Tunai', PaymentMethod.cash, setState),
-                    const SizedBox(height: 8), // Tambah spacing antar opsi
+                    const SizedBox(height: 8),
                     _buildPaymentOption(
                       'Transfer Bank',
                       PaymentMethod.transfer,
                       setState,
                     ),
+                    const SizedBox(height: 8),
+                    _buildPaymentOption('Hutang', PaymentMethod.debt, setState),
                   ],
                 ),
               ),
@@ -1176,6 +1180,8 @@ class _CashierScreenState extends State<CashierScreen> {
       _showCashInputScreen(totalPrice);
     } else if (_selectedPaymentMethod == PaymentMethod.transfer) {
       _showBankTransferScreen(totalPrice);
+    } else if (_selectedPaymentMethod == PaymentMethod.debt) {
+      _showDebtPaymentDialog(totalPrice);
     } else {
       // Untuk metode pembayaran lainnya, langsung konfirmasi
       showCupertinoDialog(
@@ -1369,6 +1375,247 @@ class _CashierScreenState extends State<CashierScreen> {
           );
         },
       );
+    });
+  }
+
+  void _showDebtPaymentDialog(double totalPrice) {
+    if (!mounted) return;
+
+    setState(() {
+      _navigationState = NavigationState.processingPayment;
+    });
+
+    // Tutup dialog payment method terlebih dahulu
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+
+    // Tampilkan dialog konfirmasi hutang
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted) return;
+
+      showCupertinoDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return CupertinoAlertDialog(
+            title: const Text('Pembayaran Hutang'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Transaksi ini akan dicatat sebagai hutang.'),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.darkBackgroundGray,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: CupertinoColors.systemGrey4,
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Total Hutang: Rp ${totalPrice.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: CupertinoColors.systemOrange,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Pembayaran dapat dilakukan nanti melalui menu Manajemen Hutang.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Pastikan data pelanggan sudah benar sebelum melanjutkan.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: CupertinoColors.systemYellow,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              CupertinoDialogAction(
+                isDestructiveAction: true,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  if (mounted) {
+                    setState(() {
+                      _navigationState = NavigationState.idle;
+                    });
+                  }
+                },
+                child: const Text('Batal'),
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  if (mounted) {
+                    setState(() {
+                      _navigationState = NavigationState.idle;
+                    });
+                    // Proses pembayaran hutang
+                    _completeDebtPayment(totalPrice);
+                  }
+                },
+                child: const Text('Catat Hutang'),
+              ),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+  Future<void> _completeDebtPayment(double totalPrice) async {
+    if (!mounted) return;
+
+    // Buat transaksi hutang
+    final transaction = Transaction(
+      id: 'T${DateTime.now().millisecondsSinceEpoch}',
+      vehicleId: 'CASHIER',
+      customerName: 'Pelanggan Hutang',
+      services: _cartItems
+          .map(
+            (item) => ServiceItem(
+              name: item.product.name,
+              price: item.product.price,
+              quantity: item.quantity,
+            ),
+          )
+          .toList(),
+      totalAmount: totalPrice,
+      paymentMethod: PaymentMethod.debt,
+      status: TransactionStatus.pending, // Status pending untuk hutang
+      createdAt: DateTime.now(),
+      paidAt: null, // Belum dibayar
+      isDebt: true,
+      debtAmount: totalPrice,
+      debtPaidAmount: 0.0,
+      debtStatus: 'pending',
+      paymentDueDate: DateTime.now().add(
+        const Duration(days: 30),
+      ), // Jatuh tempo 30 hari
+    );
+
+    // Update stok produk
+    try {
+      for (final item in _cartItems) {
+        final productIndex = _products.indexWhere(
+          (p) => p.id == item.product.id,
+        );
+        if (productIndex >= 0) {
+          final updatedProduct = _products[productIndex].copyWith(
+            stock: _products[productIndex].stock - item.quantity,
+          );
+          await _databaseHelper.updateProduct(updatedProduct);
+          _products[productIndex] = updatedProduct;
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('Error Update Stok'),
+          content: Text('Gagal update stok produk: ${e.toString()}'),
+          actions: [
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: const Text('OK'),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        ),
+      );
+
+      setState(() {
+        _navigationState = NavigationState.idle;
+      });
+      return;
+    }
+
+    setState(() {
+      _cartItems.clear();
+    });
+
+    // Simpan transaksi hutang ke database
+    try {
+      final result = await _databaseHelper.insertTransaction(transaction);
+      print('DEBUG: Debt transaction saved successfully with result: $result');
+    } catch (e) {
+      print('DEBUG: Error saving debt transaction: $e');
+      if (!mounted) return;
+
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('Error Transaksi'),
+          content: Text('Gagal menyimpan transaksi hutang: ${e.toString()}'),
+          actions: [
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: const Text('OK'),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        ),
+      );
+
+      setState(() {
+        _navigationState = NavigationState.idle;
+      });
+      return;
+    }
+
+    if (!mounted) return;
+
+    // Tampilkan receipt screen untuk hutang
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => ReceiptScreen(
+          transaction: transaction,
+          cashAmount: null,
+          change: null,
+        ),
+      ),
+    ).then((result) {
+      if (!mounted) return;
+
+      setState(() {
+        _navigationState = NavigationState.idle;
+      });
+
+      // Jika user menekan selesai, kembali ke dashboard dengan aman
+      if (result == 'completed') {
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
+      }
     });
   }
 

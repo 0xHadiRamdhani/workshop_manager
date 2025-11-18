@@ -383,6 +383,8 @@ class _CashInputScreenState extends State<CashInputScreen> {
         return 'Transfer Bank';
       case PaymentMethod.card:
         return 'Kartu Debit/Kredit';
+      case PaymentMethod.debt:
+        return 'Hutang';
     }
   }
 

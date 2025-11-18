@@ -405,12 +405,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
               child: Row(
                 children: [
                   const Expanded(
-                    child: Text(
-                      'Pilih Kategori',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: CupertinoColors.white,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: Text(
+                        'Pilih Kategori',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: CupertinoColors.white,
+                        ),
                       ),
                     ),
                   ),

@@ -3,6 +3,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import '../models/transaction.dart';
 
 /// Service untuk pencetakan struk menggunakan printer thermal bluetooth
@@ -180,7 +183,7 @@ class PrintService {
     }
   }
 
-  /// Generate PDF dari struk transaksi
+  /// Generate PDF dari struk transaksi menggunakan library pdf
   static Future<String?> generateReceiptPDF({
     required Transaction transaction,
     required String workshopName,
@@ -188,15 +191,264 @@ class PrintService {
     required String workshopPhone,
   }) async {
     try {
-      // Format struk untuk PDF
-      String receiptContent = _formatReceipt(
-        transaction: transaction,
-        workshopName: workshopName,
-        workshopAddress: workshopAddress,
-        workshopPhone: workshopPhone,
+      // Buat dokumen PDF
+      final pdf = pw.Document();
+
+      // Tambahkan halaman
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header
+                pw.Container(
+                  width: double.infinity,
+                  padding: const pw.EdgeInsets.all(16),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.blue100,
+                    borderRadius: pw.BorderRadius.circular(8),
+                  ),
+                  child: pw.Column(
+                    children: [
+                      pw.Text(
+                        workshopName,
+                        style: pw.TextStyle(
+                          fontSize: 20,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.blue900,
+                        ),
+                      ),
+                      pw.SizedBox(height: 4),
+                      pw.Text(
+                        workshopAddress,
+                        style: pw.TextStyle(
+                          fontSize: 12,
+                          color: PdfColors.blue700,
+                        ),
+                      ),
+                      pw.Text(
+                        'Telp: $workshopPhone',
+                        style: pw.TextStyle(
+                          fontSize: 12,
+                          color: PdfColors.blue700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                pw.SizedBox(height: 16),
+
+                // Informasi Transaksi
+                pw.Text(
+                  'INFORMASI TRANSAKSI',
+                  style: pw.TextStyle(
+                    fontSize: 14,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.black,
+                  ),
+                ),
+                pw.SizedBox(height: 8),
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(12),
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border.all(color: PdfColors.grey300),
+                    borderRadius: pw.BorderRadius.circular(4),
+                  ),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      _buildPDFRow('ID Transaksi', transaction.id),
+                      _buildPDFRow(
+                        'Tanggal',
+                        _formatDateTime(transaction.createdAt),
+                      ),
+                      _buildPDFRow('Pelanggan', transaction.customerName),
+                      _buildPDFRow('Kendaraan', transaction.vehicleId),
+                      _buildPDFRow('Status', transaction.statusText),
+                      _buildPDFRow(
+                        'Metode Bayar',
+                        transaction.paymentMethodText,
+                      ),
+                    ],
+                  ),
+                ),
+
+                pw.SizedBox(height: 16),
+
+                // Detail Layanan
+                pw.Text(
+                  'DETAIL LAYANAN',
+                  style: pw.TextStyle(
+                    fontSize: 14,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.black,
+                  ),
+                ),
+                pw.SizedBox(height: 8),
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(12),
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border.all(color: PdfColors.grey300),
+                    borderRadius: pw.BorderRadius.circular(4),
+                  ),
+                  child: pw.Column(
+                    children: [
+                      ...transaction.services.map((service) {
+                        return pw.Padding(
+                          padding: const pw.EdgeInsets.only(bottom: 8),
+                          child: pw.Row(
+                            mainAxisAlignment:
+                                pw.MainAxisAlignment.spaceBetween,
+                            children: [
+                              pw.Expanded(
+                                child: pw.Column(
+                                  crossAxisAlignment:
+                                      pw.CrossAxisAlignment.start,
+                                  children: [
+                                    pw.Text(
+                                      service.name,
+                                      style: pw.TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: pw.FontWeight.bold,
+                                      ),
+                                    ),
+                                    pw.Text(
+                                      'Rp ${service.price.toStringAsFixed(0)} x ${service.quantity}',
+                                      style: pw.TextStyle(
+                                        fontSize: 10,
+                                        color: PdfColors.grey600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              pw.Text(
+                                'Rp ${service.totalPrice.toStringAsFixed(0)}',
+                                style: pw.TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: pw.FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      pw.Divider(),
+                      pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        children: [
+                          pw.Text(
+                            'TOTAL',
+                            style: pw.TextStyle(
+                              fontSize: 14,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
+                          ),
+                          pw.Text(
+                            'Rp ${transaction.totalAmount.toStringAsFixed(0)}',
+                            style: pw.TextStyle(
+                              fontSize: 14,
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.green700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                pw.SizedBox(height: 16),
+
+                // Detail Pembayaran
+                if (transaction.cashAmount != null ||
+                    transaction.changeAmount != null) ...[
+                  pw.Text(
+                    'DETAIL PEMBAYARAN',
+                    style: pw.TextStyle(
+                      fontSize: 14,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.black,
+                    ),
+                  ),
+                  pw.SizedBox(height: 8),
+                  pw.Container(
+                    padding: const pw.EdgeInsets.all(12),
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border.all(color: PdfColors.grey300),
+                      borderRadius: pw.BorderRadius.circular(4),
+                    ),
+                    child: pw.Column(
+                      children: [
+                        if (transaction.cashAmount != null)
+                          _buildPDFRow(
+                            'Uang yang Dibayar',
+                            'Rp ${transaction.cashAmount!.toStringAsFixed(0)}',
+                          ),
+                        if (transaction.changeAmount != null)
+                          _buildPDFRow(
+                            'Kembalian',
+                            'Rp ${transaction.changeAmount!.toStringAsFixed(0)}',
+                          ),
+                      ],
+                    ),
+                  ),
+                  pw.SizedBox(height: 16),
+                ],
+
+                // Footer
+                pw.Container(
+                  width: double.infinity,
+                  padding: const pw.EdgeInsets.all(16),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.grey100,
+                    borderRadius: pw.BorderRadius.circular(8),
+                  ),
+                  child: pw.Column(
+                    children: [
+                      pw.Text(
+                        'Terima kasih atas kepercayaan Anda!',
+                        style: pw.TextStyle(
+                          fontSize: 12,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.grey700,
+                        ),
+                      ),
+                      pw.Text(
+                        'Semoga berkendara dengan aman',
+                        style: pw.TextStyle(
+                          fontSize: 10,
+                          color: PdfColors.grey600,
+                        ),
+                      ),
+                      pw.SizedBox(height: 8),
+                      pw.Text(
+                        'Digital Receipt - Workshop Manager',
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          color: PdfColors.grey500,
+                        ),
+                      ),
+                      pw.Text(
+                        'Generated: ${_formatDateTime(DateTime.now())}',
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          color: PdfColors.grey500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       );
 
-      // Buat file PDF sederhana (text-based)
+      // Simpan PDF ke file
       final directory = await getApplicationDocumentsDirectory();
 
       // Pastikan direktori ada
@@ -208,23 +460,36 @@ class PrintService {
           'receipt_${transaction.id}_${DateTime.now().millisecondsSinceEpoch}.pdf';
       final filePath = '${directory.path}/$fileName';
 
-      // Buat konten PDF dalam format sederhana
-      String pdfContent = _createSimplePDFContent(
-        receiptContent: receiptContent,
-        transaction: transaction,
-      );
-
-      // Simpan sebagai file text dengan ekstensi .pdf untuk sekarang
-      // Nanti bisa diganti dengan library PDF yang sesungguhnya
+      // Simpan file PDF
       final file = File(filePath);
-      await file.writeAsString(pdfContent);
+      await file.writeAsBytes(await pdf.save());
 
-      print('PDF generated at: $filePath');
+      print('Valid PDF generated at: $filePath');
       return filePath;
     } catch (e) {
       print('Error generating PDF: $e');
       return null;
     }
+  }
+
+  /// Helper untuk membuat row di PDF
+  static pw.Widget _buildPDFRow(String label, String value) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(bottom: 4),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Text(
+            label,
+            style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+          ),
+          pw.Text(
+            value,
+            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Buat konten PDF sederhana (text-based untuk sekarang)

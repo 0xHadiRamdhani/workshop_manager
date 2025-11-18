@@ -118,7 +118,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
       // Simulasi test print
       print('=== TEST PRINT ===');
       print('Bengkel Banimasum');
-      print('Jl. Raya Banimasum No. 123');
+      print('Jl. Cimanggu Kec. Cisalak Kab. Subang');
       print('Telp: 0812-3456-7890');
       print('Printer berhasil terhubung!');
       print('=== END TEST PRINT ===');
@@ -141,7 +141,7 @@ class _PrinterSettingsScreenState extends State<PrinterSettingsScreen> {
         content: Text(message),
         actions: [
           CupertinoDialogAction(
-            child: const Text('OK'),
+            child: const Text('OK', style: TextStyle(color: Colors.white)),
             onPressed: () => Navigator.pop(context),
           ),
         ],

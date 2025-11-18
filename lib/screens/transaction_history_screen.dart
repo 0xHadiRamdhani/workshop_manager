@@ -580,7 +580,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       // Implementasi thermal printer akan dilakukan di versi berikutnya
       print('=== CETAK STRUK SIMULASI ===');
       print('Bengkel Banimasum');
-      print('Jl. Raya Banimasum No. 123');
+      print('Jl. Cimanggu Kec. Cisalak Kab. Subang');
       print('Telp: 0812-3456-7890');
       print('--------------------------------');
       print('ID Transaksi: ${transaction.id}');
@@ -678,6 +678,8 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         return 'Transfer Bank';
       case PaymentMethod.card:
         return 'Kartu Debit/Kredit';
+      case PaymentMethod.debt:
+        return 'Hutang';
     }
   }
 

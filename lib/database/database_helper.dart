@@ -1537,7 +1537,7 @@ class DatabaseHelper {
       'is_debt': transaction.isDebt ? 1 : 0,
       'debt_amount': transaction.debtAmount,
       'debt_paid_amount': transaction.debtPaidAmount,
-      'debt_status': transaction.debtStatus.toString(),
+      'debt_status': transaction.debtStatus,
     };
   }
 
@@ -1610,6 +1610,8 @@ class DatabaseHelper {
         return app_transaction.PaymentMethod.transfer;
       case 'PaymentMethod.card':
         return app_transaction.PaymentMethod.card;
+      case 'PaymentMethod.debt':
+        return app_transaction.PaymentMethod.debt;
       default:
         return app_transaction.PaymentMethod.cash;
     }
