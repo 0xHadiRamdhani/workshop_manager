@@ -397,7 +397,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           ),
           const SizedBox(height: 16),
           SizedBox(
-            height: 200,
+            height: 170,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: _monthlyData.length,
@@ -407,15 +407,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   0.0,
                   (max, d) => d['revenue'] > max ? d['revenue'] : max,
                 );
-                final height = (data['revenue'] / maxRevenue) * 160;
+                final height = (data['revenue'] / maxRevenue) * 130;
 
                 return Container(
-                  width: 60,
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: 55,
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
                   child: Column(
                     children: [
                       Container(
-                        height: 160,
+                        height: 130,
                         alignment: Alignment.bottomCenter,
                         child: Container(
                           height: height,
@@ -425,19 +425,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        data['month'],
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: CupertinoColors.systemGrey,
+                      const SizedBox(height: 2),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          data['month'],
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: CupertinoColors.systemGrey,
+                          ),
                         ),
                       ),
-                      Text(
-                        'Rp ${(data['revenue'] / 1000000).toStringAsFixed(1)}M',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: CupertinoColors.systemGrey,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          'Rp ${(data['revenue'] / 1000000).toStringAsFixed(1)}M',
+                          style: const TextStyle(
+                            fontSize: 9,
+                            color: CupertinoColors.systemGrey,
+                          ),
                         ),
                       ),
                     ],
