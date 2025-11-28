@@ -70,7 +70,7 @@ class _BookingScreenState extends State<BookingScreen> {
     if (_isLoading) {
       return const CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: Text('Booking Servis'),
+          middle: Text('Booking Servis', style: TextStyle(color: Colors.white)),
           backgroundColor: CupertinoColors.darkBackgroundGray,
         ),
         child: SafeArea(child: Center(child: CupertinoActivityIndicator())),

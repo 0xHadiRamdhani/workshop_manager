@@ -1,173 +1,78 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controllers/dashboard_controller.dart';
+import '../controllers/main_controller.dart';
 import '../models/vehicle.dart';
 import '../models/transaction.dart';
-import '../database/database_helper.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
+  Widget build(BuildContext context) {
+    final DashboardController controller = Get.put(DashboardController());
 
-class _DashboardScreenState extends State<DashboardScreen> {
-  List<Vehicle> _vehicles = [];
-  List<Transaction> _transactions = [];
-  final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
-  bool _isLoading = true;
-
-  // Data harian untuk dashboard
-  int _dailyTransactionCount = 0;
-  double _dailyRevenue = 0.0;
-  int _dailyCompletedVehicles = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Refresh data setiap kali screen ini muncul kembali
-    print('Dashboard: didChangeDependencies called');
-    _loadData();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  // Method untuk refresh data yang bisa dipanggil dari luar
-  Future<void> refreshData() async {
-    await _loadData();
-  }
-
-  Future<void> _loadData() async {
-    try {
-      print('Dashboard: Loading data...');
-      final vehicles = await _databaseHelper.getVehicles();
-      final transactions = await _databaseHelper.getTransactions();
-
-      // Ambil data harian
-      final dailyTransactions = await _databaseHelper.getDailyTransactions();
-      final dailyRevenue = await _databaseHelper.getDailyRevenue();
-      final dailyCompletedVehicles = await _databaseHelper
-          .getDailyCompletedVehicles();
-
-      print('Dashboard: Found ${vehicles.length} vehicles');
-      print('Dashboard: Found ${transactions.length} transactions');
-      print('Dashboard: Daily transactions: ${dailyTransactions.length}');
-      print('Dashboard: Daily revenue: Rp ${dailyRevenue.toStringAsFixed(0)}');
-      print('Dashboard: Daily completed vehicles: $dailyCompletedVehicles');
-
-      // Debug: print vehicle details
-      for (var i = 0; i < vehicles.length; i++) {
-        print(
-          'Vehicle $i: ${vehicles[i].customerName} - ${vehicles[i].licensePlate} - Created: ${vehicles[i].createdAt}',
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            middle: Text('Dashboard'),
+            backgroundColor: CupertinoColors.darkBackgroundGray,
+          ),
+          child: SafeArea(child: Center(child: CupertinoActivityIndicator())),
         );
       }
 
-      // Urutkan kendaraan berdasarkan tanggal terbaru
-      final sortedVehicles = vehicles.toList();
-      sortedVehicles.sort((a, b) {
-        final comparison = b.createdAt.compareTo(a.createdAt);
-        print(
-          'Sorting: ${a.customerName} (${a.createdAt}) vs ${b.customerName} (${b.createdAt}) = $comparison',
-        );
-        return comparison;
-      });
-
-      // Urutkan transaksi berdasarkan tanggal terbaru
-      final sortedTransactions = transactions.toList();
-      sortedTransactions.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-      setState(() {
-        _vehicles = sortedVehicles;
-        _transactions = sortedTransactions;
-        _dailyTransactionCount = dailyTransactions.length;
-        _dailyRevenue = dailyRevenue;
-        _dailyCompletedVehicles = dailyCompletedVehicles;
-        _isLoading = false;
-      });
-
-      print(
-        'Dashboard: Data loaded and sorted. Showing ${_vehicles.length} vehicles',
-      );
-    } catch (e) {
-      print('Dashboard: Error loading data: $e');
-      setState(() {
-        _isLoading = false;
-      });
-      // Handle error
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const CupertinoPageScaffold(
+      return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: Text('Dashboard'),
+          leading: IconButton(
+            onPressed: () {
+              // Gunakan controller untuk membuka drawer
+              final mainController = Get.find<MainController>();
+              mainController.openDrawer();
+            },
+            icon: Icon(CupertinoIcons.bars),
+          ),
+          middle: const Text('Dashboard'),
           backgroundColor: CupertinoColors.darkBackgroundGray,
-        ),
-        child: SafeArea(child: Center(child: CupertinoActivityIndicator())),
-      );
-    }
-
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        leading: IconButton(
-          onPressed: () {
-            // Akses scaffold dari parent MaterialApp
-            final scaffoldState = Scaffold.maybeOf(context);
-            if (scaffoldState != null && scaffoldState.hasDrawer) {
-              scaffoldState.openDrawer();
-            }
-          },
-          icon: Icon(CupertinoIcons.bars),
-        ),
-        middle: const Text('Dashboard'),
-        backgroundColor: CupertinoColors.darkBackgroundGray,
-        border: const Border(
-          bottom: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              child: const Icon(
-                CupertinoIcons.refresh,
-                color: CupertinoColors.white,
-              ),
-              onPressed: _loadData,
-            ),
-          ],
-        ),
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          border: const Border(
+            bottom: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              _buildSummaryCards(),
-              const SizedBox(height: 24),
-              _buildRecentVehicles(),
-              const SizedBox(height: 24),
-              _buildRecentTransactions(),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: const Icon(
+                  CupertinoIcons.refresh,
+                  color: CupertinoColors.white,
+                ),
+                onPressed: controller.loadData,
+              ),
             ],
           ),
         ),
-      ),
-    );
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSummaryCards(controller),
+                const SizedBox(height: 24),
+                _buildRecentVehicles(controller),
+                const SizedBox(height: 24),
+                _buildRecentTransactions(controller),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
   }
 
-  Widget _buildSummaryCards() {
+  Widget _buildSummaryCards(DashboardController controller) {
     return Column(
       children: [
         Row(
@@ -175,7 +80,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Kendaraan Aktif',
-                '${_vehicles.where((vehicle) => vehicle.status != VehicleStatus.delivered).length}',
+                '${controller.activeVehiclesCount}',
                 CupertinoColors.systemBlue,
                 CupertinoIcons.car,
               ),
@@ -184,7 +89,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Pendapatan Hari Ini',
-                'Rp ${_dailyRevenue.toStringAsFixed(0)}',
+                'Rp ${controller.dailyRevenue.value.toStringAsFixed(0)}',
                 CupertinoColors.systemGreen,
                 CupertinoIcons.money_dollar,
               ),
@@ -197,7 +102,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Transaksi Hari Ini',
-                '${_dailyTransactionCount}',
+                '${controller.dailyTransactionCount.value}',
                 CupertinoColors.systemOrange,
                 CupertinoIcons.doc_text,
               ),
@@ -206,7 +111,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Selesai Hari Ini',
-                '${_dailyCompletedVehicles}',
+                '${controller.dailyCompletedVehicles.value}',
                 CupertinoColors.systemPurple,
                 CupertinoIcons.checkmark_seal,
               ),
@@ -267,7 +172,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildRecentVehicles() {
+  Widget _buildRecentVehicles(DashboardController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -280,15 +185,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        ListView.separated(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: _vehicles.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 8),
-          itemBuilder: (context, index) {
-            final vehicle = _vehicles[index];
-            return _buildVehicleCard(vehicle);
-          },
+        Obx(
+          () => ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: controller.vehicles.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 8),
+            itemBuilder: (context, index) {
+              final vehicle = controller.vehicles[index];
+              return _buildVehicleCard(vehicle);
+            },
+          ),
         ),
       ],
     );
@@ -367,7 +274,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildRecentTransactions() {
+  Widget _buildRecentTransactions(DashboardController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -380,15 +287,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        ListView.separated(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: _transactions.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 8),
-          itemBuilder: (context, index) {
-            final transaction = _transactions[index];
-            return _buildTransactionCard(transaction);
-          },
+        Obx(
+          () => ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: controller.transactions.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 8),
+            itemBuilder: (context, index) {
+              final transaction = controller.transactions[index];
+              return _buildTransactionCard(transaction);
+            },
+          ),
         ),
       ],
     );

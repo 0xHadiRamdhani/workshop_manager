@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../screens/migration_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   final int currentIndex;
@@ -192,14 +193,24 @@ class AppDrawer extends StatelessWidget {
         index: 10,
       ),
       _buildMenuItem(
-        icon: CupertinoIcons.info,
-        title: 'Tentang Aplikasi',
+        icon: CupertinoIcons.cloud,
+        title: 'Pengaturan Supabase',
         index: 11,
       ),
       _buildMenuItem(
         icon: CupertinoIcons.info,
-        title: 'Tentang Sekolah',
+        title: 'Tentang Aplikasi',
         index: 12,
+      ),
+      _buildMenuItem(
+        icon: CupertinoIcons.info,
+        title: 'Tentang Sekolah',
+        index: 13,
+      ),
+      _buildMenuItem(
+        icon: CupertinoIcons.arrow_up_circle,
+        title: 'Migrasi Data',
+        index: 14,
       ),
     ];
 

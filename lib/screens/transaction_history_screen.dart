@@ -1,124 +1,365 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controllers/transaction_controller.dart';
+import '../controllers/main_controller.dart';
 import '../models/transaction.dart';
-import '../database/database_helper.dart';
-import '../services/print_service.dart';
-import 'pdf_viewer_screen.dart';
 
-class TransactionHistoryScreen extends StatefulWidget {
+class TransactionHistoryScreen extends StatelessWidget {
   const TransactionHistoryScreen({super.key});
 
   @override
-  State<TransactionHistoryScreen> createState() =>
-      _TransactionHistoryScreenState();
-}
-
-class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
-  List<Transaction> _transactions = [];
-  final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTransactions();
-  }
-
-  Future<void> _loadTransactions() async {
-    try {
-      final transactions = await _databaseHelper.getTransactions();
-      setState(() {
-        _transactions = transactions;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      // Handle error
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final TransactionController controller = Get.put(TransactionController());
+
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: const Text('Histori Transaksi'),
+        leading: IconButton(
+          onPressed: () {
+            // Gunakan controller untuk membuka drawer
+            final mainController = Get.find<MainController>();
+            mainController.openDrawer();
+          },
+          icon: Icon(CupertinoIcons.bars),
+        ),
+        middle: const Text(
+          'Riwayat Transaksi',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: CupertinoColors.darkBackgroundGray,
         border: const Border(
           bottom: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
         ),
-        leading: IconButton(
-          onPressed: () {
-            // Akses scaffold dari parent MaterialApp
-            final scaffoldState = Scaffold.maybeOf(context);
-            if (scaffoldState != null && scaffoldState.hasDrawer) {
-              scaffoldState.openDrawer();
-            }
-          },
-          icon: Icon(CupertinoIcons.bars),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: Icon(
+                CupertinoIcons.refresh,
+                color: CupertinoColors.systemBlue,
+              ),
+              onPressed: controller.refreshTransactions,
+            ),
+          ],
         ),
       ),
       child: SafeArea(
-        child: _isLoading
-            ? const Center(child: CupertinoActivityIndicator())
-            : _transactions.isEmpty
-            ? const Center(
-                child: Text(
-                  'Belum ada transaksi',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: CupertinoColors.systemGrey,
-                  ),
-                ),
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: _transactions.length,
-                itemBuilder: (context, index) {
-                  final transaction = _transactions[index];
-                  return _buildTransactionCard(transaction);
-                },
-              ),
+        child: Column(
+          children: [
+            _buildSummarySection(controller),
+            _buildFilterSection(controller),
+            Expanded(child: _buildTransactionList(controller)),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildTransactionCard(Transaction transaction) {
+  Widget _buildSummarySection(TransactionController controller) {
+    return Obx(() {
+      final totalRevenue = controller.totalRevenue;
+      final totalTransactions = controller.totalTransactions;
+      final pendingCount = controller.pendingCount;
+      final completedCount = controller.completedCount;
+
+      return Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: CupertinoColors.darkBackgroundGray,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: CupertinoColors.systemGrey.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSummaryCard(
+                    'Total Pendapatan',
+                    'Rp ${totalRevenue.toStringAsFixed(0)}',
+                    CupertinoIcons.money_dollar,
+                    CupertinoColors.systemGreen,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildSummaryCard(
+                    'Total Transaksi',
+                    '$totalTransactions',
+                    CupertinoIcons.doc_text,
+                    CupertinoColors.systemBlue,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSummaryCard(
+                    'Pending',
+                    '$pendingCount',
+                    CupertinoIcons.clock,
+                    CupertinoColors.systemOrange,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildSummaryCard(
+                    'Selesai',
+                    '$completedCount',
+                    CupertinoIcons.checkmark_circle,
+                    CupertinoColors.systemGreen,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildSummaryCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: CupertinoColors.darkBackgroundGray,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: CupertinoColors.systemGrey.withOpacity(0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: color,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterSection(TransactionController controller) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: CupertinoColors.darkBackgroundGray,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Filter Transaksi',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          CupertinoTextField(
+            placeholder: 'Cari transaksi...',
+            prefix: const Icon(
+              CupertinoIcons.search,
+              color: CupertinoColors.systemGrey,
+            ),
+            decoration: BoxDecoration(
+              color: CupertinoColors.systemGrey5,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            onChanged: (value) => controller.searchQuery.value = value,
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 40,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _buildFilterChip('Semua', controller),
+                _buildFilterChip('Hari Ini', controller),
+                _buildFilterChip('Minggu Ini', controller),
+                _buildFilterChip('Bulan Ini', controller),
+                _buildFilterChip('Pending', controller),
+                _buildFilterChip('Lunas', controller),
+                _buildFilterChip('Dibatalkan', controller),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String filter, TransactionController controller) {
+    return Obx(() {
+      final isSelected = controller.selectedFilter.value == filter;
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: CupertinoButton(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          color: isSelected
+              ? CupertinoColors.systemBlue
+              : CupertinoColors.systemGrey5,
+          borderRadius: BorderRadius.circular(20),
+          child: Text(
+            filter,
+            style: TextStyle(
+              fontSize: 14,
+              color: isSelected ? CupertinoColors.white : CupertinoColors.black,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          onPressed: () => controller.selectedFilter.value = filter,
+        ),
+      );
+    });
+  }
+
+  Widget _buildTransactionList(TransactionController controller) {
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(child: CupertinoActivityIndicator());
+      }
+
+      final transactions = controller.filteredTransactions;
+
+      if (transactions.isEmpty) {
+        return const Center(
+          child: Text(
+            'Tidak ada data transaksi',
+            style: TextStyle(fontSize: 16, color: CupertinoColors.systemGrey),
+          ),
+        );
+      }
+
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: transactions.length,
+        itemBuilder: (context, index) {
+          final transaction = transactions[index];
+          return _buildTransactionCard(transaction, controller);
+        },
+      );
+    });
+  }
+
+  Widget _buildTransactionCard(
+    Transaction transaction,
+    TransactionController controller,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: CupertinoColors.darkBackgroundGray,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.systemGrey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: _getStatusColor(transaction.status).withOpacity(0.2),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        transaction.customerName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: CupertinoColors.white,
+                        ),
+                      ),
+                      Text(
+                        'ID: ${transaction.id}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                      Text(
+                        '${transaction.services.length} layanan',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      transaction.id,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: CupertinoColors.systemGrey,
-                        fontWeight: FontWeight.w500,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(transaction.status),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        controller.getStatusText(transaction.status),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: CupertinoColors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      transaction.customerName,
+                      'Rp ${transaction.totalAmount.toStringAsFixed(0)}',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -127,571 +368,113 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
                     ),
                   ],
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(transaction.status).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: _getStatusColor(transaction.status).withOpacity(0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  _getStatusText(transaction.status),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: _getStatusColor(transaction.status),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: CupertinoColors.darkBackgroundGray,
-              borderRadius: BorderRadius.circular(8),
+              ],
             ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    const Icon(
-                      CupertinoIcons.money_dollar,
-                      size: 14,
-                      color: CupertinoColors.systemGrey,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        'Rp ${transaction.totalAmount.toStringAsFixed(0)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: CupertinoColors.white,
-                        ),
-                      ),
-                    ),
-                  ],
+                _buildInfoRow(
+                  CupertinoIcons.money_dollar,
+                  'Metode: ${controller.getPaymentMethodText(transaction.paymentMethod)}',
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(
-                      CupertinoIcons.creditcard,
-                      size: 14,
-                      color: CupertinoColors.systemGrey,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        _getPaymentMethodText(transaction.paymentMethod),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: CupertinoColors.systemGrey,
-                        ),
-                      ),
-                    ),
-                  ],
+                _buildInfoRow(
+                  CupertinoIcons.clock,
+                  'Tanggal: ${_formatDate(transaction.createdAt)}',
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(
-                      CupertinoIcons.calendar,
-                      size: 14,
-                      color: CupertinoColors.systemGrey,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        _formatDate(transaction.createdAt),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: CupertinoColors.systemGrey,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (transaction.cashAmount != null) ...[
+                if (transaction.paidAt != null) ...[
                   const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(
-                        CupertinoIcons.money_dollar_circle,
-                        size: 14,
-                        color: CupertinoColors.systemGrey,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          'Cash: Rp ${transaction.cashAmount!.toStringAsFixed(0)}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: CupertinoColors.systemGrey,
-                          ),
-                        ),
-                      ),
-                    ],
+                  _buildInfoRow(
+                    CupertinoIcons.checkmark_circle,
+                    'Dibayar: ${_formatDate(transaction.paidAt!)}',
                   ),
                 ],
-                if (transaction.changeAmount != null) ...[
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(
-                        CupertinoIcons.arrow_right_arrow_left,
-                        size: 14,
-                        color: CupertinoColors.systemGrey,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          'Kembalian: Rp ${transaction.changeAmount!.toStringAsFixed(0)}',
-                          style: const TextStyle(
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CupertinoButton(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        color: CupertinoColors.systemBlue.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        child: const Text(
+                          'Detail',
+                          style: TextStyle(
                             fontSize: 14,
-                            color: CupertinoColors.systemGrey,
+                            color: CupertinoColors.systemBlue,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: CupertinoButton(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  color: CupertinoColors.systemBlue,
-                  borderRadius: BorderRadius.circular(8),
-                  child: const Text(
-                    'Lihat Detail',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: CupertinoColors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  onPressed: () => _showTransactionDetail(transaction),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: CupertinoButton(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  color: CupertinoColors.systemGreen,
-                  borderRadius: BorderRadius.circular(8),
-                  child: const Text(
-                    'Cetak Struk',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: CupertinoColors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  onPressed: () => _printReceipt(transaction),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Material(
-      type: MaterialType.transparency,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 80,
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: CupertinoColors.systemGrey,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: CupertinoColors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showTransactionDetail(Transaction transaction) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          color: CupertinoColors.darkBackgroundGray,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: Text(
-                      'Detail Transaksi',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: CupertinoColors.white,
+                        onPressed: () =>
+                            controller.navigateToTransactionDetail(transaction),
                       ),
                     ),
-                  ),
-                ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: const Icon(
-                    CupertinoIcons.xmark,
-                    color: CupertinoColors.white,
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildDetailRow('ID Transaksi', transaction.id),
-            _buildDetailRow('Pelanggan', transaction.customerName),
-            _buildDetailRow(
-              'Total',
-              'Rp ${transaction.totalAmount.toStringAsFixed(0)}',
-            ),
-            _buildDetailRow(
-              'Metode Bayar',
-              _getPaymentMethodText(transaction.paymentMethod),
-            ),
-            _buildDetailRow('Status', _getStatusText(transaction.status)),
-            _buildDetailRow('Tanggal', _formatDate(transaction.createdAt)),
-            if (transaction.cashAmount != null)
-              _buildDetailRow(
-                'Uang Cash',
-                'Rp ${transaction.cashAmount!.toStringAsFixed(0)}',
-              ),
-            if (transaction.changeAmount != null)
-              _buildDetailRow(
-                'Kembalian',
-                'Rp ${transaction.changeAmount!.toStringAsFixed(0)}',
-              ),
-            const SizedBox(height: 16),
-            Material(
-              type: MaterialType.transparency,
-              child: const Text(
-                'Item Transaksi:',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: CupertinoColors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: Material(
-                type: MaterialType.transparency,
-                child: ListView.builder(
-                  itemCount: transaction.services.length,
-                  itemBuilder: (context, index) {
-                    final service = transaction.services[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '${service.name} (${service.quantity}x)',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: CupertinoColors.white,
-                              ),
-                            ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: CupertinoButton(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        color: CupertinoColors.systemGreen,
+                        borderRadius: BorderRadius.circular(8),
+                        child: const Text(
+                          'Nota',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: CupertinoColors.white,
+                            fontWeight: FontWeight.w600,
                           ),
-                          Text(
-                            'Rp ${(service.price * service.quantity).toStringAsFixed(0)}',
-                            style: const TextStyle(
+                        ),
+                        onPressed: () =>
+                            controller.navigateToReceipt(transaction),
+                      ),
+                    ),
+                    if (transaction.status == TransactionStatus.pending) ...[
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: CupertinoButton(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          color: CupertinoColors.systemGreen,
+                          borderRadius: BorderRadius.circular(8),
+                          child: const Text(
+                            'Bayar',
+                            style: TextStyle(
                               fontSize: 14,
-                              color: CupertinoColors.systemBlue,
+                              color: CupertinoColors.white,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                        ],
+                          onPressed: () => controller.updateTransactionStatus(
+                            transaction,
+                            TransactionStatus.paid,
+                          ),
+                        ),
                       ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _printReceipt(Transaction transaction) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => Container(
-        height: 280,
-        padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          color: CupertinoColors.darkBackgroundGray,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: Text(
-                      'Cetak Struk',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: CupertinoColors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: const Icon(
-                    CupertinoIcons.xmark,
-                    color: CupertinoColors.white,
-                  ),
-                  onPressed: () => Navigator.pop(context),
+                    ],
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Material(
-              type: MaterialType.transparency,
-              child: Text(
-                'Pilih metode pencetakan:',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: CupertinoColors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: CupertinoButton(
-                        color: CupertinoColors.systemBlue,
-                        child: const Text(
-                          'Cetak via Bluetooth',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        onPressed: () => _printViaBluetooth(transaction),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: CupertinoButton(
-                        color: CupertinoColors.systemOrange,
-                        child: const Text(
-                          'Cetak via WiFi/Network',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        onPressed: () => _printViaWiFi(transaction),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: CupertinoButton(
-                        color: CupertinoColors.systemGreen,
-                        child: const Text(
-                          'Simpan sebagai PDF',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        onPressed: () => _generateAndSavePDF(transaction),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: CupertinoButton(
-                        color: CupertinoColors.systemGrey,
-                        child: const Text(
-                          'Batal',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _printViaBluetooth(Transaction transaction) async {
-    Navigator.pop(context); // Tutup dialog
-
-    try {
-      // Untuk sementara, gunakan simulasi pencetakan
-      // Implementasi thermal printer akan dilakukan di versi berikutnya
-      print('=== CETAK STRUK SIMULASI ===');
-      print('Bengkel Banimasum');
-      print('Jl. Cimanggu Kec. Cisalak Kab. Subang');
-      print('Telp: 0812-3456-7890');
-      print('--------------------------------');
-      print('ID Transaksi: ${transaction.id}');
-      print('Pelanggan: ${transaction.customerName}');
-      print('Tanggal: ${_formatDate(transaction.createdAt)}');
-      print('Metode: ${_getPaymentMethodText(transaction.paymentMethod)}');
-      print('--------------------------------');
-
-      for (var service in transaction.services) {
-        print(
-          '${service.name} (${service.quantity}x) Rp ${(service.price * service.quantity).toStringAsFixed(0)}',
-        );
-      }
-
-      print('--------------------------------');
-      print('Total: Rp ${transaction.totalAmount.toStringAsFixed(0)}');
-      if (transaction.cashAmount != null) {
-        print('Cash: Rp ${transaction.cashAmount!.toStringAsFixed(0)}');
-      }
-      if (transaction.changeAmount != null) {
-        print('Kembalian: Rp ${transaction.changeAmount!.toStringAsFixed(0)}');
-      }
-      print('=== END CETAK STRUK ===');
-
-      _showMessage('Struk berhasil dicetak (simulasi)');
-    } catch (e) {
-      _showMessage('Error: $e');
-    }
-  }
-
-  Future<void> _printViaWiFi(Transaction transaction) async {
-    Navigator.pop(context); // Tutup dialog
-
-    // Untuk sementara, WiFi printing belum diimplementasikan
-    _showMessage(
-      'Pencetakan via WiFi/Network belum tersedia. Silakan gunakan Bluetooth.',
-    );
-  }
-
-  Future<void> _generateAndSavePDF(Transaction transaction) async {
-    Navigator.pop(context); // Tutup dialog
-
-    try {
-      // Generate PDF menggunakan PrintService
-      final pdfPath = await PrintService.generateAndSaveReceiptPDF(
-        transaction: transaction,
-        workshopName: 'Workshop Manager',
-        workshopAddress: 'Jl. Workshop No. 123',
-        workshopPhone: '0812-3456-7890',
-      );
-
-      if (pdfPath != null) {
-        // Navigasi ke PDF viewer screen
-        Navigator.of(context).push(
-          CupertinoPageRoute(
-            builder: (context) => PDFViewerScreen(
-              pdfPath: pdfPath,
-              transactionId: transaction.id,
-            ),
-          ),
-        );
-      } else {
-        _showMessage('Gagal membuat PDF');
-      }
-    } catch (e) {
-      _showMessage('Error generating PDF: $e');
-    }
-  }
-
-  void _showMessage(String message) {
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Informasi'),
-        content: Text(message),
-        actions: [
-          CupertinoDialogAction(
-            child: const Text('OK'),
-            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
     );
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-  }
-
-  String _getPaymentMethodText(PaymentMethod method) {
-    switch (method) {
-      case PaymentMethod.cash:
-        return 'Tunai';
-      case PaymentMethod.transfer:
-        return 'Transfer Bank';
-      case PaymentMethod.card:
-        return 'Kartu Debit/Kredit';
-      case PaymentMethod.debt:
-        return 'Hutang';
-    }
-  }
-
-  String _getStatusText(TransactionStatus status) {
-    switch (status) {
-      case TransactionStatus.pending:
-        return 'Pending';
-      case TransactionStatus.paid:
-        return 'Lunas';
-      case TransactionStatus.cancelled:
-        return 'Dibatalkan';
-    }
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: CupertinoColors.systemGrey),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 14, color: CupertinoColors.white),
+          ),
+        ),
+      ],
+    );
   }
 
   Color _getStatusColor(TransactionStatus status) {
@@ -703,5 +486,9 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
       case TransactionStatus.cancelled:
         return CupertinoColors.systemRed;
     }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
 }

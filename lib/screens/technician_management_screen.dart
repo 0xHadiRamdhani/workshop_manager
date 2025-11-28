@@ -1,218 +1,235 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controllers/technician_controller.dart';
+import '../controllers/main_controller.dart';
 import '../models/technician.dart';
-import '../database/database_helper.dart';
-import 'add_technician_screen.dart';
 
-class TechnicianManagementScreen extends StatefulWidget {
+class TechnicianManagementScreen extends StatelessWidget {
   const TechnicianManagementScreen({super.key});
 
   @override
-  State<TechnicianManagementScreen> createState() =>
-      _TechnicianManagementScreenState();
-}
-
-class _TechnicianManagementScreenState
-    extends State<TechnicianManagementScreen> {
-  List<Technician> _technicians = [];
-  final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTechnicians();
-  }
-
-  Future<void> _loadTechnicians() async {
-    try {
-      final technicians = await _databaseHelper.getTechnicians();
-      setState(() {
-        _technicians = technicians;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      _showErrorDialog('Error loading technicians: $e');
-    }
-  }
-
-  void _showErrorDialog(String message) {
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            child: const Text('OK'),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text('Manajemen Teknisi'),
-          backgroundColor: CupertinoColors.darkBackgroundGray,
-        ),
-        child: SafeArea(child: Center(child: CupertinoActivityIndicator())),
-      );
-    }
+    final TechnicianController controller = Get.put(TechnicianController());
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         leading: IconButton(
           onPressed: () {
-            // Akses scaffold dari parent MaterialApp
-            final scaffoldState = Scaffold.maybeOf(context);
-            if (scaffoldState != null && scaffoldState.hasDrawer) {
-              scaffoldState.openDrawer();
-            }
+            // Gunakan controller untuk membuka drawer
+            final mainController = Get.find<MainController>();
+            mainController.openDrawer();
           },
           icon: Icon(CupertinoIcons.bars),
         ),
-        middle: const Text('Manajemen Teknisi'),
+        middle: const Text(
+          'Manajemen Teknisi',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: CupertinoColors.darkBackgroundGray,
         border: const Border(
           bottom: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
         ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(
-            CupertinoIcons.add,
-            color: CupertinoColors.systemBlue,
-          ),
-          onPressed: _showAddTechnicianDialog,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: Icon(
+                CupertinoIcons.refresh,
+                color: CupertinoColors.systemBlue,
+              ),
+              onPressed: controller.refreshTechnicians,
+            ),
+            const SizedBox(width: 8),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: Icon(
+                CupertinoIcons.add,
+                color: CupertinoColors.systemBlue,
+              ),
+              onPressed: controller.navigateToAddTechnician,
+            ),
+          ],
         ),
       ),
       child: SafeArea(
         child: Column(
           children: [
-            _buildSummaryCards(),
-            Expanded(child: _buildTechnicianList()),
+            _buildSummarySection(controller),
+            _buildFilterSection(controller),
+            Expanded(child: _buildTechnicianList(controller)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSummaryCards() {
-    final activeTechnicians = _technicians
-        .where((t) => t.status == TechnicianStatus.active)
-        .length;
-    final totalServices = _technicians.fold(
-      0,
-      (sum, t) => sum + t.totalServices,
-    );
-    final avgRating = _technicians.isEmpty
-        ? 0.0
-        : _technicians.map((t) => t.rating).reduce((a, b) => a + b) /
-              _technicians.length;
+  Widget _buildSummarySection(TechnicianController controller) {
+    return Obx(() {
+      final metrics = controller.getPerformanceMetrics();
+      final totalTechnicians = controller.totalTechnicians;
+      final activeTechnicians = controller.activeTechnicians;
+      final inactiveTechnicians = controller.inactiveTechnicians;
+      final averageRating = controller.averageRating;
 
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryCard(
-                  'Teknisi Aktif',
-                  '$activeTechnicians',
-                  CupertinoColors.systemBlue,
-                  CupertinoIcons.person_2,
+      return Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: CupertinoColors.darkBackgroundGray,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: CupertinoColors.systemGrey.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSummaryCard(
+                    'Total Teknisi',
+                    '$totalTechnicians',
+                    CupertinoIcons.person_2,
+                    CupertinoColors.systemBlue,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildSummaryCard(
-                  'Total Servis',
-                  '$totalServices',
-                  CupertinoColors.systemGreen,
-                  CupertinoIcons.wrench,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildSummaryCard(
+                    'Aktif',
+                    '$activeTechnicians',
+                    CupertinoIcons.checkmark_circle,
+                    CupertinoColors.systemGreen,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSummaryCard(
+                    'Tidak Aktif',
+                    '$inactiveTechnicians',
+                    CupertinoIcons.xmark_circle,
+                    CupertinoColors.systemRed,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildSummaryCard(
+                    'Rating Rata-rata',
+                    averageRating.toStringAsFixed(1),
+                    CupertinoIcons.star,
+                    CupertinoColors.systemYellow,
+                  ),
+                ),
+              ],
+            ),
+            if (metrics['topPerformer'] != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: CupertinoColors.systemYellow.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: CupertinoColors.systemYellow.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.star_fill,
+                      color: CupertinoColors.systemYellow,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Top Performer',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: CupertinoColors.systemYellow,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            (metrics['topPerformer'] as Technician).name,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: CupertinoColors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      '${(metrics['topPerformer'] as Technician).rating}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: CupertinoColors.systemYellow,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryCard(
-                  'Rating Rata-rata',
-                  avgRating.toStringAsFixed(1),
-                  CupertinoColors.systemOrange,
-                  CupertinoIcons.star,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildSummaryCard(
-                  'Total Teknisi',
-                  '${_technicians.length}',
-                  CupertinoColors.systemPurple,
-                  CupertinoIcons.group,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildSummaryCard(
     String title,
     String value,
-    Color color,
     IconData icon,
+    Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: CupertinoColors.darkBackgroundGray,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 4),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: CupertinoColors.systemGrey,
+                  color: color,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
             value,
             style: TextStyle(
-              fontSize: 20,
-              color: color,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
+              color: color,
             ),
           ),
         ],
@@ -220,117 +237,199 @@ class _TechnicianManagementScreenState
     );
   }
 
-  Widget _buildTechnicianList() {
-    if (_technicians.isEmpty) {
-      return const Center(
-        child: Text(
-          'Belum ada teknisi terdaftar',
-          style: TextStyle(fontSize: 16, color: CupertinoColors.systemGrey),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _technicians.length,
-      itemBuilder: (context, index) {
-        final technician = _technicians[index];
-        return _buildTechnicianCard(technician);
-      },
-    );
-  }
-
-  Widget _buildTechnicianCard(Technician technician) {
+  Widget _buildFilterSection(TechnicianController controller) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: CupertinoColors.darkBackgroundGray,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: technician.statusColor.withOpacity(0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          const Text(
+            'Filter Teknisi',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: CupertinoColors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          CupertinoTextField(
+            placeholder: 'Cari teknisi...',
+            prefix: const Icon(
+              CupertinoIcons.search,
+              color: CupertinoColors.systemGrey,
+            ),
+            decoration: BoxDecoration(
+              color: CupertinoColors.systemGrey5,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            onChanged: (value) => controller.searchQuery.value = value,
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 40,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _buildFilterChip('Semua', controller),
+                _buildFilterChip('Aktif', controller),
+                _buildFilterChip('Tidak Aktif', controller),
+                _buildFilterChip('Cuti', controller),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String filter, TechnicianController controller) {
+    return Obx(() {
+      final isSelected = controller.selectedFilter.value == filter;
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: CupertinoButton(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          color: isSelected
+              ? CupertinoColors.systemBlue
+              : CupertinoColors.systemGrey5,
+          borderRadius: BorderRadius.circular(20),
+          child: Text(
+            filter,
+            style: TextStyle(
+              fontSize: 14,
+              color: isSelected ? CupertinoColors.white : CupertinoColors.black,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          onPressed: () => controller.selectedFilter.value = filter,
+        ),
+      );
+    });
+  }
+
+  Widget _buildTechnicianList(TechnicianController controller) {
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(child: CupertinoActivityIndicator());
+      }
+
+      final technicians = controller.filteredTechnicians;
+
+      if (technicians.isEmpty) {
+        return const Center(
+          child: Text(
+            'Tidak ada data teknisi',
+            style: TextStyle(fontSize: 16, color: CupertinoColors.systemGrey),
+          ),
+        );
+      }
+
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: technicians.length,
+        itemBuilder: (context, index) {
+          final technician = technicians[index];
+          return _buildTechnicianCard(technician, controller);
+        },
+      );
+    });
+  }
+
+  Widget _buildTechnicianCard(
+    Technician technician,
+    TechnicianController controller,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: CupertinoColors.darkBackgroundGray,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: CupertinoColors.systemGrey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: _getStatusColor(technician.status).withOpacity(0.2),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        technician.name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: CupertinoColors.white,
+                        ),
+                      ),
+                      Text(
+                        technician.specialization ?? 'Tidak ada spesialisasi',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                      Text(
+                        '${technician.experienceYears} tahun pengalaman',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      technician.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: CupertinoColors.white,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(technician.status),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        controller.getStatusText(technician.status),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: CupertinoColors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      technician.specialization,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: CupertinoColors.systemGrey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: technician.statusColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: technician.statusColor.withOpacity(0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Text(
-                  technician.statusText,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: technician.statusColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Rating',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: CupertinoColors.systemGrey,
-                      ),
-                    ),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           CupertinoIcons.star_fill,
+                          size: 14,
                           color: CupertinoColors.systemYellow,
-                          size: 16,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          technician.rating.toStringAsFixed(1),
+                          '${technician.rating}',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -341,201 +440,132 @@ class _TechnicianManagementScreenState
                     ),
                   ],
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoRow(CupertinoIcons.phone, technician.phone),
+                const SizedBox(height: 8),
+                if (technician.email != null)
+                  _buildInfoRow(CupertinoIcons.mail, technician.email!),
+                const SizedBox(height: 8),
+                _buildInfoRow(
+                  CupertinoIcons.wrench,
+                  '${technician.totalServices} layanan selesai',
+                ),
+                const SizedBox(height: 8),
+                _buildInfoRow(
+                  CupertinoIcons.money_dollar,
+                  'Gaji: ${controller.getSalaryTypeText(technician.salaryType ?? SalaryType.daily)} - Rp ${technician.salaryAmount?.toStringAsFixed(0) ?? '0'}',
+                ),
+                const SizedBox(height: 16),
+                Row(
                   children: [
-                    const Text(
-                      'Servis Selesai',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: CupertinoColors.systemGrey,
+                    Expanded(
+                      child: CupertinoButton(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        color: CupertinoColors.systemBlue.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        child: const Text(
+                          'Detail',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: CupertinoColors.systemBlue,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onPressed: () =>
+                            controller.navigateToTechnicianDetail(technician),
                       ),
                     ),
-                    Text(
-                      '${technician.totalServices}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: CupertinoColors.white,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: CupertinoButton(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        color: CupertinoColors.systemOrange,
+                        borderRadius: BorderRadius.circular(8),
+                        child: const Text(
+                          'Edit',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: CupertinoColors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        onPressed: () =>
+                            controller.navigateToEditTechnician(technician),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: CupertinoButton(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        color: CupertinoColors.systemRed,
+                        borderRadius: BorderRadius.circular(8),
+                        child: const Text(
+                          'Hapus',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: CupertinoColors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        onPressed: () =>
+                            _showDeleteConfirmation(technician, controller),
                       ),
                     ),
                   ],
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Gaji',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: CupertinoColors.systemGrey,
+                if (technician.status == TechnicianStatus.active) ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      color: CupertinoColors.systemOrange,
+                      borderRadius: BorderRadius.circular(8),
+                      child: const Text(
+                        'Nonaktifkan',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: CupertinoColors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Rp ${technician.salaryAmount?.toStringAsFixed(0) ?? '0'}/${technician.salaryTypeText}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: CupertinoColors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: CupertinoButton(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  color: CupertinoColors.systemGrey5,
-                  borderRadius: BorderRadius.circular(8),
-                  child: const Text(
-                    'Detail',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: CupertinoColors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  onPressed: () => _showTechnicianDetail(technician),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: CupertinoButton(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  color: technician.status == TechnicianStatus.active
-                      ? CupertinoColors.systemOrange
-                      : CupertinoColors.systemGreen,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Text(
-                    technician.status == TechnicianStatus.active
-                        ? 'Nonaktifkan'
-                        : 'Aktifkan',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: CupertinoColors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  onPressed: () => _toggleTechnicianStatus(technician),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddTechnicianDialog() {
-    Navigator.of(context)
-        .push(
-          CupertinoPageRoute(builder: (context) => const AddTechnicianScreen()),
-        )
-        .then((_) {
-          _loadTechnicians();
-        });
-  }
-
-  void _showTechnicianDetail(Technician technician) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          color: CupertinoColors.darkBackgroundGray,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: Material(
-          type: MaterialType.transparency,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Detail Teknisi',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: CupertinoColors.white,
+                      onPressed: () => controller.updateTechnicianStatus(
+                        technician,
+                        TechnicianStatus.inactive,
                       ),
                     ),
                   ),
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    child: const Icon(
-                      CupertinoIcons.xmark,
-                      color: CupertinoColors.white,
+                ] else ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      color: CupertinoColors.systemGreen,
+                      borderRadius: BorderRadius.circular(8),
+                      child: const Text(
+                        'Aktifkan',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: CupertinoColors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      onPressed: () => controller.updateTechnicianStatus(
+                        technician,
+                        TechnicianStatus.active,
+                      ),
                     ),
-                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
-              ),
-              const SizedBox(height: 16),
-              _buildDetailItem('Nama', technician.name),
-              _buildDetailItem('Telepon', technician.phone),
-              if (technician.email != null)
-                _buildDetailItem('Email', technician.email!),
-              _buildDetailItem('Spesialisasi', technician.specialization),
-              _buildDetailItem(
-                'Pengalaman',
-                '${technician.experienceYears} tahun',
-              ),
-              _buildDetailItem(
-                'Status',
-                technician.statusText,
-                color: technician.statusColor,
-              ),
-              _buildDetailItem(
-                'Rating',
-                '${technician.rating.toStringAsFixed(1)} / 5.0',
-              ),
-              _buildDetailItem(
-                'Total Servis',
-                '${technician.totalServices} kendaraan',
-              ),
-              _buildDetailItem('Tipe Gaji', technician.salaryTypeText),
-              _buildDetailItem(
-                'Jumlah Gaji',
-                'Rp ${technician.salaryAmount?.toStringAsFixed(0) ?? '0'}',
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailItem(String label, String value, {Color? color}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: CupertinoColors.systemGrey,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              color: color ?? CupertinoColors.white,
-              fontWeight: FontWeight.w500,
+              ],
             ),
           ),
         ],
@@ -543,18 +573,55 @@ class _TechnicianManagementScreenState
     );
   }
 
-  void _toggleTechnicianStatus(Technician technician) async {
-    final newStatus = technician.status == TechnicianStatus.active
-        ? TechnicianStatus.inactive
-        : TechnicianStatus.active;
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: CupertinoColors.systemGrey),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 14, color: CupertinoColors.white),
+          ),
+        ),
+      ],
+    );
+  }
 
-    final updatedTechnician = technician.copyWith(status: newStatus);
+  void _showDeleteConfirmation(
+    Technician technician,
+    TechnicianController controller,
+  ) {
+    Get.dialog(
+      CupertinoAlertDialog(
+        title: const Text('Hapus Teknisi'),
+        content: Text('Yakin ingin menghapus teknisi ${technician.name}?'),
+        actions: [
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Get.back();
+              controller.deleteTechnician(technician);
+            },
+            child: const Text('Hapus'),
+          ),
+          CupertinoDialogAction(
+            onPressed: () => Get.back(),
+            child: const Text('Batal'),
+          ),
+        ],
+      ),
+    );
+  }
 
-    try {
-      await _databaseHelper.updateTechnician(updatedTechnician);
-      _loadTechnicians();
-    } catch (e) {
-      _showErrorDialog('Gagal update status teknisi: $e');
+  Color _getStatusColor(TechnicianStatus status) {
+    switch (status) {
+      case TechnicianStatus.active:
+        return CupertinoColors.systemGreen;
+      case TechnicianStatus.inactive:
+        return CupertinoColors.systemRed;
+      case TechnicianStatus.onLeave:
+        return CupertinoColors.systemOrange;
     }
   }
 }

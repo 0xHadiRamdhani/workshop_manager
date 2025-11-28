@@ -197,7 +197,10 @@ class _DebtManagementScreenState extends State<DebtManagementScreen> {
     if (_isLoading) {
       return const CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: Text('Manajemen Hutang'),
+          middle: Text(
+            'Manajemen Hutang',
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: CupertinoColors.darkBackgroundGray,
         ),
         child: SafeArea(child: Center(child: CupertinoActivityIndicator())),

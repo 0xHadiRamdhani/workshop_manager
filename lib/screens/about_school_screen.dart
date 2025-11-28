@@ -226,7 +226,10 @@ class _AboutSchoolScreenState extends State<AboutSchoolScreen> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: const Text('Tentang Sekolah'),
+        middle: const Text(
+          'Tentang Sekolah',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: CupertinoColors.darkBackgroundGray,
         border: const Border(
           bottom: BorderSide(color: CupertinoColors.systemGrey4, width: 0.5),
